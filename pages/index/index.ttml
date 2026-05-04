@@ -9,7 +9,7 @@
     <view class="now-label">当前播放</view>
     <view class="now-title">{{currentSoundTitle}}</view>
     <view class="now-meta">
-      <text class="pill">{{currentSoundCategory || "未选择"}}</text>
+      <text class="pill">{{currentSoundCategoryText}}</text>
       <text class="pill">{{playbackText}}</text>
       <text class="pill">{{remainingText}}</text>
     </view>
@@ -64,7 +64,7 @@
         <button
           tt:for="{{timerOptions}}"
           tt:key="minutes"
-          class="timer-chip {{selectedTimerMinutes === item.minutes ? 'timer-chip-active' : ''}}"
+          class="timer-chip {{item.isActive ? 'timer-chip-active' : ''}}"
           data-minutes="{{item.minutes}}"
           bindtap="handleTimerTap"
         >

@@ -38,7 +38,6 @@
   border-radius: 32rpx;
   background: rgba(255, 255, 255, 0.08);
   box-shadow: 0 24rpx 80rpx rgba(0, 0, 0, 0.22);
-  backdrop-filter: blur(12rpx);
 }
 
 .now-card {
@@ -54,17 +53,18 @@
   margin-top: 14rpx;
   color: #ffffff;
   font-size: 42rpx;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .now-meta {
   display: flex;
   flex-wrap: wrap;
-  gap: 12rpx;
   margin-top: 20rpx;
 }
 
 .pill {
+  display: inline-flex;
+  margin: 0 12rpx 12rpx 0;
   padding: 10rpx 18rpx;
   border-radius: 999rpx;
   background: rgba(143, 183, 255, 0.16);
@@ -87,7 +87,7 @@
 .group-title {
   color: #f7fbff;
   font-size: 34rpx;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .group-subtitle {
@@ -97,14 +97,16 @@
 }
 
 .sound-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 18rpx;
+  display: flex;
+  flex-wrap: wrap;
+  margin: -9rpx;
 }
 
 .sound-card {
+  width: calc(50% - 18rpx);
   min-height: 156rpx;
   box-sizing: border-box;
+  margin: 9rpx;
   padding: 24rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.08);
   border-radius: 28rpx;
@@ -119,7 +121,7 @@
 .sound-title {
   color: #ffffff;
   font-size: 30rpx;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .sound-desc {
@@ -166,7 +168,7 @@
 .timer-title {
   color: #f7fbff;
   font-size: 30rpx;
-  font-weight: 650;
+  font-weight: 600;
 }
 
 .loop-desc {
@@ -182,12 +184,14 @@
 .timer-options {
   display: flex;
   flex-wrap: wrap;
-  gap: 14rpx;
   margin-top: 18rpx;
+  margin-right: -14rpx;
+  margin-bottom: -14rpx;
 }
 
 .timer-chip {
   min-width: 128rpx;
+  margin: 0 14rpx 14rpx 0;
   padding: 18rpx 22rpx;
   border-radius: 999rpx;
   background: rgba(255, 255, 255, 0.08);
