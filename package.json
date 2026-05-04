@@ -1,0 +1,9 @@
+{
+  "name": "douyin-sleep-sounds",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "node --test tests",
+    "check": "node --check app.js && node --check pages/index/index.js && node --check utils/timer.js && node --check utils/playbackState.js && node --check services/soundSourceService.js"
+  }
+}
