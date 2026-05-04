@@ -1,4 +1,5 @@
-const DEMO_AUDIO_URL = "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3";
+const MOCK_AUDIO_HOST = "sf1-ttcdn-tos.pstatp.com";
+const DEMO_AUDIO_URL = `https://${MOCK_AUDIO_HOST}/obj/developer/sdk/0000-0001.mp3`;
 
 const soundGroups = [
   {
@@ -73,5 +74,6 @@ const soundGroups = [
 ];
 
 module.exports = {
+  MOCK_AUDIO_HOST,
   soundGroups
 };

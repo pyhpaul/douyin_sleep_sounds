@@ -1,6 +1,6 @@
 const { soundGroups } = require("../data/sounds");
 
-function getSoundGroups() {
+async function getSoundGroups() {
   return soundGroups.map((group) => ({
     ...group,
     sounds: group.sounds.map((sound) => ({ ...sound }))
