@@ -66,6 +66,18 @@ Page({
     this.loadInitialState(this.loadVersion);
   },
 
+  onShow() {
+    if (!this.isUnloaded) {
+      this.syncTimerFromStorage();
+    }
+  },
+
+  onHide() {
+    if (this.timerEndAt) {
+      this.writeStorage(STORAGE_KEYS.TIMER_END_AT, this.timerEndAt);
+    }
+  },
+
   onUnload() {
     this.isUnloaded = true;
     this.clearTimerTicker();
@@ -97,26 +109,7 @@ Page({
     const storedSoundId = this.readStorage(STORAGE_KEYS.CURRENT_SOUND_ID, "");
     const currentSoundId = selectInitialSoundId(this.rawSoundGroups, storedSoundId);
     const isLooping = Boolean(this.readStorage(STORAGE_KEYS.IS_LOOPING, false));
-    const selectedTimerMinutes = Number(this.readStorage(STORAGE_KEYS.TIMER_MINUTES, 0)) || 0;
-    const storedTimerEndAt = Number(this.readStorage(STORAGE_KEYS.TIMER_END_AT, 0)) || 0;
-    const now = Date.now();
-    let nextTimerMinutes = selectedTimerMinutes;
-    let remainingText = DEFAULT_REMAINING_TEXT;
-
-    if (storedTimerEndAt > now) {
-      this.timerEndAt = storedTimerEndAt;
-      remainingText = formatRemaining(storedTimerEndAt, now);
-    } else {
-      this.timerEndAt = 0;
-      nextTimerMinutes = 0;
-
-      if (storedTimerEndAt || selectedTimerMinutes > 0) {
-        this.clearStoredTimer();
-      }
-      if (storedTimerEndAt) {
-        this.stopAudioForTimerEnd();
-      }
-    }
+    const timerState = this.settleStoredTimer(Date.now());
 
     if (!this.isPageActive(loadVersion)) {
       return;
@@ -125,17 +118,68 @@ Page({
     this.refreshView({
       currentSoundId,
       isLooping,
-      selectedTimerMinutes: nextTimerMinutes,
-      remainingText
+      isPlaying: timerState.isExpired ? false : this.data.isPlaying,
+      selectedTimerMinutes: timerState.selectedTimerMinutes,
+      remainingText: timerState.remainingText
     });
 
-    if (this.timerEndAt) {
+    if (timerState.isActive) {
       this.startTimerTicker();
     }
   },
 
   isPageActive(loadVersion) {
     return !this.isUnloaded && this.loadVersion === loadVersion;
+  },
+
+  syncTimerFromStorage() {
+    const timerState = this.settleStoredTimer(Date.now());
+
+    if (timerState.isActive) {
+      this.refreshView({
+        selectedTimerMinutes: timerState.selectedTimerMinutes,
+        remainingText: timerState.remainingText
+      });
+      this.startTimerTicker();
+      return;
+    }
+
+    this.clearTimerTicker();
+    this.refreshView({
+      isPlaying: timerState.isExpired ? false : this.data.isPlaying,
+      selectedTimerMinutes: 0,
+      remainingText: DEFAULT_REMAINING_TEXT
+    });
+  },
+
+  settleStoredTimer(now) {
+    const selectedTimerMinutes = Number(this.readStorage(STORAGE_KEYS.TIMER_MINUTES, 0)) || 0;
+    const storedTimerEndAt = Number(this.readStorage(STORAGE_KEYS.TIMER_END_AT, 0)) || 0;
+
+    if (storedTimerEndAt > now) {
+      this.timerEndAt = storedTimerEndAt;
+      return {
+        isActive: true,
+        isExpired: false,
+        selectedTimerMinutes,
+        remainingText: formatRemaining(storedTimerEndAt, now)
+      };
+    }
+
+    this.timerEndAt = 0;
+    if (storedTimerEndAt || selectedTimerMinutes > 0) {
+      this.clearStoredTimer();
+    }
+    if (storedTimerEndAt) {
+      this.stopAudioForTimerEnd();
+    }
+
+    return {
+      isActive: false,
+      isExpired: Boolean(storedTimerEndAt),
+      selectedTimerMinutes: 0,
+      remainingText: DEFAULT_REMAINING_TEXT
+    };
   },
 
   initAudioManager() {
