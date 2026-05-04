@@ -1,0 +1,209 @@
+.page {
+  min-height: 100vh;
+  box-sizing: border-box;
+  padding: 48rpx 32rpx 64rpx;
+  background:
+    radial-gradient(circle at 20% 0%, rgba(89, 126, 255, 0.24), transparent 34%),
+    radial-gradient(circle at 90% 12%, rgba(114, 210, 255, 0.16), transparent 30%),
+    linear-gradient(180deg, #07111f 0%, #0c1728 52%, #080d17 100%);
+}
+
+.hero {
+  margin-bottom: 32rpx;
+}
+
+.eyebrow {
+  margin-bottom: 12rpx;
+  color: #8fb7ff;
+  font-size: 22rpx;
+  letter-spacing: 4rpx;
+}
+
+.title {
+  color: #f7fbff;
+  font-size: 56rpx;
+  font-weight: 700;
+}
+
+.subtitle {
+  margin-top: 10rpx;
+  color: rgba(247, 251, 255, 0.66);
+  font-size: 28rpx;
+}
+
+.now-card,
+.empty-card,
+.controls {
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+  border-radius: 32rpx;
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24rpx 80rpx rgba(0, 0, 0, 0.22);
+  backdrop-filter: blur(12rpx);
+}
+
+.now-card {
+  padding: 32rpx;
+}
+
+.now-label {
+  color: rgba(247, 251, 255, 0.56);
+  font-size: 24rpx;
+}
+
+.now-title {
+  margin-top: 14rpx;
+  color: #ffffff;
+  font-size: 42rpx;
+  font-weight: 650;
+}
+
+.now-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+  margin-top: 20rpx;
+}
+
+.pill {
+  padding: 10rpx 18rpx;
+  border-radius: 999rpx;
+  background: rgba(143, 183, 255, 0.16);
+  color: #d9e6ff;
+  font-size: 24rpx;
+}
+
+.sound-list {
+  margin-top: 36rpx;
+}
+
+.sound-group {
+  margin-top: 36rpx;
+}
+
+.group-header {
+  margin-bottom: 18rpx;
+}
+
+.group-title {
+  color: #f7fbff;
+  font-size: 34rpx;
+  font-weight: 650;
+}
+
+.group-subtitle {
+  margin-top: 6rpx;
+  color: rgba(247, 251, 255, 0.56);
+  font-size: 24rpx;
+}
+
+.sound-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18rpx;
+}
+
+.sound-card {
+  min-height: 156rpx;
+  box-sizing: border-box;
+  padding: 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.sound-card-active {
+  border-color: rgba(143, 183, 255, 0.88);
+  background: linear-gradient(135deg, rgba(143, 183, 255, 0.32), rgba(83, 118, 211, 0.18));
+}
+
+.sound-title {
+  color: #ffffff;
+  font-size: 30rpx;
+  font-weight: 650;
+}
+
+.sound-desc {
+  margin-top: 12rpx;
+  color: rgba(247, 251, 255, 0.58);
+  font-size: 23rpx;
+  line-height: 1.45;
+}
+
+.empty-card {
+  margin-top: 36rpx;
+  padding: 40rpx;
+  color: rgba(247, 251, 255, 0.72);
+  text-align: center;
+}
+
+.controls {
+  margin-top: 42rpx;
+  padding: 28rpx;
+}
+
+.primary-control {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 96rpx;
+  border-radius: 999rpx;
+  background: linear-gradient(135deg, #8fb7ff, #6178ff);
+  color: #08111f;
+  font-size: 32rpx;
+  font-weight: 700;
+}
+
+.loop-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 30rpx;
+  padding: 8rpx 4rpx;
+}
+
+.loop-title,
+.timer-title {
+  color: #f7fbff;
+  font-size: 30rpx;
+  font-weight: 650;
+}
+
+.loop-desc {
+  margin-top: 8rpx;
+  color: rgba(247, 251, 255, 0.52);
+  font-size: 24rpx;
+}
+
+.timer-section {
+  margin-top: 30rpx;
+}
+
+.timer-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14rpx;
+  margin-top: 18rpx;
+}
+
+.timer-chip {
+  min-width: 128rpx;
+  padding: 18rpx 22rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(247, 251, 255, 0.72);
+  font-size: 25rpx;
+}
+
+.timer-chip-active {
+  background: rgba(143, 183, 255, 0.24);
+  color: #ffffff;
+}
+
+.footer-note {
+  margin-top: 32rpx;
+  color: rgba(247, 251, 255, 0.42);
+  font-size: 22rpx;
+  line-height: 1.5;
+  text-align: center;
+}

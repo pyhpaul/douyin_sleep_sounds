@@ -1,0 +1,80 @@
+<view class="page">
+  <view class="hero">
+    <view class="eyebrow">SLEEP SOUNDS</view>
+    <view class="title">晚安声音</view>
+    <view class="subtitle">选择一段声音，慢慢入睡</view>
+  </view>
+
+  <view class="now-card">
+    <view class="now-label">当前播放</view>
+    <view class="now-title">{{currentSoundTitle}}</view>
+    <view class="now-meta">
+      <text class="pill">{{currentSoundCategory || "未选择"}}</text>
+      <text class="pill">{{playbackText}}</text>
+      <text class="pill">{{remainingText}}</text>
+    </view>
+  </view>
+
+  <view tt:if="{{hasSounds}}" class="sound-list">
+    <view
+      tt:for="{{soundGroups}}"
+      tt:for-item="group"
+      tt:key="id"
+      class="sound-group"
+    >
+      <view class="group-header">
+        <view class="group-title">{{group.title}}</view>
+        <view class="group-subtitle">{{group.subtitle}}</view>
+      </view>
+
+      <view class="sound-grid">
+        <view
+          tt:for="{{group.sounds}}"
+          tt:for-item="sound"
+          tt:key="id"
+          class="sound-card {{sound.isActive ? 'sound-card-active' : ''}}"
+          data-id="{{sound.id}}"
+          bindtap="handleSoundTap"
+        >
+          <view class="sound-title">{{sound.title}}</view>
+          <view class="sound-desc">{{sound.description}}</view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view tt:else class="empty-card">暂无可播放声音</view>
+
+  <view class="controls">
+    <button class="primary-control" bindtap="handlePlayToggle">
+      {{isPlaying ? "暂停" : "播放"}}
+    </button>
+
+    <view class="loop-row">
+      <view>
+        <view class="loop-title">循环播放</view>
+        <view class="loop-desc">开启后当前声音结束会自动重播</view>
+      </view>
+      <switch checked="{{isLooping}}" bindchange="handleLoopChange" color="#8fb7ff" />
+    </view>
+
+    <view class="timer-section">
+      <view class="timer-title">定时停止</view>
+      <view class="timer-options">
+        <button
+          tt:for="{{timerOptions}}"
+          tt:key="minutes"
+          class="timer-chip {{selectedTimerMinutes === item.minutes ? 'timer-chip-active' : ''}}"
+          data-minutes="{{item.minutes}}"
+          bindtap="handleTimerTap"
+        >
+          {{item.label}}
+        </button>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer-note">
+    当前声音源来自本地配置；上线前请替换为授权音频资源。
+  </view>
+</view>
