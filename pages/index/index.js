@@ -15,7 +15,8 @@ const {
 const STORAGE_KEYS = {
   CURRENT_SOUND_ID: "sleepSounds.currentSoundId",
   IS_LOOPING: "sleepSounds.isLooping",
-  TIMER_MINUTES: "sleepSounds.timerMinutes"
+  TIMER_MINUTES: "sleepSounds.timerMinutes",
+  TIMER_END_AT: "sleepSounds.timerEndAt"
 };
 
 const TIMER_TICK_MS = 1000;
@@ -51,40 +52,90 @@ Page({
   },
 
   onLoad() {
+    this.isUnloaded = false;
+    this.loadVersion = (this.loadVersion || 0) + 1;
     this.rawSoundGroups = [];
     this.audioManager = null;
     this.audioListeners = null;
+    this.playingSoundId = "";
+    this.pendingPlaySoundId = "";
     this.timerInterval = null;
     this.timerEndAt = 0;
 
     this.initAudioManager();
-    this.loadInitialState();
+    this.loadInitialState(this.loadVersion);
   },
 
   onUnload() {
+    this.isUnloaded = true;
     this.clearTimerTicker();
     this.removeAudioListeners();
   },
 
-  async loadInitialState() {
+  async loadInitialState(loadVersion) {
+    let soundGroups = [];
+
     try {
-      this.rawSoundGroups = await getSoundGroups();
+      soundGroups = await getSoundGroups();
     } catch (error) {
+      if (!this.isPageActive(loadVersion)) {
+        return;
+      }
+
       this.rawSoundGroups = [];
       showToast("声音列表加载失败");
+    }
+
+    if (!this.isPageActive(loadVersion)) {
+      return;
+    }
+
+    if (soundGroups.length) {
+      this.rawSoundGroups = soundGroups;
     }
 
     const storedSoundId = this.readStorage(STORAGE_KEYS.CURRENT_SOUND_ID, "");
     const currentSoundId = selectInitialSoundId(this.rawSoundGroups, storedSoundId);
     const isLooping = Boolean(this.readStorage(STORAGE_KEYS.IS_LOOPING, false));
     const selectedTimerMinutes = Number(this.readStorage(STORAGE_KEYS.TIMER_MINUTES, 0)) || 0;
+    const storedTimerEndAt = Number(this.readStorage(STORAGE_KEYS.TIMER_END_AT, 0)) || 0;
+    const now = Date.now();
+    let nextTimerMinutes = selectedTimerMinutes;
+    let remainingText = DEFAULT_REMAINING_TEXT;
+
+    if (storedTimerEndAt > now) {
+      this.timerEndAt = storedTimerEndAt;
+      remainingText = formatRemaining(storedTimerEndAt, now);
+    } else {
+      this.timerEndAt = 0;
+      nextTimerMinutes = 0;
+
+      if (storedTimerEndAt || selectedTimerMinutes > 0) {
+        this.clearStoredTimer();
+      }
+      if (storedTimerEndAt) {
+        this.stopAudioForTimerEnd();
+      }
+    }
+
+    if (!this.isPageActive(loadVersion)) {
+      return;
+    }
 
     this.refreshView({
       currentSoundId,
       isLooping,
-      selectedTimerMinutes,
-      remainingText: this.getArmedTimerText(selectedTimerMinutes)
+      selectedTimerMinutes: nextTimerMinutes,
+      remainingText
     });
+
+    if (this.timerEndAt) {
+      this.startTimerTicker();
+    }
+  },
+
+  isPageActive(loadVersion) {
+    return !this.isUnloaded && this.loadVersion === loadVersion;
   },
 
   initAudioManager() {
@@ -94,11 +145,41 @@ Page({
     }
 
     this.audioListeners = {
-      play: () => this.refreshView({ isPlaying: true }),
-      pause: () => this.refreshView({ isPlaying: false }),
-      stop: () => this.refreshView({ isPlaying: false }),
-      ended: () => this.handleAudioEnded(),
+      play: () => {
+        if (this.isUnloaded) {
+          return;
+        }
+
+        this.playingSoundId = this.pendingPlaySoundId || this.data.currentSoundId;
+        this.pendingPlaySoundId = "";
+        this.refreshView({ isPlaying: true });
+      },
+      pause: () => {
+        if (!this.isUnloaded) {
+          this.refreshView({ isPlaying: false });
+        }
+      },
+      stop: () => {
+        if (this.isUnloaded) {
+          return;
+        }
+
+        this.playingSoundId = "";
+        this.pendingPlaySoundId = "";
+        this.refreshView({ isPlaying: false });
+      },
+      ended: () => {
+        if (!this.isUnloaded) {
+          this.handleAudioEnded();
+        }
+      },
       error: () => {
+        if (this.isUnloaded) {
+          return;
+        }
+
+        this.playingSoundId = "";
+        this.pendingPlaySoundId = "";
         this.refreshView({ isPlaying: false });
         showToast("声音暂时无法播放，请稍后再试");
       }
@@ -203,11 +284,11 @@ Page({
 
   handleTimerTap(event) {
     const minutes = Number(event.currentTarget.dataset.minutes) || 0;
-    this.writeStorage(STORAGE_KEYS.TIMER_MINUTES, minutes);
 
     if (minutes <= 0) {
       this.timerEndAt = 0;
       this.clearTimerTicker();
+      this.clearStoredTimer();
       this.refreshView({
         selectedTimerMinutes: 0,
         remainingText: DEFAULT_REMAINING_TEXT
@@ -235,21 +316,41 @@ Page({
     audio.epname = sound.category || "";
     audio.singer = "晚安声音";
     audio.coverImgUrl = sound.cover || "";
+    const isNewSound = this.playingSoundId !== soundId;
 
-    if (audio.src === sound.url && typeof audio.play === "function") {
-      audio.play();
-    } else {
-      audio.src = sound.url;
+    this.pendingPlaySoundId = soundId;
+    this.refreshView({ currentSoundId: soundId, isPlaying: false });
+
+    try {
+      this.applyAudioSource(audio, sound, isNewSound);
+    } catch (error) {
+      this.pendingPlaySoundId = "";
+      this.refreshView({ isPlaying: false });
+      showToast("声音暂时无法播放，请稍后再试");
+      return;
     }
-
-    this.refreshView({ currentSoundId: soundId, isPlaying: true });
 
     if (this.data.selectedTimerMinutes > 0 && !this.timerEndAt) {
       this.startTimer(this.data.selectedTimerMinutes);
     }
   },
 
+  applyAudioSource(audio, sound, shouldReset) {
+    if (shouldReset && audio.src === sound.url && typeof audio.seek === "function") {
+      audio.seek(0);
+    }
+
+    if (shouldReset || audio.src !== sound.url) {
+      audio.src = sound.url;
+    }
+
+    if (typeof audio.play === "function") {
+      audio.play();
+    }
+  },
+
   pauseCurrentSound() {
+    this.pendingPlaySoundId = "";
     if (this.audioManager && typeof this.audioManager.pause === "function") {
       this.audioManager.pause();
     }
@@ -262,6 +363,8 @@ Page({
       return;
     }
 
+    this.playingSoundId = "";
+    this.pendingPlaySoundId = "";
     this.refreshView({ isPlaying: false });
   },
 
@@ -271,24 +374,32 @@ Page({
       return;
     }
 
+    this.pendingPlaySoundId = this.data.currentSoundId;
     if (typeof audio.seek === "function") {
       audio.seek(0);
     }
     if (typeof audio.play === "function") {
       audio.play();
     }
-    this.refreshView({ isPlaying: true });
+    this.refreshView({ isPlaying: false });
   },
 
   startTimer(minutes) {
     const now = Date.now();
     this.timerEndAt = getTimerEndAt(now, minutes);
     this.clearTimerTicker();
+    this.writeStorage(STORAGE_KEYS.TIMER_MINUTES, minutes);
+    this.writeStorage(STORAGE_KEYS.TIMER_END_AT, this.timerEndAt);
     this.refreshView({
       selectedTimerMinutes: minutes,
       remainingText: formatRemaining(this.timerEndAt, now)
     });
 
+    this.startTimerTicker();
+  },
+
+  startTimerTicker() {
+    this.clearTimerTicker();
     this.timerInterval = setInterval(() => {
       this.updateTimerRemaining();
     }, TIMER_TICK_MS);
@@ -309,7 +420,9 @@ Page({
   stopForTimerEnd() {
     this.timerEndAt = 0;
     this.clearTimerTicker();
-    this.writeStorage(STORAGE_KEYS.TIMER_MINUTES, 0);
+    this.clearStoredTimer();
+    this.playingSoundId = "";
+    this.pendingPlaySoundId = "";
 
     if (this.audioManager && typeof this.audioManager.stop === "function") {
       this.audioManager.stop();
@@ -330,7 +443,26 @@ Page({
     }
   },
 
+  clearStoredTimer() {
+    this.writeStorage(STORAGE_KEYS.TIMER_MINUTES, 0);
+    this.writeStorage(STORAGE_KEYS.TIMER_END_AT, 0);
+  },
+
+  stopAudioForTimerEnd() {
+    this.playingSoundId = "";
+    this.pendingPlaySoundId = "";
+
+    const audio = this.getAudioManager();
+    if (audio && typeof audio.stop === "function") {
+      audio.stop();
+    }
+  },
+
   refreshView(patch) {
+    if (this.isUnloaded) {
+      return;
+    }
+
     const nextData = {
       ...this.data,
       ...patch
