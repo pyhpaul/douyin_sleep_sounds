@@ -1,21 +1,17 @@
 const path = require("node:path");
 const { spawn, spawnSync } = require("node:child_process");
+const { createServer } = require("./dev-preview-server");
 
-const PREVIEW_URL = "http://localhost:5173";
+const DEFAULT_HOST = "localhost";
+const DEFAULT_PORT = Number(process.env.PORT) || 5173;
 
 function main() {
   runNpmScript("check");
   runNpmScript("debug:page");
 
-  console.log(`Starting local preview: ${PREVIEW_URL}`);
-  openBrowser(PREVIEW_URL);
-
-  const server = spawn(process.execPath, [path.join(__dirname, "dev-preview-server.js")], {
-    stdio: "inherit"
-  });
-
-  server.on("exit", (code) => {
-    process.exit(code || 0);
+  startPreviewServer().catch((error) => {
+    console.error(error.message);
+    process.exit(1);
   });
 }
 
@@ -44,6 +40,33 @@ function openBrowser(url) {
   }
 }
 
+function startPreviewServer(options = {}) {
+  const host = options.host || DEFAULT_HOST;
+  const port = options.port === undefined ? DEFAULT_PORT : options.port;
+  const log = options.log || console.log;
+  const browserOpener = options.openBrowser || openBrowser;
+  const serverFactory = options.createServer || createServer;
+  const server = serverFactory();
+
+  return new Promise((resolve, reject) => {
+    const rejectStart = (error) => {
+      reject(error);
+    };
+
+    server.once("error", rejectStart);
+    server.listen(port, () => {
+      server.off("error", rejectStart);
+      const address = server.address();
+      const actualPort = typeof address === "object" && address ? address.port : port;
+      const url = `http://${host}:${actualPort}`;
+
+      log(`Preview server running at ${url}`);
+      browserOpener(url);
+      resolve(server);
+    });
+  });
+}
+
 function getOpenCommand(url) {
   if (process.platform === "win32") {
     return {
@@ -70,5 +93,6 @@ if (require.main === module) {
 }
 
 module.exports = {
+  startPreviewServer,
   getOpenCommand
 };
