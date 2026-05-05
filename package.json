@@ -4,9 +4,9 @@
   "private": true,
   "scripts": {
     "test": "node -e \"const fs=require('fs');const path=require('path');const {spawnSync}=require('child_process');const dir='tests';const args=process.argv.slice(1);const files=args.length?args:(fs.existsSync(dir)?fs.readdirSync(dir).filter((file)=>file.endsWith('.test.js')).map((file)=>path.join(dir,file)):[]);if(!files.length){console.log('No test files found; skipping node --test');process.exit(0);}const result=spawnSync(process.execPath,['--test',...files],{stdio:'inherit'});process.exit(result.status);\"",
-    "check": "node -e \"const fs=require('fs');const {spawnSync}=require('child_process');const files=['miniprogram/app.js','miniprogram/pages/index/index.js','miniprogram/utils/timer.js','miniprogram/utils/playbackState.js','miniprogram/services/soundSourceService.js','scripts/transform-ttss.js','scripts/dev-preview-server.js','scripts/dev-local.js','dev-preview/preview.js'].filter((file)=>fs.existsSync(file));for(const file of files){const result=spawnSync(process.execPath,['--check',file],{stdio:'inherit'});if(result.status){process.exit(result.status);}}console.log('checked '+files.length+' file(s)');\"",
+    "check": "node scripts/check-syntax.js",
     "preview": "node scripts/dev-preview-server.js",
     "debug:page": "node --test tests/pageRuntime.test.js",
-    "dev": "node scripts/dev-local.js"
+    "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-local.ps1"
   }
 }

@@ -6,8 +6,7 @@ const DEFAULT_HOST = "localhost";
 const DEFAULT_PORT = Number(process.env.PORT) || 5173;
 
 function main() {
-  runNpmScript("check");
-  runNpmScript("debug:page");
+  runValidationSteps();
 
   startPreviewServer().catch((error) => {
     console.error(error.message);
@@ -15,17 +14,31 @@ function main() {
   });
 }
 
-function runNpmScript(scriptName) {
-  const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
-  const result = spawnSync(npmCommand, ["run", scriptName], {
-    cwd: path.resolve(__dirname, ".."),
-    env: buildChildProcessEnv(process.env),
-    stdio: "inherit"
-  });
+function runValidationSteps() {
+  for (const step of getValidationSteps()) {
+    const result = spawnSync(step.command, step.args, {
+      cwd: path.resolve(__dirname, ".."),
+      env: buildChildProcessEnv(process.env),
+      stdio: "inherit"
+    });
 
-  if (result.status !== 0) {
-    process.exit(result.status || 1);
+    if (result.status !== 0) {
+      process.exit(result.status || 1);
+    }
   }
+}
+
+function getValidationSteps() {
+  return [
+    {
+      command: process.execPath,
+      args: ["scripts/check-syntax.js"]
+    },
+    {
+      command: process.execPath,
+      args: ["--test", "tests/pageRuntime.test.js"]
+    }
+  ];
 }
 
 function buildChildProcessEnv(sourceEnv) {
@@ -106,6 +119,7 @@ if (require.main === module) {
 
 module.exports = {
   buildChildProcessEnv,
+  getValidationSteps,
   startPreviewServer,
   getOpenCommand
 };
