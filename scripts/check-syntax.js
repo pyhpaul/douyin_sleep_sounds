@@ -8,9 +8,11 @@ const files = [
   "miniprogram/utils/playbackState.js",
   "miniprogram/services/soundSourceService.js",
   "scripts/check-syntax.js",
+  "scripts/live-reload.js",
   "scripts/transform-ttss.js",
   "scripts/dev-preview-server.js",
   "scripts/dev-local.js",
+  "dev-preview/live-reload.js",
   "dev-preview/preview.js"
 ].filter((file) => fs.existsSync(file));
 

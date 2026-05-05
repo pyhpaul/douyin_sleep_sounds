@@ -1,8 +1,8 @@
 const fs = require("node:fs");
 const http = require("node:http");
 const path = require("node:path");
+const { createLiveReload } = require("./live-reload");
 const { transformTtss } = require("./transform-ttss");
-const { getSoundGroups } = require("../miniprogram/services/soundSourceService");
 
 const ROOT_DIR = path.resolve(__dirname, "..");
 const PREVIEW_DIR = path.join(ROOT_DIR, "dev-preview");
@@ -18,17 +18,26 @@ const REQUIRED_PREVIEW_CLASSES = [
   ".timer-chip"
 ];
 
-function createServer() {
-  return http.createServer(async (request, response) => {
+function createServer(options = {}) {
+  const liveReload = createPreviewLiveReload(options.liveReload);
+  const server = http.createServer(async (request, response) => {
     try {
-      await handleRequest(request, response);
+      await handleRequest(request, response, { liveReload });
     } catch (error) {
       sendText(response, 500, "Internal Server Error\n" + error.message);
     }
   });
+
+  if (liveReload) {
+    server.on("close", () => {
+      liveReload.close();
+    });
+  }
+
+  return server;
 }
 
-async function handleRequest(request, response) {
+async function handleRequest(request, response, context) {
   const requestUrl = new URL(request.url, `http://${request.headers.host}`);
 
   if (requestUrl.pathname === "/") {
@@ -41,18 +50,57 @@ async function handleRequest(request, response) {
     return;
   }
 
+  if (requestUrl.pathname === "/live-reload.js") {
+    sendFile(response, path.join(PREVIEW_DIR, "live-reload.js"), "application/javascript; charset=utf-8");
+    return;
+  }
+
+  if (requestUrl.pathname === "/__live-reload" && context.liveReload) {
+    context.liveReload.handleEventStream(request, response);
+    return;
+  }
+
   if (requestUrl.pathname === "/preview.css") {
     sendText(response, 200, getPreviewCss(), "text/css; charset=utf-8");
     return;
   }
 
   if (requestUrl.pathname === "/api/sounds") {
-    const soundGroups = await getSoundGroups();
+    const soundGroups = await getFreshSoundGroups();
     sendJson(response, 200, soundGroups);
     return;
   }
 
   sendText(response, 404, "Not Found");
+}
+
+function createPreviewLiveReload(liveReloadOptions) {
+  if (liveReloadOptions === false) {
+    return null;
+  }
+
+  const options = {
+    ...(liveReloadOptions || {})
+  };
+  if (!Object.prototype.hasOwnProperty.call(options, "watchPaths")) {
+    options.watchPaths = [
+      path.join(ROOT_DIR, "miniprogram"),
+      PREVIEW_DIR
+    ];
+  }
+
+  return createLiveReload(options);
+}
+
+async function getFreshSoundGroups() {
+  const dataPath = require.resolve("../miniprogram/data/sounds");
+  const servicePath = require.resolve("../miniprogram/services/soundSourceService");
+
+  delete require.cache[dataPath];
+  delete require.cache[servicePath];
+
+  const { getSoundGroups } = require(servicePath);
+  return getSoundGroups();
 }
 
 function getPreviewCss() {
@@ -102,7 +150,9 @@ if (require.main === module) {
 }
 
 module.exports = {
+  createPreviewLiveReload,
   createServer,
+  getFreshSoundGroups,
   getPreviewCss,
   REQUIRED_PREVIEW_CLASSES
 };
