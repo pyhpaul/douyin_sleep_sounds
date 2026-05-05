@@ -10,6 +10,7 @@
 - 在浏览器里预览深色助眠 UI，并支持点击、播放、暂停、循环和定时停止。
 - 提供一键本地调试脚本，减少每次手动运行多条命令。
 - 浏览器预览应尽量跟随真实小程序页面变化，避免维护两套完全独立 UI。
+- 把真实抖音小程序源码隔离到 `miniprogram/`，避免测试、预览和脚本文件影响抖音开发者工具导入、预览和上传。
 - 保持抖音小程序源码不被 Web 预览耦合污染。
 - 最终仍以抖音开发者工具作为真实 TTML/TTSS 和后台音频行为的验收入口。
 
@@ -22,6 +23,7 @@
 - 本地预览 HTTP server。
 - npm scripts。
 - VS Code 调试入口。
+- 小程序源码目录迁移到 `miniprogram/`。
 
 不包含：
 
@@ -34,6 +36,46 @@
 ## 方案选择
 
 采用“两层本地调试”方案。
+
+### 前置结构调整：隔离小程序源码
+
+当前 `project.config.json` 的 `miniprogramRoot` 指向项目根目录，加入 `tests/`、`scripts/`、`dev-preview/` 后会让抖音开发者工具扫描无关文件。为降低导入和上传风险，先迁移为：
+
+```text
+E:/douyinProj/test/
+  project.config.json
+  package.json
+  docs/
+  tests/
+  scripts/
+  dev-preview/
+
+  miniprogram/
+    app.js
+    app.json
+    app.ttss
+    data/
+    services/
+    utils/
+    pages/
+```
+
+`project.config.json` 调整为：
+
+```json
+{
+  "miniprogramRoot": "miniprogram/"
+}
+```
+
+迁移规则：
+
+- 移动 `app.js`、`app.json`、`app.ttss` 到 `miniprogram/`。
+- 移动 `pages/`、`data/`、`services/`、`utils/` 到 `miniprogram/`。
+- 更新测试 require 路径，从 `../utils/...` 改为 `../miniprogram/utils/...`。
+- 更新页面内部相对 require，保持页面到 `../../services/...`、`../../utils/...` 不变，因为相对关系在 `miniprogram/` 内仍一致。
+- 更新 `npm run check` 的 JS 检查路径。
+- 保留用户当前 `project.config.json` 中的 `appid`、`projectname`、`setting` 等语义，只调整 `miniprogramRoot`。
 
 ### 第一层：Node 运行时 mock 测试
 
@@ -194,7 +236,7 @@ preview.js
 
 ```text
 dev-preview-server.js
-  -> 读取 pages/index/index.ttss
+  -> 读取 miniprogram/pages/index/index.ttss
   -> transform-ttss.js 转换 rpx 等浏览器不直接识别的单位
   -> 暴露 /preview.css
   -> 浏览器预览页面加载 /preview.css
@@ -215,6 +257,7 @@ pages/
 data/
 services/
 utils/
+miniprogram/
 ```
 
 - Node mock 测试只放在：
@@ -258,7 +301,7 @@ npm run dev
 
 预览跟随真实页面验证：
 
-1. 修改 `pages/index/index.ttss` 中某个明显样式，例如 `.primary-control` 背景色。
+1. 修改 `miniprogram/pages/index/index.ttss` 中某个明显样式，例如 `.primary-control` 背景色。
 2. 刷新 `http://localhost:5173`。
 3. 浏览器预览应体现该样式变化。
 4. 恢复样式后再次刷新，预览同步恢复。
@@ -274,5 +317,5 @@ npm run dev
 
 - 浏览器 `<audio>` 与抖音后台音频不是同一运行时，只能验证基础播放交互。
 - 当前 6 个声音使用同一个 mock MP3 URL，切换体验会被弱化；上线前需要换成授权且可区分的音频资源。
-- `project.config.json` 当前已有用户改动，后续实现不得覆盖。
+- `project.config.json` 当前已有用户改动，后续实现不得覆盖除 `miniprogramRoot` 以外的语义。
 - 浏览器预览跟随真实页面主要通过复用 TTSS 和 class 名实现；TTML 结构变化仍需同步调整 `preview.js` 渲染函数。
