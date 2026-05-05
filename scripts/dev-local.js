@@ -19,12 +19,24 @@ function runNpmScript(scriptName) {
   const npmCommand = process.platform === "win32" ? "npm.cmd" : "npm";
   const result = spawnSync(npmCommand, ["run", scriptName], {
     cwd: path.resolve(__dirname, ".."),
+    env: buildChildProcessEnv(process.env),
     stdio: "inherit"
   });
 
   if (result.status !== 0) {
     process.exit(result.status || 1);
   }
+}
+
+function buildChildProcessEnv(sourceEnv) {
+  const env = { ...sourceEnv };
+
+  // VS Code JavaScript Auto Attach injects these into every Node child process.
+  // The nested npm/node processes can then wait forever for debugger disconnect.
+  delete env.NODE_OPTIONS;
+  delete env.VSCODE_INSPECTOR_OPTIONS;
+
+  return env;
 }
 
 function openBrowser(url) {
@@ -93,6 +105,7 @@ if (require.main === module) {
 }
 
 module.exports = {
+  buildChildProcessEnv,
   startPreviewServer,
   getOpenCommand
 };
