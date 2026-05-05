@@ -7,6 +7,6 @@
     "check": "node scripts/check-syntax.js",
     "preview": "node scripts/dev-preview-server.js",
     "debug:page": "node --test tests/pageRuntime.test.js",
-    "dev": "powershell -NoProfile -ExecutionPolicy Bypass -File scripts/dev-local.ps1"
+    "dev": "scripts\\dev-local.cmd"
   }
 }

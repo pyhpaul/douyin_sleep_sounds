@@ -38,16 +38,15 @@ test("removes VS Code debugger injection from child process environment", () => 
   assert.equal(env.OTHER_ENV, "kept");
 });
 
-test("npm dev entry clears debugger environment before starting node", () => {
+test("npm dev entry uses a cmd wrapper that clears debugger environment before starting node", () => {
   const packageJson = JSON.parse(fs.readFileSync("package.json", "utf8"));
   const devScript = packageJson.scripts.dev;
 
-  assert.match(devScript, /^powershell\b/);
-  assert.match(devScript, /scripts\/dev-local\.ps1/);
+  assert.match(devScript, /scripts[\\/]+dev-local\.cmd/);
 
-  const wrapper = fs.readFileSync("scripts/dev-local.ps1", "utf8");
-  assert.match(wrapper, /Remove-Item Env:NODE_OPTIONS/);
-  assert.match(wrapper, /Remove-Item Env:VSCODE_INSPECTOR_OPTIONS/);
+  const wrapper = fs.readFileSync("scripts/dev-local.cmd", "utf8");
+  assert.match(wrapper, /set\s+"NODE_OPTIONS="/i);
+  assert.match(wrapper, /set\s+"VSCODE_INSPECTOR_OPTIONS="/i);
   assert.match(wrapper, /node/);
   assert.match(wrapper, /dev-local\.js/);
 });
