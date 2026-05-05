@@ -9,7 +9,7 @@ const {
   isCurrentSound,
   getCurrentSound,
   buildSoundGroupsViewModel
-} = require("../utils/playbackState");
+} = require("../miniprogram/utils/playbackState");
 
 const soundGroups = [
   {

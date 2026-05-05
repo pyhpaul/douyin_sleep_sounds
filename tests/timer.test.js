@@ -7,7 +7,7 @@ const {
   getTimerEndAt,
   formatRemaining,
   isTimerExpired
-} = require("../utils/timer");
+} = require("../miniprogram/utils/timer");
 
 test("returns the supported timer options in display order", () => {
   assert.deepEqual(getTimerOptions(), [

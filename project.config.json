@@ -1,11 +1,1 @@
-{
-  "appid": "touristappid",
-  "projectname": "sleep-sounds",
-  "miniprogramRoot": "./",
-  "setting": {
-    "urlCheck": false,
-    "es6": true,
-    "postcss": true,
-    "minified": false
-  }
-}
+{"appid":"testAppId","projectname":"sleep-sounds","miniprogramRoot":"miniprogram/","setting":{"urlCheck":false,"es6":true,"postcss":true,"minified":false}}

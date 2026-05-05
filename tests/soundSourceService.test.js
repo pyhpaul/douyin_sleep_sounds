@@ -1,8 +1,8 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 
-const { MOCK_AUDIO_HOST } = require("../data/sounds");
-const { getSoundGroups } = require("../services/soundSourceService");
+const { MOCK_AUDIO_HOST } = require("../miniprogram/data/sounds");
+const { getSoundGroups } = require("../miniprogram/services/soundSourceService");
 
 test("returns three sound groups with six total sounds", async () => {
   const groupsResult = getSoundGroups();
