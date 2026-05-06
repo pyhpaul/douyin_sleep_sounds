@@ -3,11 +3,19 @@
   min-height: 100vh;
   box-sizing: border-box;
   overflow: hidden;
-  padding: 44rpx 32rpx 184rpx;
+  padding: 36rpx 32rpx 76rpx;
   background:
     radial-gradient(circle at 50% -12%, rgba(244, 199, 122, 0.22), transparent 34%),
     radial-gradient(circle at 92% 18%, rgba(107, 128, 255, 0.20), transparent 30%),
     linear-gradient(180deg, #080b13 0%, #111827 48%, #070a10 100%);
+}
+
+.page-channels {
+  padding-bottom: 184rpx;
+}
+
+.page-player {
+  padding-bottom: 72rpx;
 }
 
 .ambient {
@@ -44,26 +52,28 @@
 }
 
 .compact-hero {
-  margin-bottom: 26rpx;
+  margin-bottom: 22rpx;
 }
 
-.eyebrow {
-  margin-bottom: 10rpx;
-  color: #f4c77a;
-  font-size: 21rpx;
-  letter-spacing: 5rpx;
+.hero-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
 }
 
 .title {
   color: #fff8ea;
-  font-size: 52rpx;
+  flex: 0 0 auto;
+  font-size: 46rpx;
   font-weight: 700;
 }
 
-.subtitle {
-  margin-top: 10rpx;
+.hero-note {
   color: rgba(255, 248, 234, 0.62);
-  font-size: 27rpx;
+  font-size: 24rpx;
+  line-height: 1.4;
+  text-align: right;
 }
 
 .main-tabs {
@@ -76,11 +86,22 @@
 
 .main-tab {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   height: 76rpx;
   border-radius: 999rpx;
   color: rgba(255, 248, 234, 0.58);
   font-size: 28rpx;
   font-weight: 650;
+}
+
+.main-tab-label {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
 }
 
 .main-tab-active {

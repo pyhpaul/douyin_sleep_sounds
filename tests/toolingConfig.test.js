@@ -32,3 +32,23 @@ test("index page exposes player and radio layout classes", () => {
     assert.match(ttss, new RegExp(`\\.${className}\\b`));
   }
 });
+
+test("index page keeps hero compact and only shows mini player on channel mode", () => {
+  const ttml = fs.readFileSync("miniprogram/pages/index/index.ttml", "utf8");
+  const ttss = fs.readFileSync("miniprogram/pages/index/index.ttss", "utf8");
+
+  assert.match(ttml, /class="page \{\{pageMode === 'player' \? 'page-player' : 'page-channels'\}\}"/);
+  assert.match(ttml, /class="hero-row"/);
+  assert.match(ttml, /class="hero-note"/);
+  assert.match(ttml, /tt:if="\{\{hasSounds && pageMode === 'channels'\}\}" class="mini-player"/);
+
+  for (const className of [
+    "page-player",
+    "page-channels",
+    "hero-row",
+    "hero-note",
+    "main-tab-label"
+  ]) {
+    assert.match(ttss, new RegExp(`\\.${className}\\b`));
+  }
+});

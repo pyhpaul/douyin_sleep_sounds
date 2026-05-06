@@ -1,11 +1,12 @@
-<view class="page">
+<view class="page {{pageMode === 'player' ? 'page-player' : 'page-channels'}}">
   <view class="ambient ambient-one"></view>
   <view class="ambient ambient-two"></view>
 
   <view class="hero compact-hero">
-    <view class="eyebrow">SLEEP RADIO</view>
-    <view class="title">晚安声音</view>
-    <view class="subtitle">选择频道，快速开始播放</view>
+    <view class="hero-row">
+      <view class="title">晚安声音</view>
+      <view class="hero-note">选择频道，快速开始播放</view>
+    </view>
   </view>
 
   <view class="main-tabs">
@@ -14,14 +15,14 @@
       data-mode="channels"
       bindtap="handleMainTabTap"
     >
-      频道
+      <view class="main-tab-label">频道</view>
     </button>
     <button
       class="main-tab {{pageMode === 'player' ? 'main-tab-active' : ''}}"
       data-mode="player"
       bindtap="handleMainTabTap"
     >
-      播放器
+      <view class="main-tab-label">播放器</view>
     </button>
   </view>
 
@@ -124,7 +125,7 @@
     </view>
   </view>
 
-  <view tt:if="{{hasSounds}}" class="mini-player">
+  <view tt:if="{{hasSounds && pageMode === 'channels'}}" class="mini-player">
     <view class="mini-player-info" bindtap="handleMiniPlayerTap">
       <view class="mini-title">{{currentSoundTitle}}</view>
       <view class="mini-meta">{{playbackText}} · {{remainingText}}</view>
