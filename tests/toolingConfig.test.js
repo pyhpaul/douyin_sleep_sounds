@@ -12,3 +12,20 @@ test("tooling does not expose browser preview entrypoints", () => {
   assert.equal(fs.existsSync("scripts/live-reload.js"), false);
   assert.equal(fs.existsSync("scripts/transform-ttss.js"), false);
 });
+
+test("index page exposes player and radio layout classes", () => {
+  const ttml = fs.readFileSync("miniprogram/pages/index/index.ttml", "utf8");
+  const ttss = fs.readFileSync("miniprogram/pages/index/index.ttss", "utf8");
+
+  for (const className of [
+    "player-shell",
+    "album-art",
+    "playback-panel",
+    "transport-row",
+    "radio-section",
+    "station-card"
+  ]) {
+    assert.match(ttml, new RegExp(`class="[^"]*${className}`));
+    assert.match(ttss, new RegExp(`\\.${className}\\b`));
+  }
+});
