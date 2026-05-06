@@ -18,12 +18,15 @@ test("index page exposes player and radio layout classes", () => {
   const ttss = fs.readFileSync("miniprogram/pages/index/index.ttss", "utf8");
 
   for (const className of [
+    "main-tabs",
+    "channel-tabs",
     "player-shell",
     "album-art",
     "playback-panel",
     "transport-row",
     "radio-section",
-    "station-card"
+    "station-card",
+    "mini-player"
   ]) {
     assert.match(ttml, new RegExp(`class="[^"]*${className}`));
     assert.match(ttss, new RegExp(`\\.${className}\\b`));

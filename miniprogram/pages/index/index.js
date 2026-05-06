@@ -8,8 +8,12 @@ const { getSoundGroups } = require("../../services/soundSourceService");
 const {
   selectInitialSoundId,
   selectSoundId,
+  findSoundGroupIdBySoundId,
+  selectGroupId,
   getCurrentSound,
-  buildSoundGroupsViewModel
+  buildSoundGroupsViewModel,
+  buildSoundGroupTabsViewModel,
+  getActiveSoundGroupViewModel
 } = require("../../utils/playbackState");
 
 const STORAGE_KEYS = {
@@ -37,7 +41,16 @@ function buildTimerOptionsViewModel(selectedTimerMinutes) {
 
 Page({
   data: {
+    pageMode: "channels",
+    activeGroupId: "",
     soundGroups: [],
+    soundGroupTabs: [],
+    activeSoundGroup: {
+      id: "",
+      title: "",
+      subtitle: "",
+      sounds: []
+    },
     timerOptions: buildTimerOptionsViewModel(0),
     currentSoundId: "",
     currentSoundTitle: "未选择声音",
@@ -276,6 +289,32 @@ Page({
     }
   },
 
+  handleMainTabTap(event) {
+    const mode = event.currentTarget.dataset.mode;
+    if (mode !== "channels" && mode !== "player") {
+      return;
+    }
+
+    this.refreshView({ pageMode: mode });
+  },
+
+  handleMiniPlayerTap() {
+    this.refreshView({ pageMode: "player" });
+  },
+
+  handleGroupTabTap(event) {
+    const requestedGroupId = event.currentTarget.dataset.id;
+    const activeGroupId = selectGroupId(
+      this.rawSoundGroups,
+      requestedGroupId,
+      this.data.currentSoundId
+    );
+
+    if (activeGroupId) {
+      this.refreshView({ activeGroupId });
+    }
+  },
+
   handleSoundTap(event) {
     const requestedSoundId = event.currentTarget.dataset.id;
     const nextSoundId = selectSoundId(
@@ -294,7 +333,10 @@ Page({
     }
 
     this.writeStorage(STORAGE_KEYS.CURRENT_SOUND_ID, nextSoundId);
-    this.refreshView({ currentSoundId: nextSoundId });
+    this.refreshView({
+      currentSoundId: nextSoundId,
+      activeGroupId: findSoundGroupIdBySoundId(this.rawSoundGroups, nextSoundId)
+    });
     this.playCurrentSound(nextSoundId);
   },
 
@@ -316,7 +358,10 @@ Page({
     }
 
     this.writeStorage(STORAGE_KEYS.CURRENT_SOUND_ID, nextSoundId);
-    this.refreshView({ currentSoundId: nextSoundId });
+    this.refreshView({
+      currentSoundId: nextSoundId,
+      activeGroupId: findSoundGroupIdBySoundId(this.rawSoundGroups, nextSoundId)
+    });
     this.playCurrentSound(nextSoundId);
   },
 
@@ -361,9 +406,10 @@ Page({
     audio.singer = "晚安声音";
     audio.coverImgUrl = sound.cover || "";
     const isNewSound = this.playingSoundId !== soundId;
+    const activeGroupId = findSoundGroupIdBySoundId(this.rawSoundGroups, soundId);
 
     this.pendingPlaySoundId = soundId;
-    this.refreshView({ currentSoundId: soundId, isPlaying: false });
+    this.refreshView({ currentSoundId: soundId, activeGroupId, isPlaying: false });
 
     try {
       this.applyAudioSource(audio, sound, isNewSound);
@@ -374,7 +420,7 @@ Page({
       return;
     }
 
-    this.refreshView({ currentSoundId: soundId, isPlaying: true });
+    this.refreshView({ currentSoundId: soundId, activeGroupId, isPlaying: true });
 
     if (this.data.selectedTimerMinutes > 0 && !this.timerEndAt) {
       this.startTimer(this.data.selectedTimerMinutes);
@@ -522,14 +568,26 @@ Page({
     };
     const currentSound = getCurrentSound(this.rawSoundGroups, nextData.currentSoundId);
     const currentSoundCategory = currentSound ? currentSound.category || "" : "";
+    const activeGroupId = selectGroupId(
+      this.rawSoundGroups,
+      nextData.activeGroupId,
+      nextData.currentSoundId
+    );
 
     this.setData({
       ...patch,
+      activeGroupId,
       currentSoundTitle: currentSound ? currentSound.title : "未选择声音",
       currentSoundCategory,
       currentSoundCategoryText: currentSoundCategory || "未选择",
       playbackText: this.getPlaybackText(nextData.isPlaying, currentSound),
       soundGroups: buildSoundGroupsViewModel(this.rawSoundGroups, nextData.currentSoundId),
+      soundGroupTabs: buildSoundGroupTabsViewModel(this.rawSoundGroups, activeGroupId),
+      activeSoundGroup: getActiveSoundGroupViewModel(
+        this.rawSoundGroups,
+        activeGroupId,
+        nextData.currentSoundId
+      ),
       timerOptions: buildTimerOptionsViewModel(nextData.selectedTimerMinutes),
       hasSounds: Boolean(selectInitialSoundId(this.rawSoundGroups, ""))
     });

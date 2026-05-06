@@ -69,6 +69,20 @@ function createMiniAppRuntime() {
         }
       };
     },
+    groupTabEvent(id) {
+      return {
+        currentTarget: {
+          dataset: { id }
+        }
+      };
+    },
+    mainTabEvent(mode) {
+      return {
+        currentTarget: {
+          dataset: { mode }
+        }
+      };
+    },
     async flushAsync() {
       await Promise.resolve();
       await Promise.resolve();

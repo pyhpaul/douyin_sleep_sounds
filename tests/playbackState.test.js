@@ -6,9 +6,13 @@ const {
   findSoundById,
   selectInitialSoundId,
   selectSoundId,
+  findSoundGroupIdBySoundId,
+  selectGroupId,
   isCurrentSound,
   getCurrentSound,
-  buildSoundGroupsViewModel
+  buildSoundGroupsViewModel,
+  buildSoundGroupTabsViewModel,
+  getActiveSoundGroupViewModel
 } = require("../miniprogram/utils/playbackState");
 
 const soundGroups = [
@@ -81,4 +85,35 @@ test("builds a view model with active sound flags without mutating input", () =>
   assert.equal(viewGroups[0].sounds[1].isActive, true);
   assert.equal(soundGroups[0].sounds[1].isActive, undefined);
   assert.notEqual(viewGroups, soundGroups);
+});
+
+test("finds the group id for a sound", () => {
+  assert.equal(findSoundGroupIdBySoundId(soundGroups, "fire"), "white-noise");
+  assert.equal(findSoundGroupIdBySoundId(soundGroups, "missing"), "");
+});
+
+test("selects requested group or falls back to current sound group then first group", () => {
+  assert.equal(selectGroupId(soundGroups, "white-noise", "rain"), "white-noise");
+  assert.equal(selectGroupId(soundGroups, "missing", "fire"), "white-noise");
+  assert.equal(selectGroupId(soundGroups, "missing", "missing"), "nature");
+  assert.equal(selectGroupId([], "missing", "missing"), "");
+});
+
+test("builds active group tabs without mutating input", () => {
+  const tabs = buildSoundGroupTabsViewModel(soundGroups, "white-noise");
+
+  assert.deepEqual(tabs, [
+    { id: "nature", title: "自然", isActive: false },
+    { id: "white-noise", title: "白噪音", isActive: true }
+  ]);
+  assert.equal(soundGroups[1].isActive, undefined);
+});
+
+test("returns active sound group view model with active sound flags", () => {
+  const activeGroup = getActiveSoundGroupViewModel(soundGroups, "nature", "wave");
+
+  assert.equal(activeGroup.id, "nature");
+  assert.equal(activeGroup.sounds[0].isActive, false);
+  assert.equal(activeGroup.sounds[1].isActive, true);
+  assert.notEqual(activeGroup, soundGroups[0]);
 });

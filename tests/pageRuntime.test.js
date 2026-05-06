@@ -10,9 +10,65 @@ test("loads sounds and selects first sound without auto playing", async () => {
   await runtime.flushAsync();
 
   assert.equal(page.data.hasSounds, true);
+  assert.equal(page.data.pageMode, "channels");
+  assert.equal(page.data.activeGroupId, "nature");
+  assert.equal(page.data.soundGroupTabs[0].isActive, true);
+  assert.equal(page.data.activeSoundGroup.title, "自然");
   assert.equal(page.data.currentSoundTitle, "雨声");
   assert.equal(page.data.isPlaying, false);
   assert.equal(runtime.audio.src, "");
+
+  runtime.restore();
+});
+
+test("channel tab switches visible group without starting playback", async () => {
+  const runtime = createMiniAppRuntime();
+  const page = runtime.loadPage("../miniprogram/pages/index/index.js");
+
+  await page.call("onLoad");
+  await runtime.flushAsync();
+
+  page.call("handleGroupTabTap", runtime.groupTabEvent("white-noise"));
+
+  assert.equal(page.data.activeGroupId, "white-noise");
+  assert.equal(page.data.activeSoundGroup.title, "白噪音");
+  assert.equal(page.data.currentSoundTitle, "雨声");
+  assert.equal(runtime.audio.playCalls, 0);
+
+  runtime.restore();
+});
+
+test("choosing a sound syncs the active channel tab", async () => {
+  const runtime = createMiniAppRuntime();
+  const page = runtime.loadPage("../miniprogram/pages/index/index.js");
+
+  await page.call("onLoad");
+  await runtime.flushAsync();
+  page.call("handleSoundTap", runtime.tapEvent("fire"));
+
+  assert.equal(page.data.currentSoundTitle, "篝火");
+  assert.equal(page.data.activeGroupId, "white-noise");
+  assert.equal(page.data.activeSoundGroup.title, "白噪音");
+  assert.equal(runtime.audio.playCalls, 1);
+
+  runtime.restore();
+});
+
+test("main tab and mini player can switch to the player view", async () => {
+  const runtime = createMiniAppRuntime();
+  const page = runtime.loadPage("../miniprogram/pages/index/index.js");
+
+  await page.call("onLoad");
+  await runtime.flushAsync();
+
+  page.call("handleMainTabTap", runtime.mainTabEvent("player"));
+  assert.equal(page.data.pageMode, "player");
+
+  page.call("handleMainTabTap", runtime.mainTabEvent("channels"));
+  assert.equal(page.data.pageMode, "channels");
+
+  page.call("handleMiniPlayerTap");
+  assert.equal(page.data.pageMode, "player");
 
   runtime.restore();
 });
