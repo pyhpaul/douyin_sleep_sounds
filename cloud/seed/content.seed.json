@@ -72,7 +72,7 @@
       "audioUrl": "https://cdn.example.com/sleep-sounds/audio/rain_night.mp3",
       "coverAssetKey": "sleep-sounds/cover/rain_night.jpg",
       "coverUrl": "https://cdn.example.com/sleep-sounds/cover/rain_night.jpg",
-      "durationSec": 0,
+      "durationSec": null,
       "tags": [
         "sleep",
         "rain"
@@ -91,7 +91,7 @@
       "audioUrl": "https://cdn.example.com/sleep-sounds/audio/ocean_slow.mp3",
       "coverAssetKey": "sleep-sounds/cover/ocean_slow.jpg",
       "coverUrl": "https://cdn.example.com/sleep-sounds/cover/ocean_slow.jpg",
-      "durationSec": 0,
+      "durationSec": null,
       "tags": [
         "sleep",
         "water"
@@ -110,7 +110,7 @@
       "audioUrl": "https://cdn.example.com/sleep-sounds/audio/forest_breeze.mp3",
       "coverAssetKey": "sleep-sounds/cover/forest_breeze.jpg",
       "coverUrl": "https://cdn.example.com/sleep-sounds/cover/forest_breeze.jpg",
-      "durationSec": 0,
+      "durationSec": null,
       "tags": [
         "sleep",
         "forest"
@@ -129,7 +129,7 @@
       "audioUrl": "https://cdn.example.com/sleep-sounds/audio/fireplace_room.mp3",
       "coverAssetKey": "sleep-sounds/cover/fireplace_room.jpg",
       "coverUrl": "https://cdn.example.com/sleep-sounds/cover/fireplace_room.jpg",
-      "durationSec": 0,
+      "durationSec": null,
       "tags": [
         "sleep",
         "room"
@@ -148,7 +148,7 @@
       "audioUrl": "https://cdn.example.com/sleep-sounds/audio/creek_soft.mp3",
       "coverAssetKey": "sleep-sounds/cover/creek_soft.jpg",
       "coverUrl": "https://cdn.example.com/sleep-sounds/cover/creek_soft.jpg",
-      "durationSec": 0,
+      "durationSec": null,
       "tags": [
         "sleep",
         "water"
@@ -167,7 +167,7 @@
       "audioUrl": "https://cdn.example.com/sleep-sounds/audio/soft_wind.mp3",
       "coverAssetKey": "sleep-sounds/cover/soft_wind.jpg",
       "coverUrl": "https://cdn.example.com/sleep-sounds/cover/soft_wind.jpg",
-      "durationSec": 0,
+      "durationSec": null,
       "tags": [
         "sleep",
         "wind"
@@ -186,7 +186,7 @@
       "audioUrl": "https://cdn.example.com/sleep-sounds/audio/nap_white_noise.mp3",
       "coverAssetKey": "sleep-sounds/cover/nap_white_noise.jpg",
       "coverUrl": "https://cdn.example.com/sleep-sounds/cover/nap_white_noise.jpg",
-      "durationSec": 0,
+      "durationSec": null,
       "tags": [
         "sleep",
         "noise"
@@ -205,7 +205,7 @@
       "audioUrl": "https://cdn.example.com/sleep-sounds/audio/deep_ambient.mp3",
       "coverAssetKey": "sleep-sounds/cover/deep_ambient.jpg",
       "coverUrl": "https://cdn.example.com/sleep-sounds/cover/deep_ambient.jpg",
-      "durationSec": 0,
+      "durationSec": null,
       "tags": [
         "sleep",
         "ambient"

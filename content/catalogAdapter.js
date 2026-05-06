@@ -3,6 +3,76 @@ const DEMO_AUDIO_URL = `https://${MOCK_AUDIO_HOST}/obj/developer/sdk/0000-0001.m
 const COVER_BASE_PATH = "../../debug/covers";
 const DEFAULT_CLOUD_CDN_BASE_URL = "https://cdn.example.com";
 
+function ensureArray(value, fieldName) {
+  if (!Array.isArray(value)) {
+    throw new Error(`Catalog field "${fieldName}" must be an array`);
+  }
+
+  return value;
+}
+
+function assertUniqueIds(items, idField, collectionName) {
+  const seen = new Set();
+
+  for (const item of items) {
+    const id = item && item[idField];
+    if (!id) {
+      throw new Error(`Catalog ${collectionName} entry is missing required field "${idField}"`);
+    }
+
+    if (seen.has(id)) {
+      throw new Error(`Catalog ${collectionName} contains duplicate ${idField}: ${id}`);
+    }
+
+    seen.add(id);
+  }
+}
+
+function assertUniqueFeaturedGroupIds(featuredGroupIds, validGroupIds) {
+  const seen = new Set();
+
+  for (const groupId of featuredGroupIds) {
+    if (!validGroupIds.has(groupId)) {
+      throw new Error(`Catalog featuredGroupIds contains unknown group id: ${groupId}`);
+    }
+
+    if (seen.has(groupId)) {
+      throw new Error(`Catalog featuredGroupIds contains duplicate group id: ${groupId}`);
+    }
+
+    seen.add(groupId);
+  }
+}
+
+function validateCatalog(catalog) {
+  if (!catalog || typeof catalog !== "object") {
+    throw new Error("Catalog must be an object");
+  }
+
+  const groups = ensureArray(catalog.groups, "groups");
+  const sounds = ensureArray(catalog.sounds, "sounds");
+
+  assertUniqueIds(groups, "id", "groups");
+  assertUniqueIds(sounds, "id", "sounds");
+
+  const validGroupIds = new Set(groups.map((group) => group.id));
+
+  for (const sound of sounds) {
+    if (!validGroupIds.has(sound.groupId)) {
+      throw new Error(`Catalog sound "${sound.id}" references unknown groupId "${sound.groupId}"`);
+    }
+  }
+
+  if (catalog.defaultGroupId && !validGroupIds.has(catalog.defaultGroupId)) {
+    throw new Error(`Catalog defaultGroupId references unknown group id: ${catalog.defaultGroupId}`);
+  }
+
+  assertUniqueFeaturedGroupIds(
+    Array.isArray(catalog.featuredGroupIds) ? catalog.featuredGroupIds : [],
+    validGroupIds
+  );
+}
+
 function sortBySortThenId(items, idField) {
   return [...(Array.isArray(items) ? items : [])].sort((left, right) => {
     const leftSort = Number(left && left.sort ? left.sort : 0);
@@ -17,6 +87,8 @@ function sortBySortThenId(items, idField) {
 }
 
 function normalizeCatalog(catalog) {
+  validateCatalog(catalog);
+
   return {
     version: catalog && catalog.version ? catalog.version : "",
     defaultGroupId: catalog && catalog.defaultGroupId ? catalog.defaultGroupId : "",
@@ -106,7 +178,7 @@ function buildPublishedContentDocuments(catalog, options = {}) {
     audioUrl: resolveAudioUrl(sound, normalized),
     coverAssetKey: sound.coverAssetKey || "",
     coverUrl: resolveCoverUrl(sound, normalized),
-    durationSec: Number(sound.durationSec || 0),
+    durationSec: sound.durationSec === undefined ? null : sound.durationSec,
     tags: Array.isArray(sound.tags) ? [...sound.tags] : [],
     sort: Number(sound.sort || 0),
     status: "published"

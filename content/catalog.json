@@ -56,6 +56,7 @@
       "unlockLabel": "免费",
       "audioAssetKey": "sleep-sounds/audio/rain_night.mp3",
       "coverAssetKey": "sleep-sounds/cover/rain_night.jpg",
+      "durationSec": null,
       "sort": 10,
       "tags": ["sleep", "rain"]
     },
@@ -68,6 +69,7 @@
       "unlockLabel": "免费",
       "audioAssetKey": "sleep-sounds/audio/ocean_slow.mp3",
       "coverAssetKey": "sleep-sounds/cover/ocean_slow.jpg",
+      "durationSec": null,
       "sort": 20,
       "tags": ["sleep", "water"]
     },
@@ -80,6 +82,7 @@
       "unlockLabel": "免费",
       "audioAssetKey": "sleep-sounds/audio/forest_breeze.mp3",
       "coverAssetKey": "sleep-sounds/cover/forest_breeze.jpg",
+      "durationSec": null,
       "sort": 30,
       "tags": ["sleep", "forest"]
     },
@@ -92,6 +95,7 @@
       "unlockLabel": "免费",
       "audioAssetKey": "sleep-sounds/audio/fireplace_room.mp3",
       "coverAssetKey": "sleep-sounds/cover/fireplace_room.jpg",
+      "durationSec": null,
       "sort": 40,
       "tags": ["sleep", "room"]
     },
@@ -104,6 +108,7 @@
       "unlockLabel": "免费",
       "audioAssetKey": "sleep-sounds/audio/creek_soft.mp3",
       "coverAssetKey": "sleep-sounds/cover/creek_soft.jpg",
+      "durationSec": null,
       "sort": 50,
       "tags": ["sleep", "water"]
     },
@@ -116,6 +121,7 @@
       "unlockLabel": "免费",
       "audioAssetKey": "sleep-sounds/audio/soft_wind.mp3",
       "coverAssetKey": "sleep-sounds/cover/soft_wind.jpg",
+      "durationSec": null,
       "sort": 60,
       "tags": ["sleep", "wind"]
     },
@@ -128,6 +134,7 @@
       "unlockLabel": "免费",
       "audioAssetKey": "sleep-sounds/audio/nap_white_noise.mp3",
       "coverAssetKey": "sleep-sounds/cover/nap_white_noise.jpg",
+      "durationSec": null,
       "sort": 70,
       "tags": ["sleep", "noise"]
     },
@@ -140,6 +147,7 @@
       "unlockLabel": "免费",
       "audioAssetKey": "sleep-sounds/audio/deep_ambient.mp3",
       "coverAssetKey": "sleep-sounds/cover/deep_ambient.jpg",
+      "durationSec": null,
       "sort": 80,
       "tags": ["sleep", "ambient"]
     }
