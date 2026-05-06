@@ -87,9 +87,9 @@ test("serves bootstrap payload from catalog.json", async () => {
   try {
     const address = await listen(server);
     const response = await request(address, "/content/bootstrap");
-    const payload = JSON.parse(response.body);
 
     assert.equal(response.statusCode, 200);
+    const payload = JSON.parse(response.body);
     assert.equal(payload.defaultGroupId, "rain");
     assert.equal(payload.groups[0].sounds[0].unlockLabel, "免费");
     assert.equal(
