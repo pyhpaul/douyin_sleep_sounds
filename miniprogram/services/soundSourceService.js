@@ -1,6 +1,7 @@
 const { soundGroups: localSoundGroups } = require("../data/sounds");
-const { cloudContentConfig } = require("../config/cloudContentConfig");
+const { contentSourceConfig } = require("../config/contentSourceConfig");
 const cloudContentService = require("./cloudContentService");
+const httpContentService = require("./httpContentService");
 const { mapBootstrapToSoundGroups } = require("./contentMapper");
 
 function cloneLocalSoundGroups() {
@@ -10,43 +11,38 @@ function cloneLocalSoundGroups() {
   }));
 }
 
+function getRemoteContentService() {
+  switch (contentSourceConfig.provider) {
+    case "http":
+      return httpContentService;
+    case "douyinCloud":
+      return cloudContentService;
+    case "local":
+    default:
+      return null;
+  }
+}
+
 function isValidBootstrapPayload(payload) {
-  if (!payload || typeof payload !== "object") {
-    return false;
-  }
-
-  if (payload.groups === undefined) {
-    return true;
-  }
-
-  return Array.isArray(payload.groups);
+  return Boolean(payload) && typeof payload === "object" && Array.isArray(payload.groups);
 }
 
 async function getSoundGroups() {
-  if (!cloudContentConfig.enabled) {
+  const remoteContentService = getRemoteContentService();
+  if (!remoteContentService) {
     return cloneLocalSoundGroups();
   }
 
   try {
-    const payload = await cloudContentService.getContentBootstrap();
+    const payload = await remoteContentService.getContentBootstrap();
     if (!isValidBootstrapPayload(payload)) {
-      console.warn("cloud content response is invalid; falling back to local mock");
+      console.warn("remote content response is invalid; falling back to local mock");
       return cloneLocalSoundGroups();
     }
 
     return mapBootstrapToSoundGroups(payload);
   } catch (error) {
-    const message = error && error.message ? error.message : error;
-    const isResponseProblem =
-      typeof message === "string" &&
-      (message.includes("Invalid cloud content") || message.includes("response is invalid"));
-
-    console.warn(
-      isResponseProblem
-        ? "cloud content payload is malformed; falling back to local mock"
-        : "cloud content fetch failed; falling back to local mock",
-      error
-    );
+    console.warn("remote content fetch failed; falling back to local mock", error);
     return cloneLocalSoundGroups();
   }
 }

@@ -1,4 +1,4 @@
-const { cloudContentConfig } = require("../config/cloudContentConfig");
+const { contentSourceConfig } = require("../config/contentSourceConfig");
 
 let cloudPromise = null;
 
@@ -8,8 +8,8 @@ function createCloudInstance() {
   }
 
   return tt.createCloud({
-    envID: cloudContentConfig.envId,
-    serviceID: cloudContentConfig.serviceId
+    envID: contentSourceConfig.envId,
+    serviceID: contentSourceConfig.serviceId
   });
 }
 
@@ -37,13 +37,13 @@ async function getContentBootstrap() {
 
   return new Promise((resolve, reject) => {
     cloud.callContainer({
-      path: cloudContentConfig.bootstrapPath,
+      path: contentSourceConfig.bootstrapPath,
       init: {
         method: "GET",
         header: {
           "content-type": "application/json"
         },
-        timeout: cloudContentConfig.timeoutMs
+        timeout: contentSourceConfig.timeoutMs
       },
       success(response) {
         resolve(response && response.data ? response.data : response);

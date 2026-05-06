@@ -64,6 +64,7 @@ function buildContentBootstrapResponse({ groups, sounds, appConfig }) {
       title: sound.title,
       category: sound.category || "",
       description: sound.description || "",
+      unlockLabel: sound.unlockLabel || "",
       url: sound.audioUrl || "",
       cover: sound.coverUrl || ""
     });

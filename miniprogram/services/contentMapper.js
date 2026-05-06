@@ -42,6 +42,7 @@ function mapBootstrapToSoundGroups(payload) {
           title: sound.title,
           category: sound.category || "",
           description: sound.description || "",
+          unlockLabel: sound.unlockLabel || "",
           url: sound.url,
           cover: sound.cover || ""
         };

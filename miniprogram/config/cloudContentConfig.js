@@ -1,11 +1,5 @@
-const cloudContentConfig = {
-  enabled: false,
-  envId: "",
-  serviceId: "",
-  bootstrapPath: "/content/bootstrap",
-  timeoutMs: 5000
-};
+const { contentSourceConfig } = require("./contentSourceConfig");
 
 module.exports = {
-  cloudContentConfig
+  cloudContentConfig: contentSourceConfig
 };
