@@ -25,18 +25,6 @@ test("groups published sounds under published groups and sorts by sort ascending
     ],
     sounds: [
       {
-        soundId: "wave",
-        groupId: "nature",
-        title: "海浪",
-        category: "自然",
-        description: "轻缓海浪声，适合睡前稳定呼吸节奏。",
-        unlockLabel: "免费",
-        audioUrl: "https://cdn.example.com/audio/wave.mp3",
-        coverUrl: "https://cdn.example.com/cover/wave.jpg",
-        sort: 20,
-        status: "published"
-      },
-      {
         soundId: "rain",
         groupId: "nature",
         title: "雨声",
@@ -46,6 +34,18 @@ test("groups published sounds under published groups and sorts by sort ascending
         audioUrl: "https://cdn.example.com/audio/rain.mp3",
         coverUrl: "https://cdn.example.com/cover/rain.jpg",
         sort: 10,
+        status: "published"
+      },
+      {
+        soundId: "wave",
+        groupId: "nature",
+        title: "海浪",
+        category: "自然",
+        description: "轻缓海浪声，适合睡前稳定呼吸节奏。",
+        unlockLabel: "免费",
+        audioUrl: "https://cdn.example.com/audio/wave.mp3",
+        coverUrl: "https://cdn.example.com/cover/wave.jpg",
+        sort: 20,
         status: "published"
       }
     ],
@@ -57,9 +57,17 @@ test("groups published sounds under published groups and sorts by sort ascending
   });
 
   assert.equal(response.version, "2026-05-06T16:00:00Z");
-  assert.equal(response.groups[0].id, "nature");
-  assert.equal(response.groups[0].sounds[0].id, "rain");
+  assert.deepEqual(
+    response.groups.map((group) => group.id),
+    ["nature"]
+  );
+  assert.deepEqual(
+    response.groups[0].sounds.map((sound) => sound.id),
+    ["rain", "wave"]
+  );
   assert.equal(response.groups[0].sounds[0].unlockLabel, "免费");
+  assert.equal(response.groups[0].sounds[0].url, "https://cdn.example.com/audio/rain.mp3");
+  assert.equal(response.groups[0].sounds[0].cover, "https://cdn.example.com/cover/rain.jpg");
   assert.deepEqual(response.featuredGroupIds, ["nature"]);
 });
 

@@ -12,30 +12,19 @@ const fixtureCatalog = {
   featuredGroupIds: ["rain", "ambient"],
   groups: [
     {
-      id: "rain",
-      title: "雨声",
-      subtitle: "细密雨声，适合放松和屏蔽环境噪声。",
-      sort: 10
-    },
-    {
       id: "ambient",
       title: "环境",
       subtitle: "轻柔背景音，适合专注和入睡。",
       sort: 20
+    },
+    {
+      id: "rain",
+      title: "雨声",
+      subtitle: "细密雨声，适合放松和屏蔽环境噪声。",
+      sort: 10
     }
   ],
   sounds: [
-    {
-      id: "rain_night",
-      groupId: "rain",
-      title: "夜雨",
-      category: "自然",
-      description: "细密雨声，适合放松和屏蔽环境噪声。",
-      unlockLabel: "免费",
-      audioAssetKey: "audio/rain_night.mp3",
-      coverAssetKey: "covers/rain_night.jpg",
-      sort: 10
-    },
     {
       id: "deep_ambient",
       groupId: "ambient",
@@ -43,9 +32,20 @@ const fixtureCatalog = {
       category: "环境",
       description: "低频、平稳、适合冥想和专注。",
       unlockLabel: "免费",
-      audioAssetKey: "audio/deep_ambient.mp3",
-      coverAssetKey: "covers/deep_ambient.jpg",
+      audioAssetKey: "sleep-sounds/audio/deep_ambient.mp3",
+      coverAssetKey: "sleep-sounds/cover/deep_ambient.jpg",
       sort: 20
+    },
+    {
+      id: "rain_night",
+      groupId: "rain",
+      title: "夜雨",
+      category: "自然",
+      description: "细密雨声，适合放松和屏蔽环境噪声。",
+      unlockLabel: "免费",
+      audioAssetKey: "sleep-sounds/audio/rain_night.mp3",
+      coverAssetKey: "sleep-sounds/cover/rain_night.jpg",
+      sort: 10
     }
   ]
 };
@@ -55,10 +55,14 @@ test("buildLocalSoundsModule keeps the current local catalog contract", () => {
 
   assert.equal(localModule.MOCK_AUDIO_HOST, "sf1-ttcdn-tos.pstatp.com");
   assert.equal(localModule.COVER_BASE_PATH, "../../debug/covers");
-  assert.equal(localModule.soundGroups.length, 2);
+  assert.deepEqual(localModule.soundGroups.map((group) => group.id), ["rain", "ambient"]);
   assert.equal(localModule.soundGroups[0].thumbnail, "../../debug/covers/rain_night.jpg");
+  assert.equal(localModule.soundGroups[0].sounds[0].id, "rain_night");
   assert.equal(localModule.soundGroups[0].sounds[0].unlockLabel, "免费");
-  assert.match(localModule.soundGroups[0].sounds[0].url, /^https:\/\//);
+  assert.equal(
+    localModule.soundGroups[0].sounds[0].url,
+    "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3"
+  );
 });
 
 test("buildCloudSeed maps the catalog into the cloud seed shape", () => {
@@ -68,11 +72,12 @@ test("buildCloudSeed maps the catalog into the cloud seed shape", () => {
 
   assert.equal(seed.appConfig.defaultGroupId, "rain");
   assert.deepEqual(seed.appConfig.featuredGroupIds, ["rain", "ambient"]);
-  assert.equal(seed.groups[0].groupId, "rain");
-  assert.equal(seed.sounds[0].soundId, "rain_night");
+  assert.deepEqual(seed.groups.map((group) => group.groupId), ["rain", "ambient"]);
+  assert.deepEqual(seed.sounds.map((sound) => sound.soundId), ["rain_night", "deep_ambient"]);
   assert.equal(seed.sounds[0].unlockLabel, "免费");
-  assert.equal(
-    seed.sounds[0].audioUrl,
-    "https://cdn.sleep.test/sleep-sounds/audio/rain_night.mp3"
-  );
+  assert.equal(seed.sounds[0].audioUrl, "https://cdn.sleep.test/sleep-sounds/audio/rain_night.mp3");
+  assert.equal(seed.sounds[0].coverUrl, "https://cdn.sleep.test/sleep-sounds/cover/rain_night.jpg");
+  assert.equal(seed.sounds[1].unlockLabel, "免费");
+  assert.equal(seed.sounds[1].audioUrl, "https://cdn.sleep.test/sleep-sounds/audio/deep_ambient.mp3");
+  assert.equal(seed.sounds[1].coverUrl, "https://cdn.sleep.test/sleep-sounds/cover/deep_ambient.jpg");
 });
