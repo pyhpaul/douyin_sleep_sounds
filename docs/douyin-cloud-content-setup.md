@@ -87,7 +87,7 @@ Run in this order:
 
 1. Open Douyin Cloud `dev` resources.
 2. Upload audio and cover assets.
-3. Replace `cdn.example.com` inside `cloud/seed/content.seed.json`.
+3. Set `CLOUD_CONTENT_CDN_BASE_URL` and run `npm run sync:content` to refresh `cloud/seed/content.seed.json`.
 4. Seed MongoDB with `npm run seed:cloud-content`.
 5. Deploy the function route `GET /content/bootstrap`.
 6. Keep `miniprogram/config/cloudContentConfig.js` as `enabled: false` and verify local fallback first.
@@ -113,7 +113,7 @@ const cloudContentConfig = {
 Then verify in DevTools Lite:
 
 1. Open the mini app.
-2. Confirm the page still shows 3 groups and 6 sounds.
+2. Confirm the page still shows 7 groups / 8 sounds.
 3. Confirm channel tab switching still works.
 4. Confirm player tab switching still works.
 5. Confirm playback, pause, loop, and timer behavior are unchanged.

@@ -70,5 +70,6 @@ function createVmContentServer(options = {}) {
   });
 }
 
-module.exports = createVmContentServer;
-module.exports.createVmContentServer = createVmContentServer;
+module.exports = {
+  createVmContentServer
+};

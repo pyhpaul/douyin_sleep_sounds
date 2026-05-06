@@ -1,7 +1,4 @@
-const createVmContentServerModule = require("./createVmContentServer");
-
-const createVmContentServer =
-  createVmContentServerModule.createVmContentServer || createVmContentServerModule;
+const { createVmContentServer } = require("./createVmContentServer");
 const port = Number.parseInt(process.env.VM_CONTENT_PORT || "8787", 10);
 
 const server = createVmContentServer({
