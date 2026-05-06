@@ -17,6 +17,7 @@ test("maps bootstrap payload into current soundGroups shape", () => {
             title: "雨声",
             category: "自然",
             description: "细密雨声，适合放松和屏蔽环境噪声。",
+            unlockLabel: "免费",
             url: "https://cdn.example.com/audio/rain.mp3",
             cover: "https://cdn.example.com/cover/rain.jpg"
           }
@@ -36,6 +37,7 @@ test("maps bootstrap payload into current soundGroups shape", () => {
           title: "雨声",
           category: "自然",
           description: "细密雨声，适合放松和屏蔽环境噪声。",
+          unlockLabel: "免费",
           url: "https://cdn.example.com/audio/rain.mp3",
           cover: "https://cdn.example.com/cover/rain.jpg"
         }

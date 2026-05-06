@@ -30,6 +30,7 @@ test("groups published sounds under published groups and sorts by sort ascending
         title: "海浪",
         category: "自然",
         description: "轻缓海浪声，适合睡前稳定呼吸节奏。",
+        unlockLabel: "免费",
         audioUrl: "https://cdn.example.com/audio/wave.mp3",
         coverUrl: "https://cdn.example.com/cover/wave.jpg",
         sort: 20,
@@ -41,6 +42,7 @@ test("groups published sounds under published groups and sorts by sort ascending
         title: "雨声",
         category: "自然",
         description: "细密雨声，适合放松和屏蔽环境噪声。",
+        unlockLabel: "免费",
         audioUrl: "https://cdn.example.com/audio/rain.mp3",
         coverUrl: "https://cdn.example.com/cover/rain.jpg",
         sort: 10,
@@ -57,6 +59,7 @@ test("groups published sounds under published groups and sorts by sort ascending
   assert.equal(response.version, "2026-05-06T16:00:00Z");
   assert.equal(response.groups[0].id, "nature");
   assert.equal(response.groups[0].sounds[0].id, "rain");
+  assert.equal(response.groups[0].sounds[0].unlockLabel, "免费");
   assert.deepEqual(response.featuredGroupIds, ["nature"]);
 });
 
