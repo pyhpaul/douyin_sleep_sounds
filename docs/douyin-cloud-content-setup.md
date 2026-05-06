@@ -67,13 +67,14 @@ Deploy `cloud/functions/contentBootstrap/index.js` as the handler for:
 
 `GET /content/bootstrap`
 
-## 6. Enable mini app cloud access
+## 6. Point the mini app at Douyin Cloud content
 
-Update `miniprogram/config/cloudContentConfig.js` with the target environment and service:
+Update `miniprogram/config/contentSourceConfig.js` with the target environment and service:
 
 ```js
-const cloudContentConfig = {
-  enabled: true,
+const contentSourceConfig = {
+  provider: "douyinCloud",
+  httpBaseUrl: "",
   envId: "your-env-id",
   serviceId: "your-service-id",
   bootstrapPath: "/content/bootstrap",
@@ -90,8 +91,8 @@ Run in this order:
 3. Set `CLOUD_CONTENT_CDN_BASE_URL` and run `npm run sync:content` to refresh `cloud/seed/content.seed.json`.
 4. Seed MongoDB with `npm run seed:cloud-content`.
 5. Deploy the function route `GET /content/bootstrap`.
-6. Keep `miniprogram/config/cloudContentConfig.js` as `enabled: false` and verify local fallback first.
-7. Switch `enabled` to `true`, fill real `envId` and `serviceId`, then verify the cloud path.
+6. Keep `miniprogram/config/contentSourceConfig.js` on the local provider and verify local fallback first.
+7. Switch `provider` to `"douyinCloud"`, fill real `envId` and `serviceId`, then verify the cloud path.
 8. After the first successful `dev` verification, append a verification note at the end of this file.
 
 ## 8. Local fallback verification
@@ -101,8 +102,9 @@ Before enabling cloud access, confirm the mini app still works with local mock d
 Keep:
 
 ```js
-const cloudContentConfig = {
-  enabled: false,
+const contentSourceConfig = {
+  provider: "local",
+  httpBaseUrl: "",
   envId: "",
   serviceId: "",
   bootstrapPath: "/content/bootstrap",
@@ -125,8 +127,9 @@ If this step fails, stop here. Do not start cloud verification before local fall
 After local fallback is confirmed and cloud resources are ready, switch to the real cloud config:
 
 ```js
-const cloudContentConfig = {
-  enabled: true,
+const contentSourceConfig = {
+  provider: "douyinCloud",
+  httpBaseUrl: "",
   envId: "your-env-id",
   serviceId: "your-service-id",
   bootstrapPath: "/content/bootstrap",
@@ -139,7 +142,7 @@ Then verify in DevTools Lite:
 1. Reload the mini app.
 2. Confirm the page still renders the same `soundGroups` shape.
 3. Confirm a cloud-backed title change is reflected after reload:
-   - pick one sound in MongoDB, for example `rain`
+   - pick one sound in MongoDB, for example `rain_night`
    - temporarily change its `title`
    - reload the mini app
    - confirm the changed title appears
@@ -154,7 +157,7 @@ Recommended quick checks when debugging:
   - re-run `npm run sync:content` with `CLOUD_CONTENT_CDN_BASE_URL`
   - confirm all `audioUrl` and `coverUrl` entries no longer use `cdn.example.com`
 - If the mini app still shows old data:
-  - confirm `enabled` is `true`
+  - confirm `provider` is `"douyinCloud"`
   - confirm `envId` and `serviceId` are correct
   - confirm the function route is exactly `GET /content/bootstrap`
 - If the page becomes empty:

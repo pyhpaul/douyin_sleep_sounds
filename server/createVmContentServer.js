@@ -17,12 +17,13 @@ function normalizeBaseUrl(baseUrl) {
 
 function buildAssetUrl(baseUrl, assetKey, fallbackUrl) {
   const normalizedBaseUrl = normalizeBaseUrl(baseUrl);
+  const normalizedAssetKey = String(assetKey || "").replace(/^\/+/, "");
 
-  if (!normalizedBaseUrl) {
+  if (!normalizedBaseUrl || !normalizedAssetKey) {
     return fallbackUrl;
   }
 
-  return `${normalizedBaseUrl}/${String(assetKey || "").replace(/^\/+/, "")}`;
+  return `${normalizedBaseUrl}/${normalizedAssetKey}`;
 }
 
 function loadCatalog(catalogPath) {
