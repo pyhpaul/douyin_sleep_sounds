@@ -2,6 +2,17 @@ const { contentSourceConfig } = require("../config/contentSourceConfig");
 
 let cloudPromise = null;
 
+function assertSuccessfulResponse(response) {
+  const statusCode = response?.statusCode;
+  if (statusCode === undefined) {
+    return;
+  }
+
+  if (statusCode < 200 || statusCode >= 300) {
+    throw new Error(`cloud content request failed with status ${statusCode}`);
+  }
+}
+
 function createCloudInstance() {
   if (typeof tt === "undefined" || typeof tt.createCloud !== "function") {
     throw new Error("tt.createCloud is unavailable");
@@ -46,7 +57,12 @@ async function getContentBootstrap() {
         timeout: contentSourceConfig.timeoutMs
       },
       success(response) {
-        resolve(response && response.data ? response.data : response);
+        try {
+          assertSuccessfulResponse(response);
+          resolve(response?.data ?? response);
+        } catch (error) {
+          reject(error);
+        }
       },
       fail(error) {
         reject(error);

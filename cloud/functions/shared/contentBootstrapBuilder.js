@@ -11,6 +11,29 @@ function sortBySortThenId(items, idField) {
   });
 }
 
+function isNonEmptyString(value) {
+  return typeof value === "string" && value.length > 0;
+}
+
+function isValidPublishedGroup(group) {
+  return (
+    group &&
+    group.status === "published" &&
+    isNonEmptyString(group.groupId) &&
+    isNonEmptyString(group.title)
+  );
+}
+
+function isValidPublishedSound(sound) {
+  return (
+    sound &&
+    sound.status === "published" &&
+    isNonEmptyString(sound.soundId) &&
+    isNonEmptyString(sound.title) &&
+    isNonEmptyString(sound.audioUrl)
+  );
+}
+
 function toValidGroupIds(candidateIds, validGroupIds) {
   if (!Array.isArray(candidateIds) || validGroupIds.size === 0) {
     return [];
@@ -33,11 +56,11 @@ function toValidGroupIds(candidateIds, validGroupIds) {
 
 function buildContentBootstrapResponse({ groups, sounds, appConfig }) {
   const publishedGroups = sortBySortThenId(
-    (groups || []).filter((group) => group.status === "published"),
+    (groups || []).filter(isValidPublishedGroup),
     "groupId"
   );
   const publishedSounds = sortBySortThenId(
-    (sounds || []).filter((sound) => sound.status === "published"),
+    (sounds || []).filter(isValidPublishedSound),
     "soundId"
   );
 

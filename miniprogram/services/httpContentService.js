@@ -8,6 +8,17 @@ function buildRequestUrl() {
   return `${contentSourceConfig.httpBaseUrl}${contentSourceConfig.bootstrapPath}`;
 }
 
+function assertSuccessfulResponse(response) {
+  const statusCode = response?.statusCode;
+  if (statusCode === undefined) {
+    return;
+  }
+
+  if (statusCode < 200 || statusCode >= 300) {
+    throw new Error(`http content request failed with status ${statusCode}`);
+  }
+}
+
 async function getContentBootstrap() {
   if (typeof tt === "undefined" || typeof tt.request !== "function") {
     throw new Error("tt.request is unavailable");
@@ -22,7 +33,12 @@ async function getContentBootstrap() {
       },
       timeout: contentSourceConfig.timeoutMs,
       success(response) {
-        resolve(response?.data ?? response);
+        try {
+          assertSuccessfulResponse(response);
+          resolve(response?.data ?? response);
+        } catch (error) {
+          reject(error);
+        }
       },
       fail(error) {
         reject(error);
