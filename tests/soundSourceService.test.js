@@ -4,17 +4,33 @@ const test = require("node:test");
 
 const { MOCK_AUDIO_HOST } = require("../miniprogram/data/sounds");
 
-const configPath = path.resolve(__dirname, "../miniprogram/config/cloudContentConfig.js");
+const configPath = path.resolve(__dirname, "../miniprogram/config/contentSourceConfig.js");
+const httpPath = path.resolve(__dirname, "../miniprogram/services/httpContentService.js");
 const cloudPath = path.resolve(__dirname, "../miniprogram/services/cloudContentService.js");
 const sourcePath = path.resolve(__dirname, "../miniprogram/services/soundSourceService.js");
 
-function loadSoundSourceService({ enabled, cloudResponse, cloudError }) {
-  delete require.cache[require.resolve(configPath)];
-  delete require.cache[require.resolve(cloudPath)];
-  delete require.cache[require.resolve(sourcePath)];
+function clearModule(modulePath) {
+  try {
+    delete require.cache[require.resolve(modulePath)];
+  } catch {}
+}
 
-  const { cloudContentConfig } = require(configPath);
-  cloudContentConfig.enabled = enabled;
+function loadSoundSourceService({ provider, httpResponse, httpError, cloudResponse, cloudError }) {
+  clearModule(configPath);
+  clearModule(httpPath);
+  clearModule(cloudPath);
+  clearModule(sourcePath);
+
+  const { contentSourceConfig } = require(configPath);
+  contentSourceConfig.provider = provider;
+
+  const httpService = require(httpPath);
+  httpService.getContentBootstrap = async () => {
+    if (httpError) {
+      throw httpError;
+    }
+    return httpResponse;
+  };
 
   const cloudService = require(cloudPath);
   cloudService.getContentBootstrap = async () => {
@@ -28,9 +44,10 @@ function loadSoundSourceService({ enabled, cloudResponse, cloudError }) {
 }
 
 function cleanupSoundSourceModules() {
-  delete require.cache[require.resolve(configPath)];
-  delete require.cache[require.resolve(cloudPath)];
-  delete require.cache[require.resolve(sourcePath)];
+  clearModule(configPath);
+  clearModule(httpPath);
+  clearModule(cloudPath);
+  clearModule(sourcePath);
   delete global.tt;
 }
 
@@ -38,21 +55,24 @@ test.afterEach(() => {
   cleanupSoundSourceModules();
 });
 
-test("returns cloned local sounds when cloud is disabled", async () => {
-  const service = loadSoundSourceService({ enabled: false });
+test("returns cloned local sounds when provider is local", async () => {
+  const service = loadSoundSourceService({ provider: "local" });
   const first = await service.getSoundGroups();
   const second = await service.getSoundGroups();
 
-  assert.equal(first[0].title, "自然");
+  assert.equal(first[0].title, "雨声");
+  assert.equal(first.length, 7);
+  assert.equal(first.flatMap((group) => group.sounds).length, 8);
+  assert.equal(first[0].thumbnail, "../../debug/covers/rain_night.jpg");
   assert.notEqual(first, second);
   assert.notEqual(first[0], second[0]);
   assert.equal(typeof service.getSoundGroups().then, "function");
 });
 
-test("returns mapped cloud sounds when cloud is enabled and fetch succeeds", async () => {
+test("returns mapped HTTP sounds when provider is http", async () => {
   const service = loadSoundSourceService({
-    enabled: true,
-    cloudResponse: {
+    provider: "http",
+    httpResponse: {
       version: "2026-05-06T16:00:00Z",
       groups: [
         {
@@ -65,6 +85,7 @@ test("returns mapped cloud sounds when cloud is enabled and fetch succeeds", asy
               title: "棕噪音",
               category: "专注",
               description: "低频连续噪声。",
+              unlockLabel: "免费",
               url: "https://cdn.example.com/audio/brown-noise.mp3",
               cover: "https://cdn.example.com/cover/brown-noise.jpg"
             }
@@ -78,35 +99,28 @@ test("returns mapped cloud sounds when cloud is enabled and fetch succeeds", asy
 
   assert.equal(groups[0].id, "focus");
   assert.equal(groups[0].sounds[0].id, "brown-noise");
-  assert.equal(groups[0].sounds[0].category, "专注");
+  assert.equal(groups[0].sounds[0].unlockLabel, "免费");
 });
 
-test("falls back to local sounds when cloud fetch fails", async () => {
+test("returns mapped cloud sounds when provider is douyinCloud", async () => {
   const service = loadSoundSourceService({
-    enabled: true,
-    cloudError: new Error("cloud unavailable")
-  });
-
-  const groups = await service.getSoundGroups();
-  const sounds = groups.flatMap((group) => group.sounds);
-
-  assert.equal(groups[0].id, "nature");
-  assert.equal(sounds.length, 6);
-});
-
-test("falls back to local sounds when cloud payload is malformed", async () => {
-  const service = loadSoundSourceService({
-    enabled: true,
+    provider: "douyinCloud",
     cloudResponse: {
       version: "2026-05-06T16:00:00Z",
       groups: [
         {
-          id: "broken",
-          title: "损坏分组",
+          id: "meditation",
+          title: "冥想",
+          subtitle: "适合放松呼吸。",
           sounds: [
             {
-              id: "missing-url",
-              title: "缺链接"
+              id: "breathing-space",
+              title: "呼吸空间",
+              category: "冥想",
+              description: "平稳的冥想背景声。",
+              unlockLabel: "免费",
+              url: "https://cdn.example.com/audio/breathing-space.mp3",
+              cover: "https://cdn.example.com/cover/breathing-space.jpg"
             }
           ]
         }
@@ -116,13 +130,40 @@ test("falls back to local sounds when cloud payload is malformed", async () => {
 
   const groups = await service.getSoundGroups();
 
-  assert.equal(groups[0].id, "nature");
-  assert.equal(groups.length, 3);
+  assert.equal(groups[0].id, "meditation");
+  assert.equal(groups[0].sounds[0].unlockLabel, "免费");
+});
+
+test("falls back to local sounds when remote provider fetch fails", async () => {
+  const service = loadSoundSourceService({
+    provider: "http",
+    httpError: new Error("http unavailable")
+  });
+
+  const groups = await service.getSoundGroups();
+  const sounds = groups.flatMap((group) => group.sounds);
+
+  assert.equal(groups[0].id, "rain");
+  assert.equal(sounds.length, 8);
+});
+
+test("falls back to local sounds when bootstrap payload is malformed", async () => {
+  const service = loadSoundSourceService({
+    provider: "douyinCloud",
+    cloudResponse: {
+      version: "2026-05-06T16:00:00Z"
+    }
+  });
+
+  const groups = await service.getSoundGroups();
+
+  assert.equal(groups[0].id, "rain");
+  assert.equal(groups.length, 7);
 });
 
 test("preserves required playback metadata on local fallback", async () => {
   const service = loadSoundSourceService({
-    enabled: true,
+    provider: "douyinCloud",
     cloudError: new Error("cloud unavailable")
   });
   const sounds = (await service.getSoundGroups()).flatMap((group) => group.sounds);
@@ -134,6 +175,7 @@ test("preserves required playback metadata on local fallback", async () => {
     assert.equal(typeof sound.title, "string");
     assert.equal(typeof sound.category, "string");
     assert.equal(typeof sound.description, "string");
+    assert.equal(typeof sound.unlockLabel, "string");
     assert.equal(typeof sound.url, "string");
     assert.equal(typeof sound.cover, "string");
     assert.match(sound.url, /^https:\/\//);
