@@ -5,7 +5,7 @@ const os = require("node:os");
 const path = require("node:path");
 const test = require("node:test");
 
-const createVmContentServer = require("../server/createVmContentServer");
+const { createVmContentServer } = require("../server/createVmContentServer");
 
 function listen(server) {
   return new Promise((resolve, reject) => {
