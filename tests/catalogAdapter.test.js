@@ -12,13 +12,13 @@ const fixtureCatalog = {
   featuredGroupIds: ["rain", "ambient"],
   groups: [
     {
-      groupId: "rain",
+      id: "rain",
       title: "雨声",
       subtitle: "细密雨声，适合放松和屏蔽环境噪声。",
       sort: 10
     },
     {
-      groupId: "ambient",
+      id: "ambient",
       title: "环境",
       subtitle: "轻柔背景音，适合专注和入睡。",
       sort: 20
@@ -26,7 +26,7 @@ const fixtureCatalog = {
   ],
   sounds: [
     {
-      soundId: "rain_night",
+      id: "rain_night",
       groupId: "rain",
       title: "夜雨",
       category: "自然",
@@ -37,7 +37,7 @@ const fixtureCatalog = {
       sort: 10
     },
     {
-      soundId: "deep_ambient",
+      id: "deep_ambient",
       groupId: "ambient",
       title: "深度环境音",
       category: "环境",
@@ -66,8 +66,8 @@ test("buildCloudSeed maps the catalog into the cloud seed shape", () => {
     cdnBaseUrl: "https://cdn.sleep.test"
   });
 
-  assert.equal(seed.defaultGroupId, "rain");
-  assert.deepEqual(seed.featuredGroupIds, ["rain", "ambient"]);
+  assert.equal(seed.appConfig.defaultGroupId, "rain");
+  assert.deepEqual(seed.appConfig.featuredGroupIds, ["rain", "ambient"]);
   assert.equal(seed.groups[0].groupId, "rain");
   assert.equal(seed.sounds[0].soundId, "rain_night");
   assert.equal(seed.sounds[0].unlockLabel, "免费");
