@@ -17,22 +17,33 @@ Configure these env vars on the function service:
 
 ## 3. Upload media assets
 
-Upload files that match the keys used in `cloud/seed/content.seed.json`:
+Upload files that match the asset keys in `content/catalog.json` (current catalog: 8 sounds / 8 covers):
 
-- `sleep-sounds/audio/rain-v1.mp3`
-- `sleep-sounds/audio/wave-v1.mp3`
-- `sleep-sounds/audio/fire-v1.mp3`
-- `sleep-sounds/audio/wind-v1.mp3`
-- `sleep-sounds/audio/soft-music-v1.mp3`
-- `sleep-sounds/audio/deep-breath-v1.mp3`
-- `sleep-sounds/cover/rain-v1.jpg`
-- `sleep-sounds/cover/wave-v1.jpg`
-- `sleep-sounds/cover/fire-v1.jpg`
-- `sleep-sounds/cover/wind-v1.jpg`
-- `sleep-sounds/cover/soft-music-v1.jpg`
-- `sleep-sounds/cover/deep-breath-v1.jpg`
+- `sleep-sounds/audio/rain_night.mp3`
+- `sleep-sounds/audio/ocean_slow.mp3`
+- `sleep-sounds/audio/forest_breeze.mp3`
+- `sleep-sounds/audio/fireplace_room.mp3`
+- `sleep-sounds/audio/creek_soft.mp3`
+- `sleep-sounds/audio/soft_wind.mp3`
+- `sleep-sounds/audio/nap_white_noise.mp3`
+- `sleep-sounds/audio/deep_ambient.mp3`
+- `sleep-sounds/cover/rain_night.jpg`
+- `sleep-sounds/cover/ocean_slow.jpg`
+- `sleep-sounds/cover/forest_breeze.jpg`
+- `sleep-sounds/cover/fireplace_room.jpg`
+- `sleep-sounds/cover/creek_soft.jpg`
+- `sleep-sounds/cover/soft_wind.jpg`
+- `sleep-sounds/cover/nap_white_noise.jpg`
+- `sleep-sounds/cover/deep_ambient.jpg`
 
-Replace the `cdn.example.com` URLs in `cloud/seed/content.seed.json` with your real CDN domain before seeding.
+Before seeding, generate the seed from the catalog with your real CDN base URL:
+
+```powershell
+$env:CLOUD_CONTENT_CDN_BASE_URL="https://cdn.your-domain.com"
+npm run sync:content
+```
+
+This refreshes `cloud/seed/content.seed.json`. You no longer need to hand-edit CDN URLs inside the seed file.
 
 ## 4. Seed content
 
@@ -140,6 +151,7 @@ Recommended quick checks when debugging:
 
 - If seeding fails:
   - confirm `SLEEP_SOUNDS_MONGO_URI`
+  - re-run `npm run sync:content` with `CLOUD_CONTENT_CDN_BASE_URL`
   - confirm all `audioUrl` and `coverUrl` entries no longer use `cdn.example.com`
 - If the mini app still shows old data:
   - confirm `enabled` is `true`

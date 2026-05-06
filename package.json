@@ -7,7 +7,8 @@
     "check": "node scripts/check-syntax.js",
     "debug:page": "node --test tests/pageRuntime.test.js",
     "sync:content": "node scripts/sync-content-artifacts.js",
-    "seed:cloud-content": "node cloud/scripts/seedContent.js"
+    "seed:cloud-content": "node cloud/scripts/seedContent.js",
+    "serve:vm-content": "node server/index.js"
   },
   "dependencies": {
     "mongodb": "^6.7.0"
