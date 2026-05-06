@@ -33,6 +33,23 @@ test("clicking a sound starts background audio and confirms on play", async () =
   runtime.restore();
 });
 
+test("play toggle can pause even before onPlay event arrives", async () => {
+  const runtime = createMiniAppRuntime();
+  const page = runtime.loadPage("../miniprogram/pages/index/index.js");
+
+  await page.call("onLoad");
+  await runtime.flushAsync();
+
+  page.call("handlePlayToggle");
+  page.call("handlePlayToggle");
+
+  assert.equal(runtime.audio.playCalls, 1);
+  assert.equal(runtime.audio.pauseCalls, 1);
+  assert.equal(page.data.isPlaying, false);
+
+  runtime.restore();
+});
+
 test("timer expiration on show stops audio and clears timer state", async () => {
   const runtime = createMiniAppRuntime();
   runtime.storage.set("sleepSounds.timerMinutes", 15);

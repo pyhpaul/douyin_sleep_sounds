@@ -374,6 +374,8 @@ Page({
       return;
     }
 
+    this.refreshView({ currentSoundId: soundId, isPlaying: true });
+
     if (this.data.selectedTimerMinutes > 0 && !this.timerEndAt) {
       this.startTimer(this.data.selectedTimerMinutes);
     }
@@ -395,10 +397,17 @@ Page({
 
   pauseCurrentSound() {
     this.pendingPlaySoundId = "";
-    if (this.audioManager && typeof this.audioManager.pause === "function") {
-      this.audioManager.pause();
-    }
     this.refreshView({ isPlaying: false });
+
+    if (this.audioManager && typeof this.audioManager.pause === "function") {
+      try {
+        this.audioManager.pause();
+      } catch (error) {
+        showToast("暂停失败，请重试");
+      }
+    } else {
+      showToast("当前环境不支持音频暂停");
+    }
   },
 
   handleAudioEnded() {
