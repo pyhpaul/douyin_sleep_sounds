@@ -24,7 +24,12 @@ function getRemoteContentService() {
 }
 
 function isValidBootstrapPayload(payload) {
-  return Boolean(payload) && typeof payload === "object" && Array.isArray(payload.groups);
+  return (
+    payload !== null &&
+    typeof payload === "object" &&
+    !Array.isArray(payload) &&
+    Array.isArray(payload.groups)
+  );
 }
 
 async function getSoundGroups() {

@@ -22,7 +22,7 @@ async function getContentBootstrap() {
       },
       timeout: contentSourceConfig.timeoutMs,
       success(response) {
-        resolve(response && response.data ? response.data : response);
+        resolve(response?.data ?? response);
       },
       fail(error) {
         reject(error);
