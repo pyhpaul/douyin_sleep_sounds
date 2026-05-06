@@ -264,6 +264,58 @@
   box-shadow: inset 0 0 54rpx rgba(0, 0, 0, 0.44), 0 26rpx 76rpx rgba(0, 0, 0, 0.34);
 }
 
+.album-disc-sheen,
+.album-disc-rings,
+.album-disc-label,
+.mini-disc-sheen,
+.mini-disc-rings,
+.mini-disc-label {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  pointer-events: none;
+}
+
+.album-disc-sheen,
+.mini-disc-sheen {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.10) 16%, transparent 32%),
+    linear-gradient(325deg, transparent 0 58%, rgba(255, 255, 255, 0.14) 68%, transparent 82%);
+  mix-blend-mode: screen;
+  opacity: 0.92;
+}
+
+.album-disc-rings,
+.mini-disc-rings {
+  inset: 9%;
+  background:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, 0.00) 0 11rpx,
+      rgba(255, 255, 255, 0.08) 11rpx 12rpx
+    );
+  opacity: 0.6;
+}
+
+.album-disc-label,
+.mini-disc-label {
+  inset: 38%;
+  background:
+    radial-gradient(circle at 36% 34%, rgba(255, 255, 255, 0.62), transparent 20%),
+    radial-gradient(circle at 50% 52%, rgba(244, 199, 122, 0.95), rgba(244, 199, 122, 0.78) 44%, rgba(24, 27, 38, 0.96) 45%);
+  box-shadow:
+    0 0 0 6rpx rgba(255, 255, 255, 0.08),
+    inset 0 0 18rpx rgba(0, 0, 0, 0.22);
+}
+
+.disc-spinning {
+  animation: disc-spin 12s linear infinite;
+}
+
+.disc-idle {
+  animation: none;
+}
+
 .album-hole {
   position: absolute;
   top: 50%;
@@ -398,6 +450,69 @@
   box-shadow: 0 18rpx 60rpx rgba(0, 0, 0, 0.40);
 }
 
+.mini-disc-shell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 76rpx;
+  height: 76rpx;
+  margin-right: 18rpx;
+}
+
+.mini-disc {
+  position: relative;
+  width: 62rpx;
+  height: 62rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.18);
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, #171923 0 15%, transparent 16%),
+    conic-gradient(from 120deg, #f4c77a, #7d8dff, #24304b, #f4c77a);
+  box-shadow: inset 0 0 14rpx rgba(0, 0, 0, 0.34);
+}
+
+.mini-disc-sheen {
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.30) 0%, rgba(255, 255, 255, 0.08) 18%, transparent 36%),
+    linear-gradient(325deg, transparent 0 57%, rgba(255, 255, 255, 0.12) 67%, transparent 80%);
+  opacity: 0.88;
+}
+
+.mini-disc-rings {
+  inset: 12%;
+  background:
+    repeating-radial-gradient(
+      circle at 50% 50%,
+      rgba(255, 255, 255, 0.00) 0 4rpx,
+      rgba(255, 255, 255, 0.07) 4rpx 5rpx
+    );
+  opacity: 0.7;
+}
+
+.mini-disc-label {
+  inset: 39%;
+  background:
+    radial-gradient(circle at 36% 34%, rgba(255, 255, 255, 0.58), transparent 18%),
+    radial-gradient(circle at 50% 52%, rgba(244, 199, 122, 0.96), rgba(244, 199, 122, 0.80) 42%, rgba(24, 27, 38, 0.96) 43%);
+  box-shadow:
+    0 0 0 2rpx rgba(255, 255, 255, 0.08),
+    inset 0 0 10rpx rgba(0, 0, 0, 0.20);
+}
+
+.mini-disc-hole {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 12rpx;
+  height: 12rpx;
+  margin-top: -6rpx;
+  margin-left: -6rpx;
+  border-radius: 50%;
+  background: #090d16;
+  box-shadow: 0 0 0 4rpx rgba(255, 255, 255, 0.10);
+}
+
 .mini-player-info {
   flex: 1;
   min-width: 0;
@@ -440,4 +555,14 @@
   font-size: 22rpx;
   line-height: 1.5;
   text-align: center;
+}
+
+@keyframes disc-spin {
+  from {
+    transform: rotate(0deg);
+  }
+
+  to {
+    transform: rotate(360deg);
+  }
 }

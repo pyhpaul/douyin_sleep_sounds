@@ -52,3 +52,33 @@ test("index page keeps hero compact and only shows mini player on channel mode",
     assert.match(ttss, new RegExp(`\\.${className}\\b`));
   }
 });
+
+test("index page wires playback state into large and mini disc animation", () => {
+  const ttml = fs.readFileSync("miniprogram/pages/index/index.ttml", "utf8");
+  const ttss = fs.readFileSync("miniprogram/pages/index/index.ttss", "utf8");
+
+  assert.match(ttml, /class="album-disc \{\{isPlaying \? 'disc-spinning' : 'disc-idle'\}\}"/);
+  assert.match(ttml, /class="mini-disc \{\{isPlaying \? 'disc-spinning' : 'disc-idle'\}\}"/);
+  assert.match(ttml, /class="album-disc-sheen"/);
+  assert.match(ttml, /class="album-disc-rings"/);
+  assert.match(ttml, /class="album-disc-label"/);
+  assert.match(ttml, /class="mini-disc-sheen"/);
+  assert.match(ttml, /class="mini-disc-rings"/);
+  assert.match(ttml, /class="mini-disc-label"/);
+
+  for (const pattern of [
+    /\.disc-spinning\b/,
+    /\.disc-idle\b/,
+    /\.album-disc-sheen\b/,
+    /\.album-disc-rings\b/,
+    /\.album-disc-label\b/,
+    /\.mini-disc\b/,
+    /\.mini-disc-sheen\b/,
+    /\.mini-disc-rings\b/,
+    /\.mini-disc-label\b/,
+    /\.mini-disc-hole\b/,
+    /@keyframes disc-spin/
+  ]) {
+    assert.match(ttss, pattern);
+  }
+});

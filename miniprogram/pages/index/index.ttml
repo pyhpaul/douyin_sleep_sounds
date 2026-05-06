@@ -77,7 +77,10 @@
     <view class="player-shell">
       <view class="album-art">
         <view class="album-glow"></view>
-        <view class="album-disc">
+        <view class="album-disc {{isPlaying ? 'disc-spinning' : 'disc-idle'}}">
+          <view class="album-disc-sheen"></view>
+          <view class="album-disc-rings"></view>
+          <view class="album-disc-label"></view>
           <view class="album-hole"></view>
         </view>
       </view>
@@ -126,6 +129,14 @@
   </view>
 
   <view tt:if="{{hasSounds && pageMode === 'channels'}}" class="mini-player">
+    <view class="mini-disc-shell">
+      <view class="mini-disc {{isPlaying ? 'disc-spinning' : 'disc-idle'}}">
+        <view class="mini-disc-sheen"></view>
+        <view class="mini-disc-rings"></view>
+        <view class="mini-disc-label"></view>
+        <view class="mini-disc-hole"></view>
+      </view>
+    </view>
     <view class="mini-player-info" bindtap="handleMiniPlayerTap">
       <view class="mini-title">{{currentSoundTitle}}</view>
       <view class="mini-meta">{{playbackText}} · {{remainingText}}</view>
