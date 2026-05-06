@@ -6,6 +6,8 @@ const configPath = path.resolve(__dirname, "../miniprogram/config/contentSourceC
 const servicePath = path.resolve(__dirname, "../miniprogram/services/httpContentService.js");
 let originalTt;
 let hadOriginalTt = false;
+let contentSourceConfigRef;
+let originalContentSourceConfig;
 
 function clearModule(modulePath) {
   try {
@@ -22,6 +24,13 @@ function loadHttpContentService(ttMock) {
   global.tt = ttMock;
 
   const { contentSourceConfig } = require(configPath);
+  contentSourceConfigRef = contentSourceConfig;
+  originalContentSourceConfig = {
+    provider: contentSourceConfig.provider,
+    httpBaseUrl: contentSourceConfig.httpBaseUrl,
+    bootstrapPath: contentSourceConfig.bootstrapPath,
+    timeoutMs: contentSourceConfig.timeoutMs
+  };
   contentSourceConfig.provider = "http";
   contentSourceConfig.httpBaseUrl = "https://api.sleep.test";
   contentSourceConfig.bootstrapPath = "/content/bootstrap";
@@ -31,6 +40,12 @@ function loadHttpContentService(ttMock) {
 }
 
 function cleanupHttpContentService() {
+  if (contentSourceConfigRef && originalContentSourceConfig) {
+    contentSourceConfigRef.provider = originalContentSourceConfig.provider;
+    contentSourceConfigRef.httpBaseUrl = originalContentSourceConfig.httpBaseUrl;
+    contentSourceConfigRef.bootstrapPath = originalContentSourceConfig.bootstrapPath;
+    contentSourceConfigRef.timeoutMs = originalContentSourceConfig.timeoutMs;
+  }
   clearModule(configPath);
   clearModule(servicePath);
   if (hadOriginalTt) {
@@ -40,6 +55,8 @@ function cleanupHttpContentService() {
   }
   originalTt = undefined;
   hadOriginalTt = false;
+  contentSourceConfigRef = undefined;
+  originalContentSourceConfig = undefined;
 }
 
 test.afterEach(() => {

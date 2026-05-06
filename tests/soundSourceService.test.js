@@ -10,6 +10,12 @@ const cloudPath = path.resolve(__dirname, "../miniprogram/services/cloudContentS
 const sourcePath = path.resolve(__dirname, "../miniprogram/services/soundSourceService.js");
 let originalTt;
 let hadOriginalTt = false;
+let contentSourceConfigRef;
+let originalProvider;
+let httpServiceRef;
+let originalHttpGetContentBootstrap;
+let cloudServiceRef;
+let originalCloudGetContentBootstrap;
 
 function clearModule(modulePath) {
   try {
@@ -27,9 +33,13 @@ function loadSoundSourceService({ provider, httpResponse, httpError, cloudRespon
   originalTt = global.tt;
 
   const { contentSourceConfig } = require(configPath);
+  contentSourceConfigRef = contentSourceConfig;
+  originalProvider = contentSourceConfig.provider;
   contentSourceConfig.provider = provider;
 
   const httpService = require(httpPath);
+  httpServiceRef = httpService;
+  originalHttpGetContentBootstrap = httpService.getContentBootstrap;
   httpService.getContentBootstrap = async () => {
     if (httpError) {
       throw httpError;
@@ -38,6 +48,8 @@ function loadSoundSourceService({ provider, httpResponse, httpError, cloudRespon
   };
 
   const cloudService = require(cloudPath);
+  cloudServiceRef = cloudService;
+  originalCloudGetContentBootstrap = cloudService.getContentBootstrap;
   cloudService.getContentBootstrap = async () => {
     if (cloudError) {
       throw cloudError;
@@ -49,6 +61,15 @@ function loadSoundSourceService({ provider, httpResponse, httpError, cloudRespon
 }
 
 function cleanupSoundSourceModules() {
+  if (contentSourceConfigRef) {
+    contentSourceConfigRef.provider = originalProvider;
+  }
+  if (httpServiceRef) {
+    httpServiceRef.getContentBootstrap = originalHttpGetContentBootstrap;
+  }
+  if (cloudServiceRef) {
+    cloudServiceRef.getContentBootstrap = originalCloudGetContentBootstrap;
+  }
   clearModule(configPath);
   clearModule(httpPath);
   clearModule(cloudPath);
@@ -60,6 +81,12 @@ function cleanupSoundSourceModules() {
   }
   originalTt = undefined;
   hadOriginalTt = false;
+  contentSourceConfigRef = undefined;
+  originalProvider = undefined;
+  httpServiceRef = undefined;
+  originalHttpGetContentBootstrap = undefined;
+  cloudServiceRef = undefined;
+  originalCloudGetContentBootstrap = undefined;
 }
 
 test.afterEach(() => {
