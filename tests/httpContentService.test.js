@@ -4,6 +4,8 @@ const test = require("node:test");
 
 const configPath = path.resolve(__dirname, "../miniprogram/config/contentSourceConfig.js");
 const servicePath = path.resolve(__dirname, "../miniprogram/services/httpContentService.js");
+let originalTt;
+let hadOriginalTt = false;
 
 function clearModule(modulePath) {
   try {
@@ -15,6 +17,8 @@ function loadHttpContentService(ttMock) {
   clearModule(configPath);
   clearModule(servicePath);
 
+  hadOriginalTt = Object.prototype.hasOwnProperty.call(global, "tt");
+  originalTt = global.tt;
   global.tt = ttMock;
 
   const { contentSourceConfig } = require(configPath);
@@ -29,7 +33,13 @@ function loadHttpContentService(ttMock) {
 function cleanupHttpContentService() {
   clearModule(configPath);
   clearModule(servicePath);
-  delete global.tt;
+  if (hadOriginalTt) {
+    global.tt = originalTt;
+  } else {
+    delete global.tt;
+  }
+  originalTt = undefined;
+  hadOriginalTt = false;
 }
 
 test.afterEach(() => {

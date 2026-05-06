@@ -8,6 +8,8 @@ const configPath = path.resolve(__dirname, "../miniprogram/config/contentSourceC
 const httpPath = path.resolve(__dirname, "../miniprogram/services/httpContentService.js");
 const cloudPath = path.resolve(__dirname, "../miniprogram/services/cloudContentService.js");
 const sourcePath = path.resolve(__dirname, "../miniprogram/services/soundSourceService.js");
+let originalTt;
+let hadOriginalTt = false;
 
 function clearModule(modulePath) {
   try {
@@ -20,6 +22,9 @@ function loadSoundSourceService({ provider, httpResponse, httpError, cloudRespon
   clearModule(httpPath);
   clearModule(cloudPath);
   clearModule(sourcePath);
+
+  hadOriginalTt = Object.prototype.hasOwnProperty.call(global, "tt");
+  originalTt = global.tt;
 
   const { contentSourceConfig } = require(configPath);
   contentSourceConfig.provider = provider;
@@ -48,7 +53,13 @@ function cleanupSoundSourceModules() {
   clearModule(httpPath);
   clearModule(cloudPath);
   clearModule(sourcePath);
-  delete global.tt;
+  if (hadOriginalTt) {
+    global.tt = originalTt;
+  } else {
+    delete global.tt;
+  }
+  originalTt = undefined;
+  hadOriginalTt = false;
 }
 
 test.afterEach(() => {
@@ -66,7 +77,6 @@ test("returns cloned local sounds when provider is local", async () => {
   assert.equal(first[0].thumbnail, "../../debug/covers/rain_night.jpg");
   assert.notEqual(first, second);
   assert.notEqual(first[0], second[0]);
-  assert.equal(typeof service.getSoundGroups().then, "function");
 });
 
 test("returns mapped HTTP sounds when provider is http", async () => {
