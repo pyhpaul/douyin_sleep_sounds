@@ -1,0 +1,123 @@
+{
+  "appConfig": {
+    "_id": "content-bootstrap",
+    "featuredGroupIds": ["nature", "white-noise"],
+    "defaultGroupId": "nature",
+    "contentVersion": "2026-05-06T16:00:00Z"
+  },
+  "groups": [
+    {
+      "groupId": "nature",
+      "title": "自然",
+      "subtitle": "把自然声放慢，留给入睡前的几分钟。",
+      "sort": 10,
+      "status": "published"
+    },
+    {
+      "groupId": "white-noise",
+      "title": "白噪音",
+      "subtitle": "持续、柔和、低干扰的背景声音。",
+      "sort": 20,
+      "status": "published"
+    },
+    {
+      "groupId": "relax",
+      "title": "放松冥想",
+      "subtitle": "更轻的旋律和呼吸引导，适合准备入睡。",
+      "sort": 30,
+      "status": "published"
+    }
+  ],
+  "sounds": [
+    {
+      "soundId": "rain",
+      "groupId": "nature",
+      "title": "雨声",
+      "category": "自然",
+      "description": "细密雨声，适合放松和屏蔽环境噪声。",
+      "audioAssetKey": "sleep-sounds/audio/rain-v1.mp3",
+      "audioUrl": "https://cdn.example.com/sleep-sounds/audio/rain-v1.mp3",
+      "coverAssetKey": "sleep-sounds/cover/rain-v1.jpg",
+      "coverUrl": "https://cdn.example.com/sleep-sounds/cover/rain-v1.jpg",
+      "durationSec": 0,
+      "tags": ["sleep", "nature"],
+      "sort": 10,
+      "status": "published"
+    },
+    {
+      "soundId": "wave",
+      "groupId": "nature",
+      "title": "海浪",
+      "category": "自然",
+      "description": "轻缓海浪声，适合睡前稳定呼吸节奏。",
+      "audioAssetKey": "sleep-sounds/audio/wave-v1.mp3",
+      "audioUrl": "https://cdn.example.com/sleep-sounds/audio/wave-v1.mp3",
+      "coverAssetKey": "sleep-sounds/cover/wave-v1.jpg",
+      "coverUrl": "https://cdn.example.com/sleep-sounds/cover/wave-v1.jpg",
+      "durationSec": 0,
+      "tags": ["sleep", "nature"],
+      "sort": 20,
+      "status": "published"
+    },
+    {
+      "soundId": "fire",
+      "groupId": "white-noise",
+      "title": "篝火",
+      "category": "白噪音",
+      "description": "温暖的火焰声，适合夜间阅读后入睡。",
+      "audioAssetKey": "sleep-sounds/audio/fire-v1.mp3",
+      "audioUrl": "https://cdn.example.com/sleep-sounds/audio/fire-v1.mp3",
+      "coverAssetKey": "sleep-sounds/cover/fire-v1.jpg",
+      "coverUrl": "https://cdn.example.com/sleep-sounds/cover/fire-v1.jpg",
+      "durationSec": 0,
+      "tags": ["sleep", "white-noise"],
+      "sort": 10,
+      "status": "published"
+    },
+    {
+      "soundId": "wind",
+      "groupId": "white-noise",
+      "title": "风声",
+      "category": "白噪音",
+      "description": "平稳风声，减少突兀环境声带来的打扰。",
+      "audioAssetKey": "sleep-sounds/audio/wind-v1.mp3",
+      "audioUrl": "https://cdn.example.com/sleep-sounds/audio/wind-v1.mp3",
+      "coverAssetKey": "sleep-sounds/cover/wind-v1.jpg",
+      "coverUrl": "https://cdn.example.com/sleep-sounds/cover/wind-v1.jpg",
+      "durationSec": 0,
+      "tags": ["sleep", "white-noise"],
+      "sort": 20,
+      "status": "published"
+    },
+    {
+      "soundId": "soft-music",
+      "groupId": "relax",
+      "title": "轻音乐",
+      "category": "放松冥想",
+      "description": "柔和旋律，帮助从工作状态切换到休息状态。",
+      "audioAssetKey": "sleep-sounds/audio/soft-music-v1.mp3",
+      "audioUrl": "https://cdn.example.com/sleep-sounds/audio/soft-music-v1.mp3",
+      "coverAssetKey": "sleep-sounds/cover/soft-music-v1.jpg",
+      "coverUrl": "https://cdn.example.com/sleep-sounds/cover/soft-music-v1.jpg",
+      "durationSec": 0,
+      "tags": ["sleep", "relax"],
+      "sort": 10,
+      "status": "published"
+    },
+    {
+      "soundId": "deep-breath",
+      "groupId": "relax",
+      "title": "深呼吸",
+      "category": "放松冥想",
+      "description": "慢节奏呼吸感声音，适合睡前冥想练习。",
+      "audioAssetKey": "sleep-sounds/audio/deep-breath-v1.mp3",
+      "audioUrl": "https://cdn.example.com/sleep-sounds/audio/deep-breath-v1.mp3",
+      "coverAssetKey": "sleep-sounds/cover/deep-breath-v1.jpg",
+      "coverUrl": "https://cdn.example.com/sleep-sounds/cover/deep-breath-v1.jpg",
+      "durationSec": 0,
+      "tags": ["sleep", "relax"],
+      "sort": 20,
+      "status": "published"
+    }
+  ]
+}

@@ -6,7 +6,14 @@ const files = [
   "miniprogram/pages/index/index.js",
   "miniprogram/utils/timer.js",
   "miniprogram/utils/playbackState.js",
+  "miniprogram/config/cloudContentConfig.js",
+  "miniprogram/services/contentMapper.js",
+  "miniprogram/services/cloudContentService.js",
   "miniprogram/services/soundSourceService.js",
+  "cloud/functions/shared/contentBootstrapBuilder.js",
+  "cloud/functions/shared/contentRepository.js",
+  "cloud/functions/contentBootstrap/index.js",
+  "cloud/scripts/seedContent.js",
   "scripts/check-syntax.js"
 ].filter((file) => fs.existsSync(file));
 
