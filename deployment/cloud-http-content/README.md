@@ -12,6 +12,20 @@ This folder contains the minimum deployment artifacts for running the Douyin min
 - HTTPS certificates for both subdomains
 - Node.js and Nginx installed on the server
 
+## Single-domain deployment
+
+If you do not want to add `api.` and `static.` subdomains, serve all paths from one HTTPS domain:
+
+- `https://sleep.zhenweiai.com/content/bootstrap`
+- `https://sleep.zhenweiai.com/covers/rain_night.jpg`
+- `https://sleep.zhenweiai.com/audio/rain_night.mp3`
+
+For this layout:
+
+- set the API environment to `STATIC_BASE_URL=https://sleep.zhenweiai.com`
+- use `deployment/cloud-http-content/nginx/single-domain.example.conf`
+- set the mini app `httpBaseUrl` to `https://sleep.zhenweiai.com`
+
 ## Remote directories
 
 Create these directories on the server:
@@ -41,6 +55,11 @@ The final public URLs should look like:
 - `https://static.<your-domain>/covers/rain_night.jpg`
 - `https://static.<your-domain>/audio/rain_night.mp3`
 
+For the single-domain deployment, use:
+
+- `https://sleep.zhenweiai.com/covers/rain_night.jpg`
+- `https://sleep.zhenweiai.com/audio/rain_night.mp3`
+
 ## Deploy the API
 
 Copy these files to `/srv/sleep-sounds/api`:
@@ -63,6 +82,13 @@ For manual verification:
 ```bash
 cd /srv/sleep-sounds/api
 PORT=3000 STATIC_BASE_URL=https://static.<your-domain> node app.js
+```
+
+For the single-domain deployment:
+
+```bash
+cd /srv/sleep-sounds/api
+PORT=3000 STATIC_BASE_URL=https://sleep.zhenweiai.com node app.js
 ```
 
 Expected output:
@@ -98,6 +124,7 @@ Copy:
 
 - `deployment/cloud-http-content/nginx/api.example.conf`
 - `deployment/cloud-http-content/nginx/static.example.conf`
+- `deployment/cloud-http-content/nginx/single-domain.example.conf` when using a single domain
 
 into your Nginx sites configuration and replace `example.com` with the real domain.
 
@@ -111,6 +138,8 @@ sudo systemctl reload nginx
 ## HTTPS
 
 Use Let's Encrypt or your existing certificate workflow for both subdomains.
+
+For the single-domain deployment, issue one certificate for `sleep.zhenweiai.com`.
 
 The deployment is not valid for Douyin mini app runtime until both:
 
@@ -129,6 +158,13 @@ Add the deployed domains to Douyin Open Platform:
   - `https://static.<your-domain>`
 
 Do not use raw IP addresses.
+
+For the single-domain deployment, whitelist:
+
+- request domain:
+  - `https://sleep.zhenweiai.com`
+- downloadFile domain:
+  - `https://sleep.zhenweiai.com`
 
 ## Verification
 

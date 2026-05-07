@@ -10,6 +10,7 @@ test("cloud HTTP deployment scaffolding files exist", () => {
     "deployment/cloud-http-content/api/catalog.json",
     "deployment/cloud-http-content/nginx/api.example.conf",
     "deployment/cloud-http-content/nginx/static.example.conf",
+    "deployment/cloud-http-content/nginx/single-domain.example.conf",
     "deployment/cloud-http-content/systemd/sleep-sounds-api.service",
     "deployment/cloud-http-content/scripts/verify-deployment.ps1"
   ]) {

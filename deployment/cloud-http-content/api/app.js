@@ -2,10 +2,28 @@ const fs = require("node:fs");
 const http = require("node:http");
 const path = require("node:path");
 
-const { buildPublishedContentDocuments } = require("../../../content/catalogAdapter");
-const {
-  buildContentBootstrapResponse
-} = require("../../../cloud/functions/shared/contentBootstrapBuilder");
+function requireFirst(candidatePaths) {
+  for (const candidatePath of candidatePaths) {
+    try {
+      return require(candidatePath);
+    } catch (error) {
+      if (error.code !== "MODULE_NOT_FOUND") {
+        throw error;
+      }
+    }
+  }
+
+  throw new Error(`Unable to load module from: ${candidatePaths.join(", ")}`);
+}
+
+const { buildPublishedContentDocuments } = requireFirst([
+  path.resolve(__dirname, "../../../content/catalogAdapter"),
+  path.resolve(__dirname, "../content/catalogAdapter")
+]);
+const { buildContentBootstrapResponse } = requireFirst([
+  path.resolve(__dirname, "../../../cloud/functions/shared/contentBootstrapBuilder"),
+  path.resolve(__dirname, "../cloud/functions/shared/contentBootstrapBuilder")
+]);
 
 function writeJson(response, statusCode, body) {
   response.writeHead(statusCode, {

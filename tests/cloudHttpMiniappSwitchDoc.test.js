@@ -17,3 +17,18 @@ test("mini app HTTP switch doc includes config and whitelist checklist", () => {
     assert.match(doc, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   }
 });
+
+test("mini app HTTP switch doc supports the single-domain deployment", () => {
+  const doc = fs.readFileSync("deployment/cloud-http-content/miniapp-http-switch.md", "utf8");
+
+  for (const phrase of [
+    "https://sleep.zhenweiai.com",
+    "https://sleep.zhenweiai.com/content/bootstrap",
+    "https://sleep.zhenweiai.com/covers",
+    "https://sleep.zhenweiai.com/audio",
+    "request domain",
+    "downloadFile domain"
+  ]) {
+    assert.match(doc, new RegExp(phrase.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
+  }
+});
