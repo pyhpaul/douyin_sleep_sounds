@@ -1,0 +1,9 @@
+{
+  "name": "sleep-sounds-cloud-http-api",
+  "private": true,
+  "version": "0.1.0",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  }
+}
