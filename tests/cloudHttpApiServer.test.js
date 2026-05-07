@@ -58,6 +58,29 @@ test("cloud HTTP API serves bootstrap payload from deployment catalog", async ()
   }
 });
 
+test("deployment catalog keeps the same published content coverage as local catalog", () => {
+  const deploymentCatalog = require("../deployment/cloud-http-content/api/catalog.json");
+  const localCatalog = require("../content/catalog.json");
+
+  assert.deepEqual(
+    deploymentCatalog.groups.map((group) => group.id),
+    localCatalog.groups.map((group) => group.id)
+  );
+  assert.deepEqual(
+    deploymentCatalog.sounds.map((sound) => sound.id),
+    localCatalog.sounds.map((sound) => sound.id)
+  );
+});
+
+test("deployment catalog asset keys map directly to public static paths", () => {
+  const deploymentCatalog = require("../deployment/cloud-http-content/api/catalog.json");
+
+  for (const sound of deploymentCatalog.sounds) {
+    assert.equal(sound.audioAssetKey, `${sound.id}.mp3`);
+    assert.equal(sound.coverAssetKey, `${sound.id}.jpg`);
+  }
+});
+
 test("cloud HTTP API can run from the remote server directory layout", async () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sleep-cloud-http-api-"));
   const apiDir = path.join(tempDir, "api");
