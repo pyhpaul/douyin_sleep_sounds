@@ -2,6 +2,59 @@
   "version": "2026-05-06T00:00:00Z",
   "defaultGroupId": "rain",
   "featuredGroupIds": ["rain", "water", "ambient"],
-  "groups": [],
-  "sounds": []
+  "groups": [
+    {
+      "id": "rain",
+      "title": "雨声",
+      "subtitle": "更聚焦的雨滴与空气层次，适合想快速静下来的时候。",
+      "sort": 10
+    },
+    {
+      "id": "water",
+      "title": "水流",
+      "subtitle": "海浪和溪流节奏更平缓，适合长时间持续播放。",
+      "sort": 20
+    },
+    {
+      "id": "ambient",
+      "title": "氛围",
+      "subtitle": "空间感更强的抽象音景，适合冥想与沉浸。",
+      "sort": 70
+    }
+  ],
+  "sounds": [
+    {
+      "id": "rain_night",
+      "groupId": "rain",
+      "title": "雨夜白噪音",
+      "category": "雨声",
+      "description": "稳定雨声和远处空气感。",
+      "unlockLabel": "免费",
+      "audioAssetKey": "rain_night.mp3",
+      "coverAssetKey": "rain_night.jpg",
+      "sort": 10
+    },
+    {
+      "id": "ocean_slow",
+      "groupId": "water",
+      "title": "深夜海浪",
+      "category": "海浪",
+      "description": "慢速海浪，适合睡前放松。",
+      "unlockLabel": "免费",
+      "audioAssetKey": "ocean_slow.mp3",
+      "coverAssetKey": "ocean_slow.jpg",
+      "sort": 20
+    },
+    {
+      "id": "deep_ambient",
+      "groupId": "ambient",
+      "title": "深夜冥想音景",
+      "category": "冥想",
+      "description": "极轻氛围音景，无明显旋律。",
+      "unlockLabel": "免费",
+      "audioAssetKey": "deep_ambient.mp3",
+      "coverAssetKey": "deep_ambient.jpg",
+      "sort": 80
+    }
+  ]
 }
