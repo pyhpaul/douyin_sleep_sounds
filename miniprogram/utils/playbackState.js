@@ -88,7 +88,15 @@ function getCurrentSound(soundGroups, currentSoundId) {
   return findSoundById(soundGroups, currentSoundId);
 }
 
-function buildSoundGroupsViewModel(soundGroups, currentSoundId) {
+function buildSoundViewModel(sound, selectedSoundId, currentSoundId, isPlaying) {
+  return {
+    ...sound,
+    isActive: isCurrentSound(sound.id, selectedSoundId),
+    isPlayingItem: Boolean(isPlaying) && isCurrentSound(sound.id, currentSoundId)
+  };
+}
+
+function buildSoundGroupsViewModel(soundGroups, selectedSoundId, currentSoundId, isPlaying) {
   if (!Array.isArray(soundGroups)) {
     return [];
   }
@@ -96,10 +104,9 @@ function buildSoundGroupsViewModel(soundGroups, currentSoundId) {
   return soundGroups.map((group) => ({
     ...group,
     sounds: Array.isArray(group.sounds)
-      ? group.sounds.map((sound) => ({
-          ...sound,
-          isActive: isCurrentSound(sound.id, currentSoundId)
-        }))
+      ? group.sounds.map((sound) =>
+          buildSoundViewModel(sound, selectedSoundId, currentSoundId, isPlaying)
+        )
       : []
   }));
 }
@@ -112,11 +119,31 @@ function buildSoundGroupTabsViewModel(soundGroups, activeGroupId) {
   return soundGroups.map((group) => ({
     id: group.id,
     title: group.title,
+    thumbnail: getGroupThumbnail(group),
     isActive: group.id === activeGroupId
   }));
 }
 
-function getActiveSoundGroupViewModel(soundGroups, activeGroupId, currentSoundId) {
+function getGroupThumbnail(group) {
+  if (!group || typeof group !== "object") {
+    return "";
+  }
+
+  if (typeof group.thumbnail === "string" && group.thumbnail) {
+    return group.thumbnail;
+  }
+
+  const firstSound = Array.isArray(group.sounds) ? group.sounds[0] : null;
+  return firstSound && typeof firstSound.cover === "string" ? firstSound.cover : "";
+}
+
+function getActiveSoundGroupViewModel(
+  soundGroups,
+  activeGroupId,
+  selectedSoundId,
+  currentSoundId,
+  isPlaying
+) {
   const group = findSoundGroupById(soundGroups, activeGroupId);
   if (!group) {
     return {
@@ -130,10 +157,9 @@ function getActiveSoundGroupViewModel(soundGroups, activeGroupId, currentSoundId
   return {
     ...group,
     sounds: Array.isArray(group.sounds)
-      ? group.sounds.map((sound) => ({
-          ...sound,
-          isActive: isCurrentSound(sound.id, currentSoundId)
-        }))
+      ? group.sounds.map((sound) =>
+          buildSoundViewModel(sound, selectedSoundId, currentSoundId, isPlaying)
+        )
       : []
   };
 }

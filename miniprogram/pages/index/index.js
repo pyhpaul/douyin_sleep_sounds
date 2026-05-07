@@ -1,5 +1,6 @@
 const {
   getTimerOptions,
+  minutesToMs,
   getTimerEndAt,
   formatRemaining,
   isTimerExpired
@@ -20,11 +21,14 @@ const STORAGE_KEYS = {
   CURRENT_SOUND_ID: "sleepSounds.currentSoundId",
   IS_LOOPING: "sleepSounds.isLooping",
   TIMER_MINUTES: "sleepSounds.timerMinutes",
-  TIMER_END_AT: "sleepSounds.timerEndAt"
+  TIMER_END_AT: "sleepSounds.timerEndAt",
+  TIMER_REMAINING_MS: "sleepSounds.timerRemainingMs",
+  TIMER_STARTS_ON_PLAY: "sleepSounds.timerStartsOnPlay"
 };
 
 const TIMER_TICK_MS = 1000;
 const DEFAULT_REMAINING_TEXT = "未开启";
+const PENDING_TIMER_TEXT = "播放后开始";
 
 function showToast(title) {
   if (typeof tt !== "undefined" && tt.showToast) {
@@ -35,6 +39,7 @@ function showToast(title) {
 function buildTimerOptionsViewModel(selectedTimerMinutes) {
   return getTimerOptions().map((option) => ({
     ...option,
+    shortLabel: option.minutes === 0 ? "关闭" : `${option.minutes}分`,
     isActive: option.minutes === selectedTimerMinutes
   }));
 }
@@ -52,8 +57,11 @@ Page({
       sounds: []
     },
     timerOptions: buildTimerOptionsViewModel(0),
+    selectedSoundId: "",
     currentSoundId: "",
     currentSoundTitle: "未选择声音",
+    currentSoundCover: "",
+    currentSoundDescription: "",
     currentSoundCategory: "",
     currentSoundCategoryText: "未选择",
     playbackText: "未选择",
@@ -74,6 +82,8 @@ Page({
     this.pendingPlaySoundId = "";
     this.timerInterval = null;
     this.timerEndAt = 0;
+    this.timerRemainingMs = 0;
+    this.timerStartsOnPlay = false;
 
     this.initAudioManager();
     this.loadInitialState(this.loadVersion);
@@ -121,7 +131,8 @@ Page({
 
     const storedSoundId = this.readStorage(STORAGE_KEYS.CURRENT_SOUND_ID, "");
     const currentSoundId = selectInitialSoundId(this.rawSoundGroups, storedSoundId);
-    const isLooping = Boolean(this.readStorage(STORAGE_KEYS.IS_LOOPING, false));
+    const isLooping = true;
+    this.writeStorage(STORAGE_KEYS.IS_LOOPING, true);
     const timerState = this.settleStoredTimer(Date.now());
 
     if (!this.isPageActive(loadVersion)) {
@@ -129,6 +140,7 @@ Page({
     }
 
     this.refreshView({
+      selectedSoundId: currentSoundId,
       currentSoundId,
       isLooping,
       isPlaying: timerState.isExpired ? false : this.data.isPlaying,
@@ -157,6 +169,15 @@ Page({
       return;
     }
 
+    if (timerState.isArmed) {
+      this.clearTimerTicker();
+      this.refreshView({
+        selectedTimerMinutes: timerState.selectedTimerMinutes,
+        remainingText: timerState.remainingText
+      });
+      return;
+    }
+
     this.clearTimerTicker();
     this.refreshView({
       isPlaying: timerState.isExpired ? false : this.data.isPlaying,
@@ -168,18 +189,48 @@ Page({
   settleStoredTimer(now) {
     const selectedTimerMinutes = Number(this.readStorage(STORAGE_KEYS.TIMER_MINUTES, 0)) || 0;
     const storedTimerEndAt = Number(this.readStorage(STORAGE_KEYS.TIMER_END_AT, 0)) || 0;
+    const storedTimerRemainingMs =
+      Number(this.readStorage(STORAGE_KEYS.TIMER_REMAINING_MS, 0)) || 0;
+    const storedTimerStartsOnPlay = Boolean(
+      this.readStorage(STORAGE_KEYS.TIMER_STARTS_ON_PLAY, false)
+    );
 
     if (storedTimerEndAt > now) {
       this.timerEndAt = storedTimerEndAt;
+      this.timerRemainingMs = 0;
+      this.timerStartsOnPlay = false;
       return {
         isActive: true,
+        isArmed: false,
         isExpired: false,
         selectedTimerMinutes,
         remainingText: formatRemaining(storedTimerEndAt, now)
       };
     }
 
+    const fallbackRemainingMs =
+      !storedTimerEndAt && !storedTimerRemainingMs && selectedTimerMinutes > 0
+        ? minutesToMs(selectedTimerMinutes)
+        : storedTimerRemainingMs;
+
+    if (fallbackRemainingMs > 0 && selectedTimerMinutes > 0) {
+      this.timerEndAt = 0;
+      this.timerRemainingMs = fallbackRemainingMs;
+      this.timerStartsOnPlay = storedTimerStartsOnPlay;
+      return {
+        isActive: false,
+        isArmed: true,
+        isExpired: false,
+        selectedTimerMinutes,
+        remainingText: storedTimerStartsOnPlay
+          ? PENDING_TIMER_TEXT
+          : this.formatDurationRemaining(fallbackRemainingMs)
+      };
+    }
+
     this.timerEndAt = 0;
+    this.timerRemainingMs = 0;
+    this.timerStartsOnPlay = false;
     if (storedTimerEndAt || selectedTimerMinutes > 0) {
       this.clearStoredTimer();
     }
@@ -189,6 +240,7 @@ Page({
 
     return {
       isActive: false,
+      isArmed: false,
       isExpired: Boolean(storedTimerEndAt),
       selectedTimerMinutes: 0,
       remainingText: DEFAULT_REMAINING_TEXT
@@ -213,7 +265,7 @@ Page({
       },
       pause: () => {
         if (!this.isUnloaded) {
-          this.refreshView({ isPlaying: false });
+          this.handleAudioPaused();
         }
       },
       stop: () => {
@@ -307,7 +359,7 @@ Page({
     const activeGroupId = selectGroupId(
       this.rawSoundGroups,
       requestedGroupId,
-      this.data.currentSoundId
+      this.data.selectedSoundId || this.data.currentSoundId
     );
 
     if (activeGroupId) {
@@ -320,7 +372,7 @@ Page({
     const nextSoundId = selectSoundId(
       this.rawSoundGroups,
       requestedSoundId,
-      this.data.currentSoundId
+      this.data.selectedSoundId || this.data.currentSoundId
     );
 
     if (!nextSoundId) {
@@ -328,15 +380,40 @@ Page({
       return;
     }
 
-    if (nextSoundId === this.data.currentSoundId && this.data.isPlaying) {
+    this.writeStorage(STORAGE_KEYS.CURRENT_SOUND_ID, nextSoundId);
+    this.refreshView({
+      selectedSoundId: nextSoundId,
+      currentSoundId: this.data.isPlaying ? this.data.currentSoundId : nextSoundId,
+      activeGroupId: findSoundGroupIdBySoundId(this.rawSoundGroups, nextSoundId)
+    });
+  },
+
+  handleSoundPlayTap(event) {
+    const requestedSoundId = event.currentTarget.dataset.id;
+    const nextSoundId = selectSoundId(
+      this.rawSoundGroups,
+      requestedSoundId,
+      this.data.selectedSoundId || this.data.currentSoundId
+    );
+
+    if (!nextSoundId) {
+      showToast("暂无可播放声音");
       return;
     }
 
+    const isSamePlayingSound = nextSoundId === this.data.currentSoundId && this.data.isPlaying;
+
     this.writeStorage(STORAGE_KEYS.CURRENT_SOUND_ID, nextSoundId);
     this.refreshView({
+      selectedSoundId: nextSoundId,
       currentSoundId: nextSoundId,
       activeGroupId: findSoundGroupIdBySoundId(this.rawSoundGroups, nextSoundId)
     });
+
+    if (isSamePlayingSound) {
+      return;
+    }
+
     this.playCurrentSound(nextSoundId);
   },
 
@@ -348,7 +425,7 @@ Page({
 
     const nextSoundId = selectSoundId(
       this.rawSoundGroups,
-      this.data.currentSoundId,
+      this.data.selectedSoundId || this.data.currentSoundId,
       this.data.currentSoundId
     );
 
@@ -359,6 +436,7 @@ Page({
 
     this.writeStorage(STORAGE_KEYS.CURRENT_SOUND_ID, nextSoundId);
     this.refreshView({
+      selectedSoundId: nextSoundId,
       currentSoundId: nextSoundId,
       activeGroupId: findSoundGroupIdBySoundId(this.rawSoundGroups, nextSoundId)
     });
@@ -375,8 +453,6 @@ Page({
     const minutes = Number(event.currentTarget.dataset.minutes) || 0;
 
     if (minutes <= 0) {
-      this.timerEndAt = 0;
-      this.clearTimerTicker();
       this.clearStoredTimer();
       this.refreshView({
         selectedTimerMinutes: 0,
@@ -385,7 +461,12 @@ Page({
       return;
     }
 
-    this.startTimer(minutes);
+    if (this.data.isPlaying) {
+      this.startTimer(minutes);
+      return;
+    }
+
+    this.armTimerForPlayback(minutes);
   },
 
   playCurrentSound(soundId) {
@@ -409,7 +490,12 @@ Page({
     const activeGroupId = findSoundGroupIdBySoundId(this.rawSoundGroups, soundId);
 
     this.pendingPlaySoundId = soundId;
-    this.refreshView({ currentSoundId: soundId, activeGroupId, isPlaying: false });
+    this.refreshView({
+      selectedSoundId: soundId,
+      currentSoundId: soundId,
+      activeGroupId,
+      isPlaying: false
+    });
 
     try {
       this.applyAudioSource(audio, sound, isNewSound);
@@ -420,10 +506,15 @@ Page({
       return;
     }
 
-    this.refreshView({ currentSoundId: soundId, activeGroupId, isPlaying: true });
+    this.refreshView({
+      selectedSoundId: soundId,
+      currentSoundId: soundId,
+      activeGroupId,
+      isPlaying: true
+    });
 
     if (this.data.selectedTimerMinutes > 0 && !this.timerEndAt) {
-      this.startTimer(this.data.selectedTimerMinutes);
+      this.resumeTimerAfterPlaybackStarts();
     }
   },
 
@@ -443,6 +534,7 @@ Page({
 
   pauseCurrentSound() {
     this.pendingPlaySoundId = "";
+    this.pauseTimerIfNeeded();
     this.refreshView({ isPlaying: false });
 
     if (this.audioManager && typeof this.audioManager.pause === "function") {
@@ -454,6 +546,11 @@ Page({
     } else {
       showToast("当前环境不支持音频暂停");
     }
+  },
+
+  handleAudioPaused() {
+    this.pauseTimerIfNeeded();
+    this.refreshView({ isPlaying: false });
   },
 
   handleAudioEnded() {
@@ -483,12 +580,28 @@ Page({
     this.refreshView({ isPlaying: false });
   },
 
-  startTimer(minutes) {
+  startTimer(minutes, remainingMs) {
     const now = Date.now();
-    this.timerEndAt = getTimerEndAt(now, minutes);
+    const durationMs = this.resolveTimerDurationMs(minutes, remainingMs);
+    if (!durationMs) {
+      this.clearStoredTimer();
+      this.refreshView({
+        selectedTimerMinutes: 0,
+        remainingText: DEFAULT_REMAINING_TEXT
+      });
+      return;
+    }
+
+    this.timerEndAt = now + durationMs;
+    this.timerRemainingMs = 0;
+    this.timerStartsOnPlay = false;
     this.clearTimerTicker();
-    this.writeStorage(STORAGE_KEYS.TIMER_MINUTES, minutes);
-    this.writeStorage(STORAGE_KEYS.TIMER_END_AT, this.timerEndAt);
+    this.persistTimerState({
+      minutes,
+      endAt: this.timerEndAt,
+      remainingMs: 0,
+      startsOnPlay: false
+    });
     this.refreshView({
       selectedTimerMinutes: minutes,
       remainingText: formatRemaining(this.timerEndAt, now)
@@ -517,8 +630,6 @@ Page({
   },
 
   stopForTimerEnd() {
-    this.timerEndAt = 0;
-    this.clearTimerTicker();
     this.clearStoredTimer();
     this.playingSoundId = "";
     this.pendingPlaySoundId = "";
@@ -543,8 +654,16 @@ Page({
   },
 
   clearStoredTimer() {
-    this.writeStorage(STORAGE_KEYS.TIMER_MINUTES, 0);
-    this.writeStorage(STORAGE_KEYS.TIMER_END_AT, 0);
+    this.timerEndAt = 0;
+    this.timerRemainingMs = 0;
+    this.timerStartsOnPlay = false;
+    this.clearTimerTicker();
+    this.persistTimerState({
+      minutes: 0,
+      endAt: 0,
+      remainingMs: 0,
+      startsOnPlay: false
+    });
   },
 
   stopAudioForTimerEnd() {
@@ -557,6 +676,88 @@ Page({
     }
   },
 
+  armTimerForPlayback(minutes) {
+    const remainingMs = minutesToMs(minutes);
+    if (!remainingMs) {
+      return;
+    }
+
+    this.timerEndAt = 0;
+    this.timerRemainingMs = remainingMs;
+    this.timerStartsOnPlay = true;
+    this.clearTimerTicker();
+    this.persistTimerState({
+      minutes,
+      endAt: 0,
+      remainingMs,
+      startsOnPlay: true
+    });
+    this.refreshView({
+      selectedTimerMinutes: minutes,
+      remainingText: PENDING_TIMER_TEXT
+    });
+  },
+
+  resumeTimerAfterPlaybackStarts() {
+    const minutes = this.data.selectedTimerMinutes;
+    const remainingMs = this.timerRemainingMs || minutesToMs(minutes);
+    if (!minutes || !remainingMs) {
+      return;
+    }
+
+    this.startTimer(minutes, remainingMs);
+  },
+
+  pauseTimerIfNeeded() {
+    if (!this.timerEndAt) {
+      return;
+    }
+
+    const remainingMs = Math.max(0, this.timerEndAt - Date.now());
+    if (!remainingMs || this.data.selectedTimerMinutes <= 0) {
+      this.clearStoredTimer();
+      return;
+    }
+
+    this.timerEndAt = 0;
+    this.timerRemainingMs = remainingMs;
+    this.timerStartsOnPlay = false;
+    this.clearTimerTicker();
+    this.persistTimerState({
+      minutes: this.data.selectedTimerMinutes,
+      endAt: 0,
+      remainingMs,
+      startsOnPlay: false
+    });
+    this.refreshView({
+      remainingText: this.formatDurationRemaining(remainingMs)
+    });
+  },
+
+  resolveTimerDurationMs(minutes, remainingMs) {
+    const nextDurationMs = Number(remainingMs);
+    if (Number.isFinite(nextDurationMs) && nextDurationMs > 0) {
+      return nextDurationMs;
+    }
+
+    return minutesToMs(minutes);
+  },
+
+  persistTimerState({ minutes, endAt, remainingMs, startsOnPlay }) {
+    this.writeStorage(STORAGE_KEYS.TIMER_MINUTES, minutes);
+    this.writeStorage(STORAGE_KEYS.TIMER_END_AT, endAt);
+    this.writeStorage(STORAGE_KEYS.TIMER_REMAINING_MS, remainingMs);
+    this.writeStorage(STORAGE_KEYS.TIMER_STARTS_ON_PLAY, startsOnPlay);
+  },
+
+  formatDurationRemaining(remainingMs) {
+    if (!remainingMs) {
+      return DEFAULT_REMAINING_TEXT;
+    }
+
+    return formatRemaining(Date.now() + remainingMs, Date.now());
+  },
+
   refreshView(patch) {
     if (this.isUnloaded) {
       return;
@@ -567,26 +768,41 @@ Page({
       ...patch
     };
     const currentSound = getCurrentSound(this.rawSoundGroups, nextData.currentSoundId);
+    const selectedSoundId = selectSoundId(
+      this.rawSoundGroups,
+      nextData.selectedSoundId,
+      nextData.currentSoundId
+    );
     const currentSoundCategory = currentSound ? currentSound.category || "" : "";
     const activeGroupId = selectGroupId(
       this.rawSoundGroups,
       nextData.activeGroupId,
-      nextData.currentSoundId
+      selectedSoundId
     );
 
     this.setData({
       ...patch,
+      selectedSoundId,
       activeGroupId,
       currentSoundTitle: currentSound ? currentSound.title : "未选择声音",
+      currentSoundCover: currentSound ? currentSound.cover || "" : "",
+      currentSoundDescription: currentSound ? currentSound.description || "" : "",
       currentSoundCategory,
       currentSoundCategoryText: currentSoundCategory || "未选择",
       playbackText: this.getPlaybackText(nextData.isPlaying, currentSound),
-      soundGroups: buildSoundGroupsViewModel(this.rawSoundGroups, nextData.currentSoundId),
+      soundGroups: buildSoundGroupsViewModel(
+        this.rawSoundGroups,
+        selectedSoundId,
+        nextData.currentSoundId,
+        nextData.isPlaying
+      ),
       soundGroupTabs: buildSoundGroupTabsViewModel(this.rawSoundGroups, activeGroupId),
       activeSoundGroup: getActiveSoundGroupViewModel(
         this.rawSoundGroups,
         activeGroupId,
-        nextData.currentSoundId
+        selectedSoundId,
+        nextData.currentSoundId,
+        nextData.isPlaying
       ),
       timerOptions: buildTimerOptionsViewModel(nextData.selectedTimerMinutes),
       hasSounds: Boolean(selectInitialSoundId(this.rawSoundGroups, ""))

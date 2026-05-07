@@ -19,16 +19,18 @@ const soundGroups = [
   {
     id: "nature",
     title: "自然",
+    thumbnail: "nature.jpg",
     sounds: [
-      { id: "rain", title: "雨声", category: "自然" },
-      { id: "wave", title: "海浪", category: "自然" }
+      { id: "rain", title: "雨声", category: "自然", cover: "rain.jpg" },
+      { id: "wave", title: "海浪", category: "自然", cover: "wave.jpg" }
     ]
   },
   {
     id: "white-noise",
     title: "白噪音",
+    thumbnail: "",
     sounds: [
-      { id: "fire", title: "篝火", category: "白噪音" }
+      { id: "fire", title: "篝火", category: "白噪音", cover: "fire.jpg" }
     ]
   }
 ];
@@ -78,12 +80,15 @@ test("returns the current sound object", () => {
   assert.equal(getCurrentSound(soundGroups, "missing"), null);
 });
 
-test("builds a view model with active sound flags without mutating input", () => {
-  const viewGroups = buildSoundGroupsViewModel(soundGroups, "wave");
+test("builds a view model with selected and playing flags without mutating input", () => {
+  const viewGroups = buildSoundGroupsViewModel(soundGroups, "wave", "rain", true);
 
   assert.equal(viewGroups[0].sounds[0].isActive, false);
+  assert.equal(viewGroups[0].sounds[0].isPlayingItem, true);
   assert.equal(viewGroups[0].sounds[1].isActive, true);
+  assert.equal(viewGroups[0].sounds[1].isPlayingItem, false);
   assert.equal(soundGroups[0].sounds[1].isActive, undefined);
+  assert.equal(soundGroups[0].sounds[0].isPlayingItem, undefined);
   assert.notEqual(viewGroups, soundGroups);
 });
 
@@ -103,17 +108,19 @@ test("builds active group tabs without mutating input", () => {
   const tabs = buildSoundGroupTabsViewModel(soundGroups, "white-noise");
 
   assert.deepEqual(tabs, [
-    { id: "nature", title: "自然", isActive: false },
-    { id: "white-noise", title: "白噪音", isActive: true }
+    { id: "nature", title: "自然", thumbnail: "nature.jpg", isActive: false },
+    { id: "white-noise", title: "白噪音", thumbnail: "fire.jpg", isActive: true }
   ]);
   assert.equal(soundGroups[1].isActive, undefined);
 });
 
-test("returns active sound group view model with active sound flags", () => {
-  const activeGroup = getActiveSoundGroupViewModel(soundGroups, "nature", "wave");
+test("returns active sound group view model with selected and playing flags", () => {
+  const activeGroup = getActiveSoundGroupViewModel(soundGroups, "nature", "wave", "rain", true);
 
   assert.equal(activeGroup.id, "nature");
   assert.equal(activeGroup.sounds[0].isActive, false);
+  assert.equal(activeGroup.sounds[0].isPlayingItem, true);
   assert.equal(activeGroup.sounds[1].isActive, true);
+  assert.equal(activeGroup.sounds[1].isPlayingItem, false);
   assert.notEqual(activeGroup, soundGroups[0]);
 });

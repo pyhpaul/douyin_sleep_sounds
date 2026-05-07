@@ -128,17 +128,23 @@
 }
 
 .channel-tabs {
+  height: 116rpx;
+  margin-bottom: 26rpx;
+  white-space: nowrap;
+}
+
+.channel-tabs-track {
   display: flex;
-  margin: 0 -8rpx 26rpx 0;
-  overflow: hidden;
+  padding-right: 12rpx;
 }
 
 .channel-tab {
-  flex: 1;
-  min-width: 0;
-  margin-right: 8rpx;
-  padding: 18rpx 10rpx;
-  border-radius: 999rpx;
+  flex: 0 0 136rpx;
+  width: 136rpx;
+  min-width: 136rpx;
+  margin-right: 12rpx;
+  padding: 12rpx 12rpx 14rpx;
+  border-radius: 26rpx;
   background: rgba(255, 255, 255, 0.075);
   color: rgba(255, 248, 234, 0.64);
   font-size: 24rpx;
@@ -148,16 +154,49 @@
 .channel-tab-active {
   background: rgba(244, 199, 122, 0.20);
   color: #fff8ea;
+  box-shadow: inset 0 0 0 1rpx rgba(244, 199, 122, 0.28);
+}
+
+.channel-tab-thumb {
+  display: block;
+  width: 56rpx;
+  height: 56rpx;
+  margin: 0 auto 10rpx;
+  border-radius: 18rpx;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.channel-tab-text {
+  text-align: center;
+  white-space: nowrap;
 }
 
 .group-header {
   margin-bottom: 20rpx;
 }
 
+.group-meta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
 .group-title {
   color: #fff8ea;
   font-size: 36rpx;
   font-weight: 750;
+}
+
+.group-count {
+  flex: 0 0 auto;
+  padding: 8rpx 16rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 248, 234, 0.62);
+  font-size: 20rpx;
+  line-height: 1;
 }
 
 .group-subtitle {
@@ -178,7 +217,7 @@
   min-height: 132rpx;
   box-sizing: border-box;
   margin-bottom: 16rpx;
-  padding: 18rpx;
+  padding: 18rpx 20rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.08);
   border-radius: 28rpx;
   background: rgba(255, 255, 255, 0.06);
@@ -187,17 +226,16 @@
 .station-card-active {
   border-color: rgba(244, 199, 122, 0.70);
   background: linear-gradient(135deg, rgba(244, 199, 122, 0.20), rgba(255, 255, 255, 0.06));
+  box-shadow: inset 0 0 0 1rpx rgba(244, 199, 122, 0.10);
 }
 
 .station-icon {
   flex: 0 0 auto;
-  width: 76rpx;
-  height: 76rpx;
+  width: 108rpx;
+  height: 108rpx;
   margin-right: 18rpx;
-  border-radius: 24rpx;
-  background:
-    radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.65), transparent 18%),
-    linear-gradient(135deg, rgba(244, 199, 122, 0.94), rgba(125, 141, 255, 0.82));
+  border-radius: 28rpx;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .station-body {
@@ -218,123 +256,126 @@
   line-height: 1.42;
 }
 
+.sound-tag {
+  display: inline-flex;
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+  background: rgba(255, 255, 255, 0.08);
+  color: rgba(255, 248, 234, 0.66);
+  font-size: 20rpx;
+  line-height: 1;
+}
+
+.sound-chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10rpx;
+  margin-top: 12rpx;
+}
+
+.sound-unlock,
+.sound-status {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8rpx 14rpx;
+  border-radius: 999rpx;
+  font-size: 20rpx;
+  line-height: 1;
+}
+
+.sound-unlock {
+  background: rgba(125, 141, 255, 0.12);
+  color: rgba(223, 229, 255, 0.88);
+}
+
+.sound-status {
+  background: rgba(255, 255, 255, 0.06);
+  color: rgba(255, 248, 234, 0.62);
+}
+
+.sound-status-playing {
+  background: rgba(244, 199, 122, 0.18);
+  color: #fff4dc;
+}
+
 .station-play {
   flex: 0 0 auto;
-  min-width: 92rpx;
+  min-width: 100rpx;
   margin-left: 18rpx;
-  padding: 15rpx 18rpx;
+  padding: 18rpx 0;
   border-radius: 999rpx;
-  background: rgba(244, 199, 122, 0.20);
-  color: #fff8ea;
+  background: linear-gradient(135deg, rgba(255, 225, 163, 0.92), rgba(244, 199, 122, 0.76));
+  color: #17120a;
   font-size: 23rpx;
   font-weight: 700;
+  box-shadow: 0 14rpx 30rpx rgba(244, 199, 122, 0.14);
 }
 
 .player-shell {
-  padding: 30rpx;
-}
-
-.album-art {
   position: relative;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 420rpx;
-  height: 420rpx;
-  margin: 8rpx auto 28rpx;
+  overflow: hidden;
+  padding: 0;
 }
 
-.album-glow {
-  position: absolute;
-  width: 360rpx;
-  height: 360rpx;
-  border-radius: 50%;
-  background: radial-gradient(circle, rgba(244, 199, 122, 0.34), rgba(244, 199, 122, 0));
-}
-
-.album-disc {
+.player-backdrop {
   position: relative;
-  width: 342rpx;
-  height: 342rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.20);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 50%, #171923 0 16%, transparent 17%),
-    conic-gradient(from 120deg, #f4c77a, #7d8dff, #24304b, #f4c77a);
-  box-shadow: inset 0 0 54rpx rgba(0, 0, 0, 0.44), 0 26rpx 76rpx rgba(0, 0, 0, 0.34);
+  min-height: 980rpx;
 }
 
-.album-disc-sheen,
-.album-disc-rings,
-.album-disc-label,
-.mini-disc-sheen,
-.mini-disc-rings,
-.mini-disc-label {
+.player-backdrop-image,
+.player-backdrop-shade {
   position: absolute;
   inset: 0;
-  border-radius: 50%;
-  pointer-events: none;
+  width: 100%;
+  height: 100%;
 }
 
-.album-disc-sheen,
-.mini-disc-sheen {
+.player-backdrop-image {
+  transform: scale(1.04);
+}
+
+.player-backdrop-shade {
   background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.34) 0%, rgba(255, 255, 255, 0.10) 16%, transparent 32%),
-    linear-gradient(325deg, transparent 0 58%, rgba(255, 255, 255, 0.14) 68%, transparent 82%);
-  mix-blend-mode: screen;
-  opacity: 0.92;
+    linear-gradient(180deg, rgba(7, 10, 16, 0.08), rgba(7, 10, 16, 0.22) 24%, rgba(7, 10, 16, 0.72) 58%, rgba(7, 10, 16, 0.94) 100%),
+    radial-gradient(circle at 50% 10%, rgba(255, 255, 255, 0.12), transparent 28%);
 }
 
-.album-disc-rings,
-.mini-disc-rings {
-  inset: 9%;
-  background:
-    repeating-radial-gradient(
-      circle at 50% 50%,
-      rgba(255, 255, 255, 0.00) 0 11rpx,
-      rgba(255, 255, 255, 0.08) 11rpx 12rpx
-    );
-  opacity: 0.6;
-}
-
-.album-disc-label,
-.mini-disc-label {
-  inset: 38%;
-  background:
-    radial-gradient(circle at 36% 34%, rgba(255, 255, 255, 0.62), transparent 20%),
-    radial-gradient(circle at 50% 52%, rgba(244, 199, 122, 0.95), rgba(244, 199, 122, 0.78) 44%, rgba(24, 27, 38, 0.96) 45%);
-  box-shadow:
-    0 0 0 6rpx rgba(255, 255, 255, 0.08),
-    inset 0 0 18rpx rgba(0, 0, 0, 0.22);
-}
-
-.disc-spinning {
-  animation: disc-spin 12s linear infinite;
-}
-
-.disc-idle {
-  animation: none;
-}
-
-.album-hole {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 74rpx;
-  height: 74rpx;
-  margin-top: -37rpx;
-  margin-left: -37rpx;
-  border-radius: 50%;
-  background: #090d16;
-  box-shadow: 0 0 0 18rpx rgba(255, 255, 255, 0.10);
+.player-shell-content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: flex-end;
+  min-height: 980rpx;
+  box-sizing: border-box;
+  padding: 36rpx 28rpx 32rpx;
 }
 
 .playback-panel {
+  width: 100%;
   text-align: center;
 }
 
+.player-control-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  width: 100%;
+}
+
+.player-copy-panel {
+  box-sizing: border-box;
+  padding: 26rpx 24rpx 18rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.08);
+  border-radius: 34rpx;
+  background: linear-gradient(180deg, rgba(12, 16, 25, 0.18), rgba(12, 16, 25, 0.56));
+  box-shadow: 0 24rpx 80rpx rgba(0, 0, 0, 0.16);
+  text-align: left;
+}
+
 .now-label {
-  color: rgba(255, 248, 234, 0.52);
+  color: rgba(255, 248, 234, 0.44);
   font-size: 23rpx;
 }
 
@@ -343,12 +384,20 @@
   color: #ffffff;
   font-size: 46rpx;
   font-weight: 700;
+  text-shadow: 0 10rpx 32rpx rgba(0, 0, 0, 0.28);
+}
+
+.now-desc {
+  margin-top: 12rpx;
+  color: rgba(255, 248, 234, 0.64);
+  font-size: 24rpx;
+  line-height: 1.52;
 }
 
 .now-meta {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   margin-top: 20rpx;
 }
 
@@ -357,77 +406,93 @@
   margin: 0 8rpx 12rpx;
   padding: 9rpx 18rpx;
   border-radius: 999rpx;
-  background: rgba(244, 199, 122, 0.14);
-  color: rgba(255, 248, 234, 0.82);
+  background: rgba(244, 199, 122, 0.10);
+  color: rgba(255, 248, 234, 0.74);
   font-size: 23rpx;
 }
 
 .transport-row {
   display: flex;
-  justify-content: center;
-  margin-top: 18rpx;
+  justify-content: flex-end;
+  margin-top: 0;
 }
 
 .primary-control {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 188rpx;
-  height: 88rpx;
+  width: 148rpx;
+  height: 72rpx;
   border-radius: 999rpx;
   background: linear-gradient(135deg, #ffe1a3, #f4c77a);
   color: #17120a;
-  font-size: 31rpx;
+  font-size: 26rpx;
   font-weight: 700;
-  box-shadow: 0 18rpx 44rpx rgba(244, 199, 122, 0.24);
+  box-shadow: 0 12rpx 28rpx rgba(244, 199, 122, 0.20);
 }
 
 .player-options {
-  margin-top: 28rpx;
-  padding-top: 24rpx;
-  border-top: 1rpx solid rgba(255, 255, 255, 0.08);
+  margin-top: 0;
   text-align: left;
 }
 
-.loop-row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+.option-card {
+  padding: 22rpx 22rpx 24rpx;
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  border-radius: 26rpx;
+  background: linear-gradient(180deg, rgba(12, 16, 25, 0.32), rgba(12, 16, 25, 0.62));
+  box-shadow: 0 20rpx 56rpx rgba(0, 0, 0, 0.18);
 }
 
-.loop-title,
 .timer-title {
   color: #fff8ea;
   font-size: 28rpx;
   font-weight: 600;
 }
 
-.loop-desc {
-  margin-top: 8rpx;
-  color: rgba(255, 248, 234, 0.48);
-  font-size: 23rpx;
+.timer-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20rpx;
+}
+
+.timer-copy {
+  flex: 1;
+  min-width: 0;
 }
 
 .timer-section {
-  margin-top: 28rpx;
+  margin-top: 0;
+}
+
+.timer-value {
+  margin-top: 8rpx;
+  color: rgba(255, 248, 234, 0.56);
+  font-size: 23rpx;
 }
 
 .timer-options {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   margin-top: 16rpx;
-  margin-right: -12rpx;
-  margin-bottom: -12rpx;
+  overflow: hidden;
 }
 
 .timer-chip {
-  min-width: 120rpx;
-  margin: 0 12rpx 12rpx 0;
-  padding: 16rpx 20rpx;
+  flex: 1;
+  min-width: 0;
+  margin-right: 10rpx;
+  padding: 16rpx 0;
   border-radius: 999rpx;
   background: rgba(255, 255, 255, 0.075);
   color: rgba(255, 248, 234, 0.68);
-  font-size: 24rpx;
+  font-size: 22rpx;
+  text-align: center;
+}
+
+.timer-chip:last-child {
+  margin-right: 0;
 }
 
 .timer-chip-active {
@@ -443,74 +508,25 @@
   left: 32rpx;
   display: flex;
   align-items: center;
-  padding: 18rpx 18rpx 18rpx 24rpx;
+  padding: 18rpx 18rpx 18rpx 20rpx;
   border: 1rpx solid rgba(255, 255, 255, 0.12);
   border-radius: 30rpx;
   background: rgba(14, 18, 29, 0.96);
   box-shadow: 0 18rpx 60rpx rgba(0, 0, 0, 0.40);
 }
 
-.mini-disc-shell {
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.mini-cover-shell {
   flex: 0 0 auto;
-  width: 76rpx;
-  height: 76rpx;
+  width: 96rpx;
+  height: 96rpx;
   margin-right: 18rpx;
 }
 
-.mini-disc {
-  position: relative;
-  width: 62rpx;
-  height: 62rpx;
-  border: 1rpx solid rgba(255, 255, 255, 0.18);
-  border-radius: 50%;
-  background:
-    radial-gradient(circle at 50% 50%, #171923 0 15%, transparent 16%),
-    conic-gradient(from 120deg, #f4c77a, #7d8dff, #24304b, #f4c77a);
-  box-shadow: inset 0 0 14rpx rgba(0, 0, 0, 0.34);
-}
-
-.mini-disc-sheen {
-  background:
-    linear-gradient(145deg, rgba(255, 255, 255, 0.30) 0%, rgba(255, 255, 255, 0.08) 18%, transparent 36%),
-    linear-gradient(325deg, transparent 0 57%, rgba(255, 255, 255, 0.12) 67%, transparent 80%);
-  opacity: 0.88;
-}
-
-.mini-disc-rings {
-  inset: 12%;
-  background:
-    repeating-radial-gradient(
-      circle at 50% 50%,
-      rgba(255, 255, 255, 0.00) 0 4rpx,
-      rgba(255, 255, 255, 0.07) 4rpx 5rpx
-    );
-  opacity: 0.7;
-}
-
-.mini-disc-label {
-  inset: 39%;
-  background:
-    radial-gradient(circle at 36% 34%, rgba(255, 255, 255, 0.58), transparent 18%),
-    radial-gradient(circle at 50% 52%, rgba(244, 199, 122, 0.96), rgba(244, 199, 122, 0.80) 42%, rgba(24, 27, 38, 0.96) 43%);
-  box-shadow:
-    0 0 0 2rpx rgba(255, 255, 255, 0.08),
-    inset 0 0 10rpx rgba(0, 0, 0, 0.20);
-}
-
-.mini-disc-hole {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  width: 12rpx;
-  height: 12rpx;
-  margin-top: -6rpx;
-  margin-left: -6rpx;
-  border-radius: 50%;
-  background: #090d16;
-  box-shadow: 0 0 0 4rpx rgba(255, 255, 255, 0.10);
+.mini-cover {
+  width: 96rpx;
+  height: 96rpx;
+  border-radius: 24rpx;
+  background: rgba(255, 255, 255, 0.12);
 }
 
 .mini-player-info {
@@ -532,8 +548,8 @@
 
 .mini-control {
   flex: 0 0 auto;
-  min-width: 96rpx;
-  padding: 16rpx 18rpx;
+  min-width: 100rpx;
+  padding: 18rpx 0;
   border-radius: 999rpx;
   background: #f4c77a;
   color: #17120a;
@@ -555,14 +571,4 @@
   font-size: 22rpx;
   line-height: 1.5;
   text-align: center;
-}
-
-@keyframes disc-spin {
-  from {
-    transform: rotate(0deg);
-  }
-
-  to {
-    transform: rotate(360deg);
-  }
 }

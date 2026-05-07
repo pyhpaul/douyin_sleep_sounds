@@ -5,7 +5,7 @@
   <view class="hero compact-hero">
     <view class="hero-row">
       <view class="title">晚安声音</view>
-      <view class="hero-note">选择频道，快速开始播放</view>
+      <view class="hero-note">选择频道，点击播放开始收听</view>
     </view>
   </view>
 
@@ -28,20 +28,26 @@
 
   <view tt:if="{{pageMode === 'channels'}}" class="channels-page">
     <view tt:if="{{hasSounds}}" class="radio-section">
-      <view class="channel-tabs">
-        <button
-          tt:for="{{soundGroupTabs}}"
-          tt:key="id"
-          class="channel-tab {{item.isActive ? 'channel-tab-active' : ''}}"
-          data-id="{{item.id}}"
-          bindtap="handleGroupTabTap"
-        >
-          {{item.title}}
-        </button>
-      </view>
+      <scroll-view class="channel-tabs" scroll-x="true" show-scrollbar="false">
+        <view class="channel-tabs-track">
+          <button
+            tt:for="{{soundGroupTabs}}"
+            tt:key="id"
+            class="channel-tab {{item.isActive ? 'channel-tab-active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="handleGroupTabTap"
+          >
+            <image class="channel-tab-thumb" src="{{item.thumbnail}}" mode="aspectFill"></image>
+            <view class="channel-tab-text">{{item.title}}</view>
+          </button>
+        </view>
+      </scroll-view>
 
       <view class="group-header">
-        <view class="group-title">{{activeSoundGroup.title}}</view>
+        <view class="group-meta">
+          <view class="group-title">{{activeSoundGroup.title}}</view>
+          <view class="group-count">{{activeSoundGroup.sounds.length}} 个场景</view>
+        </view>
         <view class="group-subtitle">{{activeSoundGroup.subtitle}}</view>
       </view>
 
@@ -54,15 +60,26 @@
           data-id="{{sound.id}}"
           bindtap="handleSoundTap"
         >
-          <view class="station-icon"></view>
+          <image class="station-icon" src="{{sound.cover}}" mode="aspectFill"></image>
           <view class="station-body">
             <view class="sound-title">{{sound.title}}</view>
             <view class="sound-desc">{{sound.description}}</view>
+            <view class="sound-chip-row">
+              <view class="sound-tag">{{sound.category}}</view>
+              <view tt:if="{{sound.unlockLabel}}" class="sound-unlock">{{sound.unlockLabel}}</view>
+              <view tt:if="{{sound.isActive}}" class="sound-status">已选中</view>
+              <view
+                tt:if="{{sound.isPlayingItem}}"
+                class="sound-status {{sound.isPlayingItem ? 'sound-status-playing' : ''}}"
+              >
+                播放中
+              </view>
+            </view>
           </view>
           <button
             class="station-play"
             data-id="{{sound.id}}"
-            bindtap="handleSoundTap"
+            bindtap="handleSoundPlayTap"
           >
             播放
           </button>
@@ -75,52 +92,54 @@
 
   <view tt:if="{{pageMode === 'player'}}" class="player-page">
     <view class="player-shell">
-      <view class="album-art">
-        <view class="album-glow"></view>
-        <view class="album-disc {{isPlaying ? 'disc-spinning' : 'disc-idle'}}">
-          <view class="album-disc-sheen"></view>
-          <view class="album-disc-rings"></view>
-          <view class="album-disc-label"></view>
-          <view class="album-hole"></view>
-        </view>
-      </view>
+      <view class="player-backdrop">
+        <image
+          tt:if="{{currentSoundCover}}"
+          class="player-backdrop-image"
+          src="{{currentSoundCover}}"
+          mode="aspectFill"
+        ></image>
+        <view class="player-backdrop-shade"></view>
+        <view class="player-shell-content">
+          <view class="playback-panel">
+            <view class="player-control-stack">
+              <view class="player-copy-panel">
+                <view class="now-label">当前播放</view>
+                <view class="now-title">{{currentSoundTitle}}</view>
+                <view class="now-desc">{{currentSoundDescription}}</view>
+                <view class="now-meta">
+                  <text class="pill">{{currentSoundCategoryText}}</text>
+                  <text class="pill">{{playbackText}}</text>
+                  <text class="pill">{{remainingText}}</text>
+                </view>
+              </view>
 
-      <view class="playback-panel">
-        <view class="now-label">当前播放</view>
-        <view class="now-title">{{currentSoundTitle}}</view>
-        <view class="now-meta">
-          <text class="pill">{{currentSoundCategoryText}}</text>
-          <text class="pill">{{playbackText}}</text>
-          <text class="pill">{{remainingText}}</text>
-        </view>
-
-        <view class="transport-row">
-          <button class="primary-control" bindtap="handlePlayToggle">
-            {{isPlaying ? "暂停" : "播放"}}
-          </button>
-        </view>
-
-        <view class="player-options">
-          <view class="loop-row">
-            <view>
-              <view class="loop-title">循环播放</view>
-              <view class="loop-desc">当前声音结束后自动重播</view>
-            </view>
-            <switch checked="{{isLooping}}" bindchange="handleLoopChange" color="#f4c77a" />
-          </view>
-
-          <view class="timer-section">
-            <view class="timer-title">定时停止</view>
-            <view class="timer-options">
-              <button
-                tt:for="{{timerOptions}}"
-                tt:key="minutes"
-                class="timer-chip {{item.isActive ? 'timer-chip-active' : ''}}"
-                data-minutes="{{item.minutes}}"
-                bindtap="handleTimerTap"
-              >
-                {{item.label}}
-              </button>
+              <view class="player-options">
+                <view class="option-card timer-section">
+                  <view class="timer-head">
+                    <view class="timer-copy">
+                      <view class="timer-title">定时停止</view>
+                      <view class="timer-value">{{remainingText}}</view>
+                    </view>
+                    <view class="transport-row">
+                      <button class="primary-control" bindtap="handlePlayToggle">
+                        {{isPlaying ? "暂停" : "播放"}}
+                      </button>
+                    </view>
+                  </view>
+                  <view class="timer-options">
+                    <button
+                      tt:for="{{timerOptions}}"
+                      tt:key="minutes"
+                      class="timer-chip {{item.isActive ? 'timer-chip-active' : ''}}"
+                      data-minutes="{{item.minutes}}"
+                      bindtap="handleTimerTap"
+                    >
+                      {{item.label}}
+                    </button>
+                  </view>
+                </view>
+              </view>
             </view>
           </view>
         </view>
@@ -129,17 +148,12 @@
   </view>
 
   <view tt:if="{{hasSounds && pageMode === 'channels'}}" class="mini-player">
-    <view class="mini-disc-shell">
-      <view class="mini-disc {{isPlaying ? 'disc-spinning' : 'disc-idle'}}">
-        <view class="mini-disc-sheen"></view>
-        <view class="mini-disc-rings"></view>
-        <view class="mini-disc-label"></view>
-        <view class="mini-disc-hole"></view>
-      </view>
+    <view class="mini-cover-shell" bindtap="handleMiniPlayerTap">
+      <image class="mini-cover" src="{{currentSoundCover}}" mode="aspectFill"></image>
     </view>
     <view class="mini-player-info" bindtap="handleMiniPlayerTap">
       <view class="mini-title">{{currentSoundTitle}}</view>
-      <view class="mini-meta">{{playbackText}} · {{remainingText}}</view>
+      <view class="mini-meta">{{currentSoundCategoryText}} · {{playbackText}} · {{remainingText}}</view>
     </view>
     <button class="mini-control" bindtap="handlePlayToggle">
       {{isPlaying ? "暂停" : "播放"}}
