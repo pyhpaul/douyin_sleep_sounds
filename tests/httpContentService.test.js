@@ -85,6 +85,30 @@ test("returns bootstrap data when tt.request succeeds", async () => {
   });
 });
 
+test("builds the configured single-domain bootstrap request", async () => {
+  const service = loadHttpContentService({
+    request({ url, method, success }) {
+      assert.equal(url, "https://sleep.zhenweiai.com/content/bootstrap");
+      assert.equal(method, "GET");
+      success({
+        data: {
+          version: "2026-05-06T16:00:00Z",
+          groups: []
+        }
+      });
+    }
+  });
+
+  contentSourceConfigRef.httpBaseUrl = "https://sleep.zhenweiai.com";
+
+  const payload = await service.getContentBootstrap();
+
+  assert.deepEqual(payload, {
+    version: "2026-05-06T16:00:00Z",
+    groups: []
+  });
+});
+
 test("throws when tt.request is unavailable", async () => {
   const service = loadHttpContentService({});
 

@@ -14,13 +14,60 @@ test("loads sounds and selects first sound without auto playing", async () => {
   assert.equal(page.data.activeGroupId, "rain");
   assert.equal(page.data.soundGroupTabs.length, 7);
   assert.equal(page.data.soundGroupTabs[0].isActive, true);
-  assert.equal(page.data.soundGroupTabs[0].thumbnail, "../../debug/covers/rain_night.jpg");
+  assert.equal(page.data.soundGroupTabs[0].thumbnail, "/assets/covers/rain_night.jpg");
   assert.equal(page.data.activeSoundGroup.title, "雨声");
   assert.equal(page.data.currentSoundTitle, "雨夜白噪音");
-  assert.equal(page.data.currentSoundCover, "../../debug/covers/rain_night.jpg");
+  assert.equal(page.data.currentSoundCover, "/assets/covers/rain_night.jpg");
   assert.equal(page.data.isLooping, true);
   assert.equal(page.data.isPlaying, false);
   assert.equal(runtime.audio.src, "");
+
+  runtime.restore();
+});
+
+test("loads sounds from the single-domain HTTP provider on device runtime", async () => {
+  const runtime = createMiniAppRuntime({
+    request({ url, success }) {
+      assert.equal(url, "https://sleep.zhenweiai.com/content/bootstrap");
+      success({
+        statusCode: 200,
+        data: {
+          version: "2026-05-06T16:00:00Z",
+          groups: [
+            {
+              id: "rain",
+              title: "云端雨声",
+              subtitle: "云端内容。",
+              sounds: [
+                {
+                  id: "rain_night",
+                  title: "云端雨夜",
+                  category: "雨声",
+                  description: "来自 HTTPS 内容服务。",
+                  unlockLabel: "免费",
+                  url: "https://sleep.zhenweiai.com/audio/rain_night.mp3",
+                  cover: "https://sleep.zhenweiai.com/covers/rain_night.jpg"
+                }
+              ]
+            }
+          ]
+        }
+      });
+    }
+  });
+  const page = runtime.loadPage("../miniprogram/pages/index/index.js");
+
+  await page.call("onLoad");
+  await runtime.flushAsync();
+
+  assert.equal(page.data.activeSoundGroup.title, "云端雨声");
+  assert.equal(page.data.currentSoundTitle, "云端雨夜");
+  assert.equal(page.data.currentSoundCover, "https://sleep.zhenweiai.com/covers/rain_night.jpg");
+
+  page.call("handlePlayToggle");
+  runtime.audio.emit("play");
+
+  assert.equal(runtime.audio.src, "https://sleep.zhenweiai.com/audio/rain_night.mp3");
 
   runtime.restore();
 });
@@ -51,7 +98,7 @@ test("selecting a sound syncs the active channel tab without starting playback",
   page.call("handleSoundTap", runtime.tapEvent("deep_ambient"));
 
   assert.equal(page.data.currentSoundTitle, "深夜冥想音景");
-  assert.equal(page.data.currentSoundCover, "../../debug/covers/deep_ambient.jpg");
+  assert.equal(page.data.currentSoundCover, "/assets/covers/deep_ambient.jpg");
   assert.equal(page.data.activeGroupId, "ambient");
   assert.equal(page.data.activeSoundGroup.title, "氛围");
   assert.equal(runtime.audio.playCalls, 0);
@@ -88,9 +135,23 @@ test("play button starts background audio for the selected sound and confirms on
   runtime.audio.emit("play");
 
   assert.equal(page.data.currentSoundTitle, "深夜海浪");
-  assert.equal(page.data.currentSoundCover, "../../debug/covers/ocean_slow.jpg");
+  assert.equal(page.data.currentSoundCover, "/assets/covers/ocean_slow.jpg");
   assert.equal(page.data.isPlaying, true);
-  assert.match(runtime.audio.src, /^https:\/\//);
+  assert.equal(runtime.audio.src, "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3");
+
+  runtime.restore();
+});
+
+test("play button keeps deep ambient on the stable demo source", async () => {
+  const runtime = createMiniAppRuntime();
+  const page = runtime.loadPage("../miniprogram/pages/index/index.js");
+
+  await page.call("onLoad");
+  await runtime.flushAsync();
+  page.call("handleSoundPlayTap", runtime.tapEvent("deep_ambient"));
+  runtime.audio.emit("play");
+
+  assert.equal(runtime.audio.src, "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3");
 
   runtime.restore();
 });
@@ -109,12 +170,15 @@ test("selecting another title while audio is playing keeps current playback unch
   assert.equal(runtime.audio.playCalls, 1);
   assert.equal(page.data.isPlaying, true);
   assert.equal(page.data.currentSoundTitle, "雨夜白噪音");
-  assert.equal(page.data.currentSoundCover, "../../debug/covers/rain_night.jpg");
+  assert.equal(page.data.currentSoundCover, "/assets/covers/rain_night.jpg");
   assert.equal(page.data.activeGroupId, "water");
   assert.equal(page.data.activeSoundGroup.title, "水流");
   assert.equal(page.data.activeSoundGroup.sounds[0].title, "深夜海浪");
   assert.equal(page.data.activeSoundGroup.sounds[1].title, "溪流入眠");
-  assert.equal(page.data.activeSoundGroup.sounds[1].cover, "../../debug/covers/creek_soft.jpg");
+  assert.equal(
+    page.data.activeSoundGroup.sounds[1].cover,
+    "/assets/covers/creek_soft.jpg"
+  );
   assert.equal(page.data.activeSoundGroup.sounds[0].isActive, false);
   assert.equal(page.data.activeSoundGroup.sounds[0].isPlayingItem, false);
   assert.equal(page.data.activeSoundGroup.sounds[1].isActive, true);
