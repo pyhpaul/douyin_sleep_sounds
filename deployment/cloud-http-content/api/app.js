@@ -1,5 +1,3 @@
-const fs = require("node:fs");
-const http = require("node:http");
 const path = require("node:path");
 
 function requireFirst(candidatePaths) {
@@ -16,70 +14,72 @@ function requireFirst(candidatePaths) {
   throw new Error(`Unable to load module from: ${candidatePaths.join(", ")}`);
 }
 
-const { buildPublishedContentDocuments } = requireFirst([
-  path.resolve(__dirname, "../../../content/catalogAdapter"),
-  path.resolve(__dirname, "../content/catalogAdapter")
+const {
+  createContentBootstrapService
+} = requireFirst([
+  path.resolve(__dirname, "../../../server/contentService/createContentBootstrapService"),
+  path.resolve(__dirname, "../server/contentService/createContentBootstrapService")
 ]);
-const { buildContentBootstrapResponse } = requireFirst([
-  path.resolve(__dirname, "../../../cloud/functions/shared/contentBootstrapBuilder"),
-  path.resolve(__dirname, "../cloud/functions/shared/contentBootstrapBuilder")
+const {
+  createContentHttpApp
+} = requireFirst([
+  path.resolve(__dirname, "../../../server/contentService/createContentHttpApp"),
+  path.resolve(__dirname, "../server/contentService/createContentHttpApp")
 ]);
-
-function writeJson(response, statusCode, body) {
-  response.writeHead(statusCode, {
-    "content-type": "application/json; charset=utf-8",
-    "cache-control": "no-store"
-  });
-  response.end(`${JSON.stringify(body)}\n`);
-}
-
-function loadCatalog(catalogPath) {
-  return JSON.parse(fs.readFileSync(catalogPath, "utf8"));
-}
-
-function trimTrailingSlashes(value) {
-  return String(value || "").replace(/\/+$/, "");
-}
-
-function buildStaticAssetUrl(baseUrl, category, assetKey) {
-  return `${trimTrailingSlashes(baseUrl)}/${category}/${String(assetKey || "").replace(/^\/+/, "")}`;
-}
+const {
+  parseContentServiceEnv
+} = requireFirst([
+  path.resolve(__dirname, "../../../server/contentService/env"),
+  path.resolve(__dirname, "../server/contentService/env")
+]);
+const {
+  createJsonCatalogRepository
+} = requireFirst([
+  path.resolve(__dirname, "../../../server/contentService/repositories/jsonCatalogRepository"),
+  path.resolve(__dirname, "../server/contentService/repositories/jsonCatalogRepository")
+]);
+const {
+  createStaticBaseUrlResolver
+} = requireFirst([
+  path.resolve(__dirname, "../../../server/contentService/assetResolvers/staticBaseUrlResolver"),
+  path.resolve(__dirname, "../server/contentService/assetResolvers/staticBaseUrlResolver")
+]);
 
 function createServer(options = {}) {
-  const catalogPath =
-    options.catalogPath || path.resolve(__dirname, "./catalog.json");
-  const staticBaseUrl = options.staticBaseUrl || process.env.STATIC_BASE_URL || "";
-
-  return http.createServer((request, response) => {
-    if (request.method !== "GET" || request.url !== "/content/bootstrap") {
-      writeJson(response, 404, { error: "Not Found" });
-      return;
-    }
-
-    try {
-      const catalog = loadCatalog(catalogPath);
-      const documents = buildPublishedContentDocuments(catalog, {
-        resolveAudioUrl: (sound) =>
-          buildStaticAssetUrl(staticBaseUrl, "audio", sound.audioAssetKey),
-        resolveCoverUrl: (sound) =>
-          buildStaticAssetUrl(staticBaseUrl, "covers", sound.coverAssetKey)
-      });
-      const payload = buildContentBootstrapResponse(documents);
-      writeJson(response, 200, payload);
-    } catch (error) {
-      writeJson(response, 500, {
-        error: "bootstrap failed",
-        message: error.message
-      });
-    }
+  const env = parseContentServiceEnv(
+    Object.assign({}, process.env, {
+      CONTENT_CATALOG_PATH:
+        options.catalogPath ||
+        process.env.CONTENT_CATALOG_PATH ||
+        path.resolve(__dirname, "./catalog.json"),
+      STATIC_BASE_URL:
+        options.staticBaseUrl !== undefined ? options.staticBaseUrl : process.env.STATIC_BASE_URL
+    })
+  );
+  const repository = createJsonCatalogRepository({
+    catalogPath: env.catalogPath
   });
+  const assetResolver = createStaticBaseUrlResolver({
+    staticBaseUrl: env.staticBaseUrl
+  });
+  const contentService = createContentBootstrapService({
+    repository,
+    assetResolver
+  });
+
+  return createContentHttpApp({ contentService });
 }
 
 if (require.main === module) {
-  const port = Number.parseInt(process.env.PORT || "3000", 10);
+  const env = parseContentServiceEnv(
+    Object.assign({}, process.env, {
+      CONTENT_CATALOG_PATH: process.env.CONTENT_CATALOG_PATH || path.resolve(__dirname, "./catalog.json")
+    })
+  );
   const server = createServer();
-  server.listen(port, "127.0.0.1", () => {
-    console.log(`Sleep Sounds API listening on http://127.0.0.1:${port}`);
+
+  server.listen(env.port, env.host, () => {
+    console.log(`Sleep Sounds API listening on http://${env.host}:${env.port}`);
   });
 }
 

@@ -40,6 +40,23 @@ function request(address, pathname) {
   });
 }
 
+test("cloud HTTP API serves healthz", async () => {
+  const server = createServer({
+    catalogPath: path.resolve(__dirname, "../deployment/cloud-http-content/api/catalog.json"),
+    staticBaseUrl: "https://sleep.zhenweiai.com"
+  });
+
+  try {
+    const address = await listen(server);
+    const response = await request(address, "/healthz");
+
+    assert.equal(response.statusCode, 200);
+    assert.deepEqual(JSON.parse(response.body), { ok: true });
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
 test("cloud HTTP API serves bootstrap payload from deployment catalog", async () => {
   const server = createServer({
     catalogPath: path.resolve(__dirname, "../deployment/cloud-http-content/api/catalog.json"),
@@ -86,10 +103,15 @@ test("cloud HTTP API can run from the remote server directory layout", async () 
   const apiDir = path.join(tempDir, "api");
   const contentDir = path.join(tempDir, "content");
   const sharedDir = path.join(tempDir, "cloud/functions/shared");
+  const serviceDir = path.join(tempDir, "server/contentService");
+  const repositoryDir = path.join(serviceDir, "repositories");
+  const resolverDir = path.join(serviceDir, "assetResolvers");
 
   fs.mkdirSync(apiDir, { recursive: true });
   fs.mkdirSync(contentDir, { recursive: true });
   fs.mkdirSync(sharedDir, { recursive: true });
+  fs.mkdirSync(repositoryDir, { recursive: true });
+  fs.mkdirSync(resolverDir, { recursive: true });
   fs.copyFileSync(
     path.resolve(__dirname, "../deployment/cloud-http-content/api/app.js"),
     path.join(apiDir, "app.js")
@@ -105,6 +127,24 @@ test("cloud HTTP API can run from the remote server directory layout", async () 
   fs.copyFileSync(
     path.resolve(__dirname, "../cloud/functions/shared/contentBootstrapBuilder.js"),
     path.join(sharedDir, "contentBootstrapBuilder.js")
+  );
+  for (const fileName of [
+    "createContentBootstrapService.js",
+    "createContentHttpApp.js",
+    "env.js"
+  ]) {
+    fs.copyFileSync(
+      path.resolve(__dirname, `../server/contentService/${fileName}`),
+      path.join(serviceDir, fileName)
+    );
+  }
+  fs.copyFileSync(
+    path.resolve(__dirname, "../server/contentService/repositories/jsonCatalogRepository.js"),
+    path.join(repositoryDir, "jsonCatalogRepository.js")
+  );
+  fs.copyFileSync(
+    path.resolve(__dirname, "../server/contentService/assetResolvers/staticBaseUrlResolver.js"),
+    path.join(resolverDir, "staticBaseUrlResolver.js")
   );
 
   const appPath = path.join(apiDir, "app.js");
