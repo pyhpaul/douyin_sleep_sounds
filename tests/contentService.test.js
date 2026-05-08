@@ -214,6 +214,12 @@ test("parseContentServiceEnv normalizes current lightweight defaults", () => {
   assert.equal(env.port, 8787);
 });
 
+test("parseContentServiceEnv defaults port to 3000", () => {
+  const env = parseContentServiceEnv({});
+
+  assert.equal(env.port, 3000);
+});
+
 test("parseContentServiceEnv rejects unsupported adapters", () => {
   assert.throws(
     () =>
