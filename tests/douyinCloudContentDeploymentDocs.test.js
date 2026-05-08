@@ -38,4 +38,8 @@ test("douyin cloud compatible README documents switch and verification commands"
   assert.match(readme, /\/healthz/);
   assert.match(readme, /npm run check/);
   assert.match(readme, /npm test/);
+  assert.match(readme, /npm run debug:page/);
+  assert.match(readme, /node deployment\/cloud-http-content\/api\/app\.js/);
+  assert.match(readme, /curl -fsS https:\/\/sleep\.zhenweiai\.com\/healthz/);
+  assert.match(readme, /curl -fsS https:\/\/sleep\.zhenweiai\.com\/content\/bootstrap/);
 });
