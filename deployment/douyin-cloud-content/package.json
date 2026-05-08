@@ -1,0 +1,8 @@
+{
+  "name": "sleep-sounds-douyin-cloud-compatible-content",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "start": "node ../cloud-http-content/api/app.js"
+  }
+}
