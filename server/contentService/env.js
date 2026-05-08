@@ -6,8 +6,14 @@ function normalizeBaseUrl(value) {
 }
 
 function parsePort(value, fallback) {
-  const port = Number.parseInt(value || "", 10);
-  return Number.isInteger(port) && port > 0 ? port : fallback;
+  const normalizedValue = String(value || "").trim();
+
+  if (!/^\d+$/.test(normalizedValue)) {
+    return fallback;
+  }
+
+  const port = Number(normalizedValue);
+  return port >= 1 && port <= 65535 ? port : fallback;
 }
 
 function parseContentServiceEnv(rawEnv = process.env) {

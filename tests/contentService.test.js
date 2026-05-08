@@ -177,6 +177,36 @@ test("content http app serves healthz and bootstrap", async () => {
   }
 });
 
+test("content http app matches bootstrap route by pathname", async () => {
+  const server = createContentHttpApp({
+    contentService: {
+      async getContentBootstrap() {
+        return {
+          groups: [
+            {
+              sounds: [
+                {
+                  id: "rain_night"
+                }
+              ]
+            }
+          ]
+        };
+      }
+    }
+  });
+
+  try {
+    const address = await listen(server);
+    const response = await request(address, "/content/bootstrap?x=1");
+
+    assert.equal(response.statusCode, 200);
+    assert.equal(JSON.parse(response.body).groups[0].sounds[0].id, "rain_night");
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
 test("content http app returns 500 when bootstrap service fails", async () => {
   const server = createContentHttpApp({
     contentService: {
@@ -199,6 +229,28 @@ test("content http app returns 500 when bootstrap service fails", async () => {
   }
 });
 
+test("content http app returns stringified message for non-error bootstrap failures", async () => {
+  const server = createContentHttpApp({
+    contentService: {
+      async getContentBootstrap() {
+        throw "plain failure";
+      }
+    }
+  });
+
+  try {
+    const address = await listen(server);
+    const response = await request(address, "/content/bootstrap");
+    const payload = JSON.parse(response.body);
+
+    assert.equal(response.statusCode, 500);
+    assert.equal(payload.error, "bootstrap failed");
+    assert.equal(payload.message, "plain failure");
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
 test("parseContentServiceEnv normalizes current lightweight defaults", () => {
   const env = parseContentServiceEnv({
     STATIC_BASE_URL: "https://sleep.zhenweiai.com/",
@@ -212,6 +264,11 @@ test("parseContentServiceEnv normalizes current lightweight defaults", () => {
   assert.equal(env.catalogPath, "catalog.json");
   assert.equal(env.host, "127.0.0.1");
   assert.equal(env.port, 8787);
+});
+
+test("parseContentServiceEnv falls back for non-strict and out-of-range ports", () => {
+  assert.equal(parseContentServiceEnv({ PORT: "8787abc" }).port, 3000);
+  assert.equal(parseContentServiceEnv({ PORT: "70000" }).port, 3000);
 });
 
 test("parseContentServiceEnv defaults port to 3000", () => {

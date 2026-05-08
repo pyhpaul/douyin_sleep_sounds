@@ -14,12 +14,14 @@ function createContentHttpApp({ contentService }) {
   }
 
   return http.createServer(async (request, response) => {
-    if (request.method === "GET" && request.url === "/healthz") {
+    const pathname = new URL(request.url, "http://127.0.0.1").pathname;
+
+    if (request.method === "GET" && pathname === "/healthz") {
       writeJson(response, 200, { ok: true });
       return;
     }
 
-    if (request.method !== "GET" || request.url !== "/content/bootstrap") {
+    if (request.method !== "GET" || pathname !== "/content/bootstrap") {
       writeJson(response, 404, { error: "Not Found" });
       return;
     }
@@ -30,7 +32,7 @@ function createContentHttpApp({ contentService }) {
     } catch (error) {
       writeJson(response, 500, {
         error: "bootstrap failed",
-        message: error.message
+        message: error instanceof Error ? error.message : String(error)
       });
     }
   });
