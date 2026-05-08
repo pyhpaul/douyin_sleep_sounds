@@ -15,10 +15,16 @@ const files = [
   "content/catalogAdapter.js",
   "server/createVmContentServer.js",
   "server/index.js",
+  "server/contentService/createContentBootstrapService.js",
+  "server/contentService/createContentHttpApp.js",
+  "server/contentService/env.js",
+  "server/contentService/repositories/jsonCatalogRepository.js",
+  "server/contentService/assetResolvers/staticBaseUrlResolver.js",
   "cloud/functions/shared/contentBootstrapBuilder.js",
   "cloud/functions/shared/contentRepository.js",
   "cloud/functions/contentBootstrap/index.js",
   "cloud/scripts/seedContent.js",
+  "deployment/cloud-http-content/api/app.js",
   "scripts/sync-content-artifacts.js",
   "scripts/check-syntax.js"
 ].filter((file) => fs.existsSync(file));
