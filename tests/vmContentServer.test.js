@@ -102,6 +102,23 @@ test("serves bootstrap payload from catalog.json", async () => {
   }
 });
 
+test("serves bootstrap payload when query string is present", async () => {
+  const server = createVmContentServer({
+    catalogPath: path.resolve(__dirname, "../content/catalog.json")
+  });
+
+  try {
+    const address = await listen(server);
+    const response = await request(address, "/content/bootstrap?x=1");
+
+    assert.equal(response.statusCode, 200);
+    const payload = JSON.parse(response.body);
+    assert.ok(payload.defaultGroupId);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
 test("uses local debug audio urls when no audio base url is configured", async () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "vm-content-server-local-audio-"));
   const catalogPath = path.join(tempDir, "catalog.json");
@@ -234,6 +251,37 @@ test("serves local debug audio assets from the built-in static route", async () 
 
     assert.equal(response.statusCode, 200);
     assert.ok(response.body.length > 0);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("serves local debug audio assets when query string is present", async () => {
+  const server = createVmContentServer({
+    catalogPath: path.resolve(__dirname, "../content/catalog.json")
+  });
+
+  try {
+    const address = await listen(server);
+    const response = await request(address, "/debug/audio/deep_ambient.mp3?v=1");
+
+    assert.equal(response.statusCode, 200);
+    assert.ok(response.body.length > 0);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("returns 404 for malformed debug audio encoding", async () => {
+  const server = createVmContentServer({
+    catalogPath: path.resolve(__dirname, "../content/catalog.json")
+  });
+
+  try {
+    const address = await listen(server);
+    const response = await request(address, "/debug/audio/%E0%A4%A");
+
+    assert.equal(response.statusCode, 404);
   } finally {
     await new Promise((resolve) => server.close(resolve));
   }

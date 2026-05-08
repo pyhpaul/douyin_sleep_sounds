@@ -46,15 +46,43 @@ function writeFile(response, filePath) {
     ".jpeg": "image/jpeg"
   };
 
-  response.writeHead(200, {
-    "content-type": contentTypeByExtension[extension] || "application/octet-stream",
-    "cache-control": "no-store"
+  const stream = fs.createReadStream(filePath);
+  stream.on("error", () => {
+    if (response.headersSent) {
+      response.destroy();
+      return;
+    }
+
+    writeJson(response, 500, { error: "file read failed" });
   });
-  fs.createReadStream(filePath).pipe(response);
+
+  stream.once("open", () => {
+    response.writeHead(200, {
+      "content-type": contentTypeByExtension[extension] || "application/octet-stream",
+      "cache-control": "no-store"
+    });
+    stream.pipe(response);
+  });
 }
 
-function resolveDebugAudioPath(requestPath) {
-  const fileName = decodeURIComponent(String(requestPath || "").replace("/debug/audio/", ""));
+function getRequestPathname(requestUrl) {
+  try {
+    return new URL(requestUrl || "", "http://127.0.0.1").pathname;
+  } catch (error) {
+    return "";
+  }
+}
+
+function getDebugFileName(pathname, routePrefix) {
+  try {
+    return decodeURIComponent(String(pathname || "").replace(routePrefix, ""));
+  } catch (error) {
+    return "";
+  }
+}
+
+function resolveDebugAudioPath(pathname) {
+  const fileName = getDebugFileName(pathname, "/debug/audio/");
   if (!fileName || fileName.includes("..") || fileName.includes("/") || fileName.includes("\\")) {
     return "";
   }
@@ -62,8 +90,8 @@ function resolveDebugAudioPath(requestPath) {
   return path.resolve(__dirname, "../debug/audio", fileName);
 }
 
-function resolveDebugCoverPath(requestPath) {
-  const fileName = decodeURIComponent(String(requestPath || "").replace("/debug/covers/", ""));
+function resolveDebugCoverPath(pathname) {
+  const fileName = getDebugFileName(pathname, "/debug/covers/");
   if (!fileName || fileName.includes("..") || fileName.includes("/") || fileName.includes("\\")) {
     return "";
   }
@@ -94,8 +122,10 @@ function createVmContentServer(options = {}) {
   });
 
   return http.createServer(async (request, response) => {
-    if (request.method === "GET" && String(request.url || "").startsWith("/debug/audio/")) {
-      const audioPath = resolveDebugAudioPath(request.url);
+    const pathname = getRequestPathname(request.url);
+
+    if (request.method === "GET" && pathname.startsWith("/debug/audio/")) {
+      const audioPath = resolveDebugAudioPath(pathname);
       if (!audioPath) {
         writeJson(response, 404, { error: "Not Found" });
         return;
@@ -105,8 +135,8 @@ function createVmContentServer(options = {}) {
       return;
     }
 
-    if (request.method === "GET" && String(request.url || "").startsWith("/debug/covers/")) {
-      const coverPath = resolveDebugCoverPath(request.url);
+    if (request.method === "GET" && pathname.startsWith("/debug/covers/")) {
+      const coverPath = resolveDebugCoverPath(pathname);
       if (!coverPath) {
         writeJson(response, 404, { error: "Not Found" });
         return;
@@ -116,7 +146,7 @@ function createVmContentServer(options = {}) {
       return;
     }
 
-    if (request.method !== "GET" || request.url !== "/content/bootstrap") {
+    if (request.method !== "GET" || pathname !== "/content/bootstrap") {
       writeJson(response, 404, { error: "Not Found" });
       return;
     }
