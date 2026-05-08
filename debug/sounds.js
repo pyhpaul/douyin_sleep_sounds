@@ -1,6 +1,7 @@
 const MOCK_AUDIO_HOST = "sf1-ttcdn-tos.pstatp.com";
 const DEMO_AUDIO_URL = `https://${MOCK_AUDIO_HOST}/obj/developer/sdk/0000-0001.mp3`;
-const COVER_BASE_PATH = "../../debug/covers";
+const COVER_BASE_PATH = "http://127.0.0.1:8787/debug/covers";
+const AUDIO_BASE_URL = "http://127.0.0.1:8787/debug/audio";
 
 const categoryDefinitions = [
   {
@@ -105,10 +106,27 @@ const scenes = [
     categoryLabel: "冥想",
     unlockLabel: "免费"
   }
-].map((scene) => ({
+];
+
+function getLocalAudioExtension(sceneId) {
+  const debugAssetExtensions = {
+    rain_night: "ogg",
+    ocean_slow: "ogg",
+    forest_breeze: "ogg",
+    fireplace_room: "ogg",
+    creek_soft: "ogg",
+    soft_wind: "ogg",
+    nap_white_noise: "mp3",
+    deep_ambient: "mp3"
+  };
+
+  return debugAssetExtensions[sceneId] || "mp3";
+}
+
+const scenesWithAssets = scenes.map((scene) => ({
   ...scene,
   cover: `${COVER_BASE_PATH}/${scene.id}.jpg`,
-  url: DEMO_AUDIO_URL
+  url: `${AUDIO_BASE_URL}/${scene.id}.${getLocalAudioExtension(scene.id)}`
 }));
 
 const categoryMap = categoryDefinitions.reduce((result, definition) => {
@@ -117,7 +135,7 @@ const categoryMap = categoryDefinitions.reduce((result, definition) => {
 }, {});
 
 const soundGroups = categoryDefinitions.map((definition) => {
-  const sounds = scenes
+  const sounds = scenesWithAssets
     .filter((scene) => scene.groupId === definition.id)
     .map((scene) => ({
       id: scene.id,
@@ -141,7 +159,8 @@ const soundGroups = categoryDefinitions.map((definition) => {
 module.exports = {
   MOCK_AUDIO_HOST,
   COVER_BASE_PATH,
+  AUDIO_BASE_URL,
   soundGroups,
-  scenes,
+  scenes: scenesWithAssets,
   categoryMap
 };

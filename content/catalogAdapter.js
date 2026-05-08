@@ -1,6 +1,7 @@
 const MOCK_AUDIO_HOST = "sf1-ttcdn-tos.pstatp.com";
 const DEMO_AUDIO_URL = `https://${MOCK_AUDIO_HOST}/obj/developer/sdk/0000-0001.mp3`;
-const COVER_BASE_PATH = "../../debug/covers";
+const COVER_BASE_PATH = "/assets/covers";
+const LOCAL_AUDIO_BASE_URL = "http://127.0.0.1:8787/debug/audio";
 const DEFAULT_CLOUD_CDN_BASE_URL = "https://cdn.example.com";
 
 function ensureArray(value, fieldName) {
@@ -103,6 +104,32 @@ function getLocalCoverPath(soundId) {
   return `${COVER_BASE_PATH}/${soundId}.jpg`;
 }
 
+function getLocalAudioUrl(sound) {
+  return DEMO_AUDIO_URL;
+}
+
+function getLocalAudioExtension(sound) {
+  const debugAssetExtensions = {
+    rain_night: "ogg",
+    ocean_slow: "ogg",
+    forest_breeze: "ogg",
+    fireplace_room: "ogg",
+    creek_soft: "ogg",
+    soft_wind: "ogg",
+    nap_white_noise: "mp3",
+    deep_ambient: "mp3"
+  };
+
+  const soundId = String(sound && sound.id ? sound.id : "");
+  if (debugAssetExtensions[soundId]) {
+    return debugAssetExtensions[soundId];
+  }
+
+  const assetKey = String((sound && sound.audioAssetKey) || "");
+  const extensionMatch = assetKey.match(/\.([a-z0-9]+)$/i);
+  return extensionMatch ? extensionMatch[1].toLowerCase() : "mp3";
+}
+
 function buildLocalSoundsModule(catalog) {
   const normalized = normalizeCatalog(catalog);
   const soundsByGroupId = new Map();
@@ -115,7 +142,7 @@ function buildLocalSoundsModule(catalog) {
       category: sound.category || "",
       description: sound.description || "",
       unlockLabel: sound.unlockLabel || "",
-      url: DEMO_AUDIO_URL,
+      url: getLocalAudioUrl(sound),
       cover: getLocalCoverPath(sound.id)
     });
     soundsByGroupId.set(sound.groupId, groupSounds);
@@ -215,8 +242,11 @@ module.exports = {
   MOCK_AUDIO_HOST,
   DEMO_AUDIO_URL,
   COVER_BASE_PATH,
+  LOCAL_AUDIO_BASE_URL,
   DEFAULT_CLOUD_CDN_BASE_URL,
   getLocalCoverPath,
+  getLocalAudioUrl,
+  getLocalAudioExtension,
   buildLocalSoundsModule,
   buildCloudSeed,
   buildPublishedContentDocuments

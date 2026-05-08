@@ -101,7 +101,7 @@ test("returns cloned local sounds when provider is local", async () => {
   assert.equal(first[0].title, "雨声");
   assert.equal(first.length, 7);
   assert.equal(first.flatMap((group) => group.sounds).length, 8);
-  assert.equal(first[0].thumbnail, "../../debug/covers/rain_night.jpg");
+  assert.equal(first[0].thumbnail, "/assets/covers/rain_night.jpg");
   assert.notEqual(first, second);
   assert.notEqual(first[0], second[0]);
 });
@@ -215,10 +215,23 @@ test("preserves required playback metadata on local fallback", async () => {
     assert.equal(typeof sound.unlockLabel, "string");
     assert.equal(typeof sound.url, "string");
     assert.equal(typeof sound.cover, "string");
-    assert.match(sound.url, /^https:\/\//);
+    assert.match(sound.cover, /^\/assets\/covers\/.+\.jpg$/);
+  }
 
-    const url = new URL(sound.url);
-    assert.equal(url.host, MOCK_AUDIO_HOST);
-    assert.equal(url.pathname.endsWith(".mp3"), true);
+  const deepAmbient = sounds.find((sound) => sound.id === "deep_ambient");
+  const rainNight = sounds.find((sound) => sound.id === "rain_night");
+  const napWhiteNoise = sounds.find((sound) => sound.id === "nap_white_noise");
+
+  assert.equal(deepAmbient.url, "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3");
+  assert.equal(rainNight.url, "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3");
+  assert.equal(napWhiteNoise.url, "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3");
+});
+
+test("local provider keeps all audio urls on the shared stable demo source", async () => {
+  const service = loadSoundSourceService({ provider: "local" });
+  const sounds = (await service.getSoundGroups()).flatMap((group) => group.sounds);
+
+  for (const sound of sounds) {
+    assert.equal(sound.url, "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3");
   }
 });

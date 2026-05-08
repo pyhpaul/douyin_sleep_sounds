@@ -5,6 +5,7 @@ const path = require("node:path");
 const {
   DEMO_AUDIO_URL,
   getLocalCoverPath,
+  getLocalAudioUrl,
   buildPublishedContentDocuments
 } = require("../content/catalogAdapter");
 const {
@@ -38,12 +39,73 @@ function writeJson(response, statusCode, body) {
   response.end(`${JSON.stringify(body)}\n`);
 }
 
+function writeFile(response, filePath) {
+  if (!fs.existsSync(filePath)) {
+    writeJson(response, 404, { error: "Not Found" });
+    return;
+  }
+
+  const extension = path.extname(filePath).toLowerCase();
+  const contentTypeByExtension = {
+    ".mp3": "audio/mpeg",
+    ".ogg": "audio/ogg",
+    ".jpg": "image/jpeg",
+    ".jpeg": "image/jpeg"
+  };
+
+  response.writeHead(200, {
+    "content-type": contentTypeByExtension[extension] || "application/octet-stream",
+    "cache-control": "no-store"
+  });
+  fs.createReadStream(filePath).pipe(response);
+}
+
+function resolveDebugAudioPath(requestPath) {
+  const fileName = decodeURIComponent(String(requestPath || "").replace("/debug/audio/", ""));
+  if (!fileName || fileName.includes("..") || fileName.includes("/") || fileName.includes("\\")) {
+    return "";
+  }
+
+  return path.resolve(__dirname, "../debug/audio", fileName);
+}
+
+function resolveDebugCoverPath(requestPath) {
+  const fileName = decodeURIComponent(String(requestPath || "").replace("/debug/covers/", ""));
+  if (!fileName || fileName.includes("..") || fileName.includes("/") || fileName.includes("\\")) {
+    return "";
+  }
+
+  return path.resolve(__dirname, "../debug/covers", fileName);
+}
+
 function createVmContentServer(options = {}) {
   const catalogPath = options.catalogPath || path.resolve(__dirname, "../content/catalog.json");
   const audioBaseUrl = options.audioBaseUrl || "";
   const coverBaseUrl = options.coverBaseUrl || "";
 
   return http.createServer((request, response) => {
+    if (request.method === "GET" && String(request.url || "").startsWith("/debug/audio/")) {
+      const audioPath = resolveDebugAudioPath(request.url);
+      if (!audioPath) {
+        writeJson(response, 404, { error: "Not Found" });
+        return;
+      }
+
+      writeFile(response, audioPath);
+      return;
+    }
+
+    if (request.method === "GET" && String(request.url || "").startsWith("/debug/covers/")) {
+      const coverPath = resolveDebugCoverPath(request.url);
+      if (!coverPath) {
+        writeJson(response, 404, { error: "Not Found" });
+        return;
+      }
+
+      writeFile(response, coverPath);
+      return;
+    }
+
     if (request.method !== "GET" || request.url !== "/content/bootstrap") {
       writeJson(response, 404, { error: "Not Found" });
       return;
@@ -53,7 +115,9 @@ function createVmContentServer(options = {}) {
       const catalog = loadCatalog(catalogPath);
       const documents = buildPublishedContentDocuments(catalog, {
         resolveAudioUrl(sound) {
-          return buildAssetUrl(audioBaseUrl, sound.audioAssetKey, DEMO_AUDIO_URL);
+          return audioBaseUrl
+            ? buildAssetUrl(audioBaseUrl, sound.audioAssetKey, DEMO_AUDIO_URL)
+            : getLocalAudioUrl(sound);
         },
         resolveCoverUrl(sound) {
           return buildAssetUrl(coverBaseUrl, sound.coverAssetKey, getLocalCoverPath(sound.id));

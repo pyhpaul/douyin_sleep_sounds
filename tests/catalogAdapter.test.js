@@ -3,7 +3,9 @@ const test = require("node:test");
 
 const {
   buildLocalSoundsModule,
-  buildCloudSeed
+  buildCloudSeed,
+  DEMO_AUDIO_URL,
+  getLocalAudioUrl
 } = require("../content/catalogAdapter");
 
 const fixtureCatalog = {
@@ -52,17 +54,26 @@ const fixtureCatalog = {
 
 test("buildLocalSoundsModule keeps the current local catalog contract", () => {
   const localModule = buildLocalSoundsModule(fixtureCatalog);
+  const rainSound = localModule.soundGroups.find((group) => group.id === "rain").sounds[0];
+  const ambientSound = localModule.soundGroups.find((group) => group.id === "ambient").sounds[0];
 
   assert.equal(localModule.MOCK_AUDIO_HOST, "sf1-ttcdn-tos.pstatp.com");
-  assert.equal(localModule.COVER_BASE_PATH, "../../debug/covers");
+  assert.equal(localModule.COVER_BASE_PATH, "/assets/covers");
   assert.deepEqual(localModule.soundGroups.map((group) => group.id), ["rain", "ambient"]);
-  assert.equal(localModule.soundGroups[0].thumbnail, "../../debug/covers/rain_night.jpg");
-  assert.equal(localModule.soundGroups[0].sounds[0].id, "rain_night");
-  assert.equal(localModule.soundGroups[0].sounds[0].unlockLabel, "免费");
-  assert.equal(
-    localModule.soundGroups[0].sounds[0].url,
-    "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3"
-  );
+  assert.equal(localModule.soundGroups[0].thumbnail, "/assets/covers/rain_night.jpg");
+  assert.equal(rainSound.id, "rain_night");
+  assert.equal(rainSound.unlockLabel, "免费");
+  assert.equal(rainSound.url, DEMO_AUDIO_URL);
+  assert.equal(rainSound.cover, "/assets/covers/rain_night.jpg");
+  assert.equal(ambientSound.id, "deep_ambient");
+  assert.equal(ambientSound.url, DEMO_AUDIO_URL);
+});
+
+test("getLocalAudioUrl keeps local playback on the stable demo source", () => {
+  for (const soundId of ["rain_night", "ocean_slow", "nap_white_noise", "deep_ambient"]) {
+    assert.equal(getLocalAudioUrl({ id: soundId }), DEMO_AUDIO_URL);
+  }
+  assert.equal(getLocalAudioUrl({ id: "unknown_sound" }), DEMO_AUDIO_URL);
 });
 
 test("buildCloudSeed maps the catalog into the cloud seed shape", () => {
