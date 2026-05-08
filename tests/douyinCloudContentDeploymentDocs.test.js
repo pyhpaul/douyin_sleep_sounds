@@ -1,5 +1,7 @@
 const assert = require("node:assert/strict");
+const childProcess = require("node:child_process");
 const fs = require("node:fs");
+const path = require("node:path");
 const test = require("node:test");
 
 test("douyin cloud compatible deployment files exist", () => {
@@ -28,6 +30,36 @@ test("douyin cloud compatible env templates keep the lightweight adapters explic
   assert.match(douyinEnv, /HOST=0\.0\.0\.0/);
 });
 
+test("douyin cloud compatible catalog path resolves from template working directory", () => {
+  const envPath = "deployment/douyin-cloud-content/douyin-cloud.env.example";
+  const douyinEnv = fs.readFileSync(envPath, "utf8");
+  const catalogPath = "../cloud-http-content/api/catalog.json";
+
+  assert.match(douyinEnv, /CONTENT_CATALOG_PATH=\.\.\/cloud-http-content\/api\/catalog\.json/);
+  assert.equal(
+    fs.existsSync(path.resolve(path.dirname(envPath), catalogPath)),
+    true,
+    `${catalogPath} should resolve from deployment/douyin-cloud-content`
+  );
+});
+
+test("douyin cloud compatible local verifier exits non-zero when service is unreachable", () => {
+  const result = childProcess.spawnSync(
+    "powershell",
+    [
+      "-ExecutionPolicy",
+      "Bypass",
+      "-File",
+      "deployment/douyin-cloud-content/scripts/verify-local.ps1",
+      "-BaseUrl",
+      "http://127.0.0.1:9"
+    ],
+    { encoding: "utf8" }
+  );
+
+  assert.notEqual(result.status, 0, `verifier should fail for unreachable service: ${result.stdout}${result.stderr}`);
+});
+
 test("douyin cloud compatible README documents switch and verification commands", () => {
   const readme = fs.readFileSync("deployment/douyin-cloud-content/README.md", "utf8");
 
@@ -42,4 +74,8 @@ test("douyin cloud compatible README documents switch and verification commands"
   assert.match(readme, /node deployment\/cloud-http-content\/api\/app\.js/);
   assert.match(readme, /curl -fsS https:\/\/sleep\.zhenweiai\.com\/healthz/);
   assert.match(readme, /curl -fsS https:\/\/sleep\.zhenweiai\.com\/content\/bootstrap/);
+  assert.match(readme, /CONTENT_CATALOG_PATH=\.\.\/cloud-http-content\/api\/catalog\.json/);
+  assert.match(readme, /deployment\/douyin-cloud-content/);
+  assert.match(readme, /copy catalog/);
+  assert.match(readme, /CONTENT_CATALOG_PATH=\.\/catalog\.json/);
 });

@@ -63,11 +63,11 @@ HOST=0.0.0.0
 PORT=3000
 CONTENT_REPOSITORY=jsonCatalog
 CONTENT_ASSET_RESOLVER=staticBaseUrl
-CONTENT_CATALOG_PATH=./catalog.json
+CONTENT_CATALOG_PATH=../cloud-http-content/api/catalog.json
 STATIC_BASE_URL=https://sleep.zhenweiai.com
 ```
 
-The package metadata starts the same compatible HTTP service:
+The package metadata starts the same compatible HTTP service from the `deployment/douyin-cloud-content` working directory. The current template points `CONTENT_CATALOG_PATH` at the existing repo catalog in `deployment/cloud-http-content/api/catalog.json`. For a future packaged Douyin Cloud artifact, copy catalog into this directory and change the value back to `CONTENT_CATALOG_PATH=./catalog.json`.
 
 ```sh
 npm start
