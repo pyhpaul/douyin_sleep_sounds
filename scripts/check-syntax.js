@@ -31,6 +31,7 @@ const files = [
   "scripts/content-release/deployRelease.js",
   "scripts/content-release/verifyRelease.js",
   "scripts/content-release/printRollbackHint.js",
+  "scripts/content-release/publish.js",
   "scripts/sync-content-artifacts.js",
   "scripts/check-syntax.js"
 ].filter((file) => fs.existsSync(file));
