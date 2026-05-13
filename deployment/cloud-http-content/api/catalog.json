@@ -1,7 +1,11 @@
 {
   "version": "2026-05-06T00:00:00Z",
   "defaultGroupId": "rain",
-  "featuredGroupIds": ["rain", "water", "ambient"],
+  "featuredGroupIds": [
+    "rain",
+    "water",
+    "ambient"
+  ],
   "groups": [
     {
       "id": "rain",
@@ -56,7 +60,12 @@
       "unlockLabel": "免费",
       "audioAssetKey": "rain_night.mp3",
       "coverAssetKey": "rain_night.jpg",
-      "sort": 10
+      "durationSec": null,
+      "sort": 10,
+      "tags": [
+        "sleep",
+        "rain"
+      ]
     },
     {
       "id": "ocean_slow",
@@ -67,7 +76,12 @@
       "unlockLabel": "免费",
       "audioAssetKey": "ocean_slow.mp3",
       "coverAssetKey": "ocean_slow.jpg",
-      "sort": 20
+      "durationSec": null,
+      "sort": 20,
+      "tags": [
+        "sleep",
+        "water"
+      ]
     },
     {
       "id": "forest_breeze",
@@ -78,7 +92,12 @@
       "unlockLabel": "免费",
       "audioAssetKey": "forest_breeze.mp3",
       "coverAssetKey": "forest_breeze.jpg",
-      "sort": 30
+      "durationSec": null,
+      "sort": 30,
+      "tags": [
+        "sleep",
+        "forest"
+      ]
     },
     {
       "id": "fireplace_room",
@@ -89,7 +108,12 @@
       "unlockLabel": "免费",
       "audioAssetKey": "fireplace_room.mp3",
       "coverAssetKey": "fireplace_room.jpg",
-      "sort": 40
+      "durationSec": null,
+      "sort": 40,
+      "tags": [
+        "sleep",
+        "room"
+      ]
     },
     {
       "id": "creek_soft",
@@ -100,7 +124,12 @@
       "unlockLabel": "免费",
       "audioAssetKey": "creek_soft.mp3",
       "coverAssetKey": "creek_soft.jpg",
-      "sort": 50
+      "durationSec": null,
+      "sort": 50,
+      "tags": [
+        "sleep",
+        "water"
+      ]
     },
     {
       "id": "soft_wind",
@@ -111,7 +140,12 @@
       "unlockLabel": "免费",
       "audioAssetKey": "soft_wind.mp3",
       "coverAssetKey": "soft_wind.jpg",
-      "sort": 60
+      "durationSec": null,
+      "sort": 60,
+      "tags": [
+        "sleep",
+        "wind"
+      ]
     },
     {
       "id": "nap_white_noise",
@@ -122,7 +156,12 @@
       "unlockLabel": "免费",
       "audioAssetKey": "nap_white_noise.mp3",
       "coverAssetKey": "nap_white_noise.jpg",
-      "sort": 70
+      "durationSec": null,
+      "sort": 70,
+      "tags": [
+        "sleep",
+        "noise"
+      ]
     },
     {
       "id": "deep_ambient",
@@ -133,7 +172,12 @@
       "unlockLabel": "免费",
       "audioAssetKey": "deep_ambient.mp3",
       "coverAssetKey": "deep_ambient.jpg",
-      "sort": 80
+      "durationSec": null,
+      "sort": 80,
+      "tags": [
+        "sleep",
+        "ambient"
+      ]
     }
   ]
 }
