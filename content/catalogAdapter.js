@@ -238,6 +238,46 @@ function buildCloudSeed(catalog, { cdnBaseUrl = DEFAULT_CLOUD_CDN_BASE_URL } = {
   };
 }
 
+function toDeploymentAssetFileName(assetKey, fallbackExtension) {
+  const assetKeyValue = String(assetKey || "").trim();
+  const fileName = assetKeyValue.split("/").filter(Boolean).pop();
+
+  if (fileName) {
+    return fileName;
+  }
+
+  return fallbackExtension ? `unknown.${fallbackExtension}` : "";
+}
+
+function buildHttpDeploymentCatalog(catalog) {
+  const normalized = normalizeCatalog(catalog);
+
+  return {
+    version: normalized.version,
+    defaultGroupId: normalized.defaultGroupId,
+    featuredGroupIds: [...normalized.featuredGroupIds],
+    groups: normalized.groups.map((group) => ({
+      id: group.id,
+      title: group.title || "",
+      subtitle: group.subtitle || "",
+      sort: Number(group.sort || 0)
+    })),
+    sounds: normalized.sounds.map((sound) => ({
+      id: sound.id,
+      groupId: sound.groupId || "",
+      title: sound.title || "",
+      category: sound.category || "",
+      description: sound.description || "",
+      unlockLabel: sound.unlockLabel || "",
+      audioAssetKey: toDeploymentAssetFileName(sound.audioAssetKey, "mp3"),
+      coverAssetKey: toDeploymentAssetFileName(sound.coverAssetKey, "jpg"),
+      durationSec: sound.durationSec === undefined ? null : sound.durationSec,
+      sort: Number(sound.sort || 0),
+      tags: Array.isArray(sound.tags) ? [...sound.tags] : []
+    }))
+  };
+}
+
 module.exports = {
   MOCK_AUDIO_HOST,
   DEMO_AUDIO_URL,
@@ -249,5 +289,6 @@ module.exports = {
   getLocalAudioExtension,
   buildLocalSoundsModule,
   buildCloudSeed,
+  buildHttpDeploymentCatalog,
   buildPublishedContentDocuments
 };

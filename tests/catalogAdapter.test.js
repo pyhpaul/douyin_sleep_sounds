@@ -4,6 +4,7 @@ const test = require("node:test");
 const {
   buildLocalSoundsModule,
   buildCloudSeed,
+  buildHttpDeploymentCatalog,
   DEMO_AUDIO_URL,
   getLocalAudioUrl
 } = require("../content/catalogAdapter");
@@ -91,4 +92,19 @@ test("buildCloudSeed maps the catalog into the cloud seed shape", () => {
   assert.equal(seed.sounds[1].unlockLabel, "免费");
   assert.equal(seed.sounds[1].audioUrl, "https://cdn.sleep.test/sleep-sounds/audio/deep_ambient.mp3");
   assert.equal(seed.sounds[1].coverUrl, "https://cdn.sleep.test/sleep-sounds/cover/deep_ambient.jpg");
+});
+
+test("buildHttpDeploymentCatalog maps content facts into the ECS deployment catalog", () => {
+  const deploymentCatalog = buildHttpDeploymentCatalog(fixtureCatalog);
+
+  assert.equal(deploymentCatalog.defaultGroupId, "rain");
+  assert.deepEqual(deploymentCatalog.featuredGroupIds, ["rain", "ambient"]);
+  assert.deepEqual(
+    deploymentCatalog.groups.map((group) => group.id),
+    ["rain", "ambient"]
+  );
+  assert.equal(deploymentCatalog.sounds[0].audioAssetKey, "rain_night.mp3");
+  assert.equal(deploymentCatalog.sounds[0].coverAssetKey, "rain_night.jpg");
+  assert.equal(deploymentCatalog.sounds[1].audioAssetKey, "deep_ambient.mp3");
+  assert.equal(deploymentCatalog.sounds[1].coverAssetKey, "deep_ambient.jpg");
 });
