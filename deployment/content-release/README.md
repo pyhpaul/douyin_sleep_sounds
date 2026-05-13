@@ -4,6 +4,8 @@
 
 Use this workflow to publish content changes from `content/catalog.json` to the current ECS production service without mixing in API code deployment.
 
+For the command-level operator checklist, see `deployment/content-release/RUNBOOK.md`.
+
 ## Prerequisites
 
 - copy `deployment/content-release/prod.env.example` to `deployment/content-release/prod.env`
@@ -66,6 +68,8 @@ For an agent or operator, the expected path is:
 2. run `npm run publish:content -- --env prod`
 3. review the JSON result or rollback hint
 4. optionally perform a 真机 smoke check
+
+If the executor needs a step-by-step operational checklist, use `deployment/content-release/RUNBOOK.md`.
 
 ## Optional 真机 acceptance
 
