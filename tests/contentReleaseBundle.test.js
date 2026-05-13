@@ -5,6 +5,7 @@ const path = require("node:path");
 const test = require("node:test");
 
 const { buildReleaseBundle } = require("../scripts/content-release/buildReleaseBundle");
+const { writeReleaseSummary } = require("../scripts/content-release/writeReleaseSummary");
 
 test("buildReleaseBundle writes manifest and staged files under artifacts/content-release", () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "content-release-bundle-"));
@@ -34,6 +35,51 @@ test("buildReleaseBundle writes manifest and staged files under artifacts/conten
     assert.equal(manifest.assetMode, "remote-only");
     assert.equal(manifest.files[0].relativePath, "catalog.json");
     assert.equal(manifest.files[1].relativePath, "covers/rain_night.jpg");
+  } finally {
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});
+
+test("writeReleaseSummary writes release-summary.json into the bundle directory", () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "content-release-summary-"));
+  const bundleDir = path.join(tempDir, "prod-20260513T120000Z");
+  fs.mkdirSync(bundleDir, { recursive: true });
+
+  try {
+    const summaryPath = writeReleaseSummary({
+      bundle: {
+        bundleDir,
+        releaseId: "prod-20260513T120000Z",
+        manifest: {
+          contentVersion: "2026-05-13T00:00:00Z"
+        }
+      },
+      result: {
+        ok: true,
+        dryRun: false,
+        envName: "prod",
+        assetMode: "remote-only",
+        backupDir: "/srv/sleep-sounds/backups/content/prod-20260513T120000Z",
+        publicBaseUrl: "https://sleep.zhenwei1.cn",
+        verifiedAt: "2026-05-13T12:05:00.000Z",
+        verificationTargets: [
+          "https://sleep.zhenwei1.cn/healthz",
+          "https://sleep.zhenwei1.cn/content/bootstrap"
+        ]
+      }
+    });
+
+    assert.equal(summaryPath, path.join(bundleDir, "release-summary.json"));
+    assert.equal(fs.existsSync(summaryPath), true);
+
+    const summary = JSON.parse(fs.readFileSync(summaryPath, "utf8"));
+    assert.equal(summary.releaseId, "prod-20260513T120000Z");
+    assert.equal(summary.contentVersion, "2026-05-13T00:00:00Z");
+    assert.equal(summary.backupDir, "/srv/sleep-sounds/backups/content/prod-20260513T120000Z");
+    assert.deepEqual(summary.verificationTargets, [
+      "https://sleep.zhenwei1.cn/healthz",
+      "https://sleep.zhenwei1.cn/content/bootstrap"
+    ]);
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }

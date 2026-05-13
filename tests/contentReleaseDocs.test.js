@@ -24,6 +24,7 @@ test("content release docs and env example exist and mention the agent workflow"
   assert.match(readme, /deployment\/content-release\/prod\.env/);
   assert.match(readme, /artifacts\/content-release/);
   assert.match(readme, /prod-20260513T131117Z/);
+  assert.match(readme, /release-summary\.json/);
 
   assert.match(envExample, /CONTENT_RELEASE_SSH_HOST=/);
   assert.match(envExample, /CONTENT_RELEASE_PUBLIC_BASE_URL=https:\/\/sleep\.zhenwei1\.cn/);
@@ -33,4 +34,5 @@ test("content release docs and env example exist and mention the agent workflow"
   assert.match(runbook, /backupDir/);
   assert.match(runbook, /https:\/\/sleep\.zhenwei1\.cn\/content\/bootstrap/);
   assert.match(runbook, /auto-rollback/i);
+  assert.match(runbook, /release-summary\.json/);
 });
