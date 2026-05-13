@@ -99,7 +99,7 @@ The current pipeline does not auto-rollback.
 After a successful publish:
 
 1. keep `deployment/content-release/prod.env` on the local operator machine
-2. copy out the release record:
+2. copy out the release record from `artifacts/content-release/<releaseId>/release-summary.json`:
    - `releaseId`
    - `backupDir`
    - publish date

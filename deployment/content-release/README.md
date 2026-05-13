@@ -36,6 +36,7 @@ npm run publish:content -- --env prod --dry-run
 ```
 
 Dry run only builds the local release bundle and manifest. It does not connect to ECS.
+Both dry run and successful publish also write `release-summary.json` into the local bundle directory.
 
 ## Local-only files
 
@@ -85,8 +86,9 @@ After automated verification passes, optionally do a real-device smoke test:
 Recommended local cleanup after a successful publish:
 
 1. keep `deployment/content-release/prod.env` for the next release
-2. remove `artifacts/content-release/<releaseId>/` after the release record is copied out
-3. keep rollback details (`releaseId`, `backupDir`) with the project docs or operator log
+2. copy release details from `artifacts/content-release/<releaseId>/release-summary.json`
+3. remove `artifacts/content-release/<releaseId>/` after the release record is copied out
+4. keep rollback details (`releaseId`, `backupDir`) with the project docs or operator log
 
 ## Real publish rehearsal record
 
