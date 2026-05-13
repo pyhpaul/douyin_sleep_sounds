@@ -37,4 +37,6 @@ test("content release docs and env example exist and mention the agent workflow"
   assert.match(runbook, /auto-rollback/i);
   assert.match(runbook, /release-summary\.json/);
   assert.match(runbook, /release-log\.jsonl/);
+  assert.match(runbook, /npm run archive:content -- --release-id <releaseId>/);
+  assert.match(runbook, /deployment\/content-release\/archive\.jsonl/);
 });
