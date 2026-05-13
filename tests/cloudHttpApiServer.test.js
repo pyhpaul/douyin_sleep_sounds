@@ -1,0 +1,176 @@
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const http = require("node:http");
+const os = require("node:os");
+const path = require("node:path");
+const test = require("node:test");
+
+const { createServer } = require("../deployment/cloud-http-content/api/app");
+
+function listen(server) {
+  return new Promise((resolve, reject) => {
+    server.once("error", reject);
+    server.listen(0, "127.0.0.1", () => resolve(server.address()));
+  });
+}
+
+function request(address, pathname) {
+  return new Promise((resolve, reject) => {
+    const req = http.request(
+      {
+        hostname: "127.0.0.1",
+        port: address.port,
+        path: pathname,
+        method: "GET"
+      },
+      (res) => {
+        const chunks = [];
+        res.setEncoding("utf8");
+        res.on("data", (chunk) => chunks.push(chunk));
+        res.on("end", () => {
+          resolve({
+            statusCode: res.statusCode,
+            body: chunks.join("")
+          });
+        });
+      }
+    );
+    req.once("error", reject);
+    req.end();
+  });
+}
+
+test("cloud HTTP API serves healthz", async () => {
+  const server = createServer({
+    catalogPath: path.resolve(__dirname, "../deployment/cloud-http-content/api/catalog.json"),
+    staticBaseUrl: "https://sleep.zhenwei1.cn"
+  });
+
+  try {
+    const address = await listen(server);
+    const response = await request(address, "/healthz");
+
+    assert.equal(response.statusCode, 200);
+    assert.deepEqual(JSON.parse(response.body), { ok: true });
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("cloud HTTP API serves bootstrap payload from deployment catalog", async () => {
+  const server = createServer({
+    catalogPath: path.resolve(__dirname, "../deployment/cloud-http-content/api/catalog.json"),
+    staticBaseUrl: "https://static.example.com"
+  });
+
+  try {
+    const address = await listen(server);
+    const response = await request(address, "/content/bootstrap");
+
+    assert.equal(response.statusCode, 200);
+    const payload = JSON.parse(response.body);
+    assert.equal(Array.isArray(payload.groups), true);
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+  }
+});
+
+test("deployment catalog keeps the same published content coverage as local catalog", () => {
+  const deploymentCatalog = require("../deployment/cloud-http-content/api/catalog.json");
+  const localCatalog = require("../content/catalog.json");
+
+  assert.deepEqual(
+    deploymentCatalog.groups.map((group) => group.id),
+    localCatalog.groups.map((group) => group.id)
+  );
+  assert.deepEqual(
+    deploymentCatalog.sounds.map((sound) => sound.id),
+    localCatalog.sounds.map((sound) => sound.id)
+  );
+});
+
+test("deployment catalog asset keys map directly to public static paths", () => {
+  const deploymentCatalog = require("../deployment/cloud-http-content/api/catalog.json");
+
+  for (const sound of deploymentCatalog.sounds) {
+    assert.equal(sound.audioAssetKey, `${sound.id}.mp3`);
+    assert.equal(sound.coverAssetKey, `${sound.id}.jpg`);
+  }
+});
+
+test("cloud HTTP API can run from the remote server directory layout", async () => {
+  const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "sleep-cloud-http-api-"));
+  const apiDir = path.join(tempDir, "api");
+  const contentDir = path.join(tempDir, "content");
+  const sharedDir = path.join(tempDir, "cloud/functions/shared");
+  const serviceDir = path.join(tempDir, "server/contentService");
+  const repositoryDir = path.join(serviceDir, "repositories");
+  const resolverDir = path.join(serviceDir, "assetResolvers");
+
+  fs.mkdirSync(apiDir, { recursive: true });
+  fs.mkdirSync(contentDir, { recursive: true });
+  fs.mkdirSync(sharedDir, { recursive: true });
+  fs.mkdirSync(repositoryDir, { recursive: true });
+  fs.mkdirSync(resolverDir, { recursive: true });
+  fs.copyFileSync(
+    path.resolve(__dirname, "../deployment/cloud-http-content/api/app.js"),
+    path.join(apiDir, "app.js")
+  );
+  fs.copyFileSync(
+    path.resolve(__dirname, "../deployment/cloud-http-content/api/catalog.json"),
+    path.join(apiDir, "catalog.json")
+  );
+  fs.copyFileSync(
+    path.resolve(__dirname, "../content/catalogAdapter.js"),
+    path.join(contentDir, "catalogAdapter.js")
+  );
+  fs.copyFileSync(
+    path.resolve(__dirname, "../cloud/functions/shared/contentBootstrapBuilder.js"),
+    path.join(sharedDir, "contentBootstrapBuilder.js")
+  );
+  for (const fileName of [
+    "createContentBootstrapService.js",
+    "createContentHttpApp.js",
+    "env.js"
+  ]) {
+    fs.copyFileSync(
+      path.resolve(__dirname, `../server/contentService/${fileName}`),
+      path.join(serviceDir, fileName)
+    );
+  }
+  fs.copyFileSync(
+    path.resolve(__dirname, "../server/contentService/repositories/jsonCatalogRepository.js"),
+    path.join(repositoryDir, "jsonCatalogRepository.js")
+  );
+  fs.copyFileSync(
+    path.resolve(__dirname, "../server/contentService/assetResolvers/staticBaseUrlResolver.js"),
+    path.join(resolverDir, "staticBaseUrlResolver.js")
+  );
+
+  const appPath = path.join(apiDir, "app.js");
+  delete require.cache[appPath];
+  const { createServer: createDeployedServer } = require(appPath);
+  const server = createDeployedServer({
+    catalogPath: path.join(apiDir, "catalog.json"),
+    staticBaseUrl: "https://sleep.zhenwei1.cn"
+  });
+
+  try {
+    const address = await listen(server);
+    const response = await request(address, "/content/bootstrap");
+
+    assert.equal(response.statusCode, 200);
+    const payload = JSON.parse(response.body);
+    assert.equal(
+      payload.groups[0].sounds[0].url,
+      "https://sleep.zhenwei1.cn/audio/rain_night.mp3"
+    );
+    assert.equal(
+      payload.groups[0].sounds[0].cover,
+      "https://sleep.zhenwei1.cn/covers/rain_night.jpg"
+    );
+  } finally {
+    await new Promise((resolve) => server.close(resolve));
+    fs.rmSync(tempDir, { recursive: true, force: true });
+  }
+});

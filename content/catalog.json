@@ -1,0 +1,155 @@
+{
+  "version": "2026-05-06T00:00:00Z",
+  "defaultGroupId": "rain",
+  "featuredGroupIds": ["rain", "water", "ambient"],
+  "groups": [
+    {
+      "id": "rain",
+      "title": "雨声",
+      "subtitle": "更聚焦的雨滴与空气层次，适合想快速静下来的时候。",
+      "sort": 10
+    },
+    {
+      "id": "water",
+      "title": "水流",
+      "subtitle": "海浪和溪流节奏更平缓，适合长时间持续播放。",
+      "sort": 20
+    },
+    {
+      "id": "forest",
+      "title": "森林",
+      "subtitle": "树叶、微风和远处虫鸣，营造自然包裹感。",
+      "sort": 30
+    },
+    {
+      "id": "room",
+      "title": "室内",
+      "subtitle": "更靠近生活空间的安全感，适合夜晚放松。",
+      "sort": 40
+    },
+    {
+      "id": "wind",
+      "title": "风声",
+      "subtitle": "低刺激的空气流动感，适合需要极简背景音时。",
+      "sort": 50
+    },
+    {
+      "id": "noise",
+      "title": "白噪",
+      "subtitle": "更稳定的宽频背景声，适合午休和专注隔噪。",
+      "sort": 60
+    },
+    {
+      "id": "ambient",
+      "title": "氛围",
+      "subtitle": "空间感更强的抽象音景，适合冥想与沉浸。",
+      "sort": 70
+    }
+  ],
+  "sounds": [
+    {
+      "id": "rain_night",
+      "groupId": "rain",
+      "title": "雨夜白噪音",
+      "category": "雨声",
+      "description": "稳定雨声和远处空气感。",
+      "unlockLabel": "免费",
+      "audioAssetKey": "sleep-sounds/audio/rain_night.mp3",
+      "coverAssetKey": "sleep-sounds/cover/rain_night.jpg",
+      "durationSec": null,
+      "sort": 10,
+      "tags": ["sleep", "rain"]
+    },
+    {
+      "id": "ocean_slow",
+      "groupId": "water",
+      "title": "深夜海浪",
+      "category": "海浪",
+      "description": "慢速海浪，适合睡前放松。",
+      "unlockLabel": "免费",
+      "audioAssetKey": "sleep-sounds/audio/ocean_slow.mp3",
+      "coverAssetKey": "sleep-sounds/cover/ocean_slow.jpg",
+      "durationSec": null,
+      "sort": 20,
+      "tags": ["sleep", "water"]
+    },
+    {
+      "id": "forest_breeze",
+      "groupId": "forest",
+      "title": "森林微风",
+      "category": "森林",
+      "description": "轻风和远景虫鸣。",
+      "unlockLabel": "免费",
+      "audioAssetKey": "sleep-sounds/audio/forest_breeze.mp3",
+      "coverAssetKey": "sleep-sounds/cover/forest_breeze.jpg",
+      "durationSec": null,
+      "sort": 30,
+      "tags": ["sleep", "forest"]
+    },
+    {
+      "id": "fireplace_room",
+      "groupId": "room",
+      "title": "壁炉小屋",
+      "category": "壁炉",
+      "description": "暖色木柴声，适合夜晚放松。",
+      "unlockLabel": "免费",
+      "audioAssetKey": "sleep-sounds/audio/fireplace_room.mp3",
+      "coverAssetKey": "sleep-sounds/cover/fireplace_room.jpg",
+      "durationSec": null,
+      "sort": 40,
+      "tags": ["sleep", "room"]
+    },
+    {
+      "id": "creek_soft",
+      "groupId": "water",
+      "title": "溪流入眠",
+      "category": "溪流",
+      "description": "连续水流，无明显突变。",
+      "unlockLabel": "免费",
+      "audioAssetKey": "sleep-sounds/audio/creek_soft.mp3",
+      "coverAssetKey": "sleep-sounds/cover/creek_soft.jpg",
+      "durationSec": null,
+      "sort": 50,
+      "tags": ["sleep", "water"]
+    },
+    {
+      "id": "soft_wind",
+      "groupId": "wind",
+      "title": "夜风低语",
+      "category": "风声",
+      "description": "极简风声和低频空气感。",
+      "unlockLabel": "免费",
+      "audioAssetKey": "sleep-sounds/audio/soft_wind.mp3",
+      "coverAssetKey": "sleep-sounds/cover/soft_wind.jpg",
+      "durationSec": null,
+      "sort": 60,
+      "tags": ["sleep", "wind"]
+    },
+    {
+      "id": "nap_white_noise",
+      "groupId": "noise",
+      "title": "午休白噪音",
+      "category": "午休",
+      "description": "干净宽频噪音。",
+      "unlockLabel": "免费",
+      "audioAssetKey": "sleep-sounds/audio/nap_white_noise.mp3",
+      "coverAssetKey": "sleep-sounds/cover/nap_white_noise.jpg",
+      "durationSec": null,
+      "sort": 70,
+      "tags": ["sleep", "noise"]
+    },
+    {
+      "id": "deep_ambient",
+      "groupId": "ambient",
+      "title": "深夜冥想音景",
+      "category": "冥想",
+      "description": "极轻氛围音景，无明显旋律。",
+      "unlockLabel": "免费",
+      "audioAssetKey": "sleep-sounds/audio/deep_ambient.mp3",
+      "coverAssetKey": "sleep-sounds/cover/deep_ambient.jpg",
+      "durationSec": null,
+      "sort": 80,
+      "tags": ["sleep", "ambient"]
+    }
+  ]
+}

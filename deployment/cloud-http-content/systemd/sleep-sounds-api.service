@@ -1,0 +1,15 @@
+[Unit]
+Description=Sleep Sounds Bootstrap API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/srv/sleep-sounds/api
+ExecStart=/usr/bin/node /srv/sleep-sounds/api/app.js
+Restart=always
+RestartSec=3
+Environment=PORT=3000
+Environment=STATIC_BASE_URL=https://static.example.com
+
+[Install]
+WantedBy=multi-user.target

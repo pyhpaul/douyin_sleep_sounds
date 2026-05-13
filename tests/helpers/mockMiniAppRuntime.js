@@ -1,6 +1,7 @@
 const path = require("node:path");
+const localSounds = require("../../miniprogram/data/sounds");
 
-function createMiniAppRuntime() {
+function createMiniAppRuntime(options = {}) {
   const originalPage = global.Page;
   const originalTt = global.tt;
   const storage = new Map();
@@ -26,6 +27,15 @@ function createMiniAppRuntime() {
       toasts.push(options);
     }
   };
+  global.tt.request =
+    typeof options.request === "function"
+      ? options.request
+      : ({ success }) => {
+          success({
+            statusCode: 200,
+            data: createDefaultBootstrapPayload()
+          });
+        };
 
   function loadPage(modulePath) {
     const resolvedPath = path.resolve(__dirname, "..", modulePath);
@@ -87,6 +97,15 @@ function createMiniAppRuntime() {
       await Promise.resolve();
       await Promise.resolve();
     }
+  };
+}
+
+function createDefaultBootstrapPayload() {
+  return {
+    version: "2026-05-06T00:00:00Z",
+    featuredGroupIds: ["rain", "water", "ambient"],
+    defaultGroupId: "rain",
+    groups: localSounds.soundGroups
   };
 }
 

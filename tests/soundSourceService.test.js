@@ -1,61 +1,237 @@
 const assert = require("node:assert/strict");
+const path = require("node:path");
 const test = require("node:test");
 
 const { MOCK_AUDIO_HOST } = require("../miniprogram/data/sounds");
-const { getSoundGroups } = require("../miniprogram/services/soundSourceService");
 
-test("returns three sound groups with six total sounds", async () => {
-  const groupsResult = getSoundGroups();
-  assert.equal(typeof groupsResult.then, "function");
+const configPath = path.resolve(__dirname, "../miniprogram/config/contentSourceConfig.js");
+const httpPath = path.resolve(__dirname, "../miniprogram/services/httpContentService.js");
+const cloudPath = path.resolve(__dirname, "../miniprogram/services/cloudContentService.js");
+const sourcePath = path.resolve(__dirname, "../miniprogram/services/soundSourceService.js");
+let originalTt;
+let hadOriginalTt = false;
+let contentSourceConfigRef;
+let originalProvider;
+let httpServiceRef;
+let originalHttpGetContentBootstrap;
+let cloudServiceRef;
+let originalCloudGetContentBootstrap;
 
-  const groups = await groupsResult;
-  const sounds = groups.flatMap((group) => group.sounds);
+function clearModule(modulePath) {
+  try {
+    delete require.cache[require.resolve(modulePath)];
+  } catch {}
+}
 
-  assert.equal(groups.length, 3);
-  assert.equal(sounds.length, 6);
-  assert.deepEqual(
-    groups.map((group) => group.title),
-    ["自然", "白噪音", "放松冥想"]
-  );
+function loadSoundSourceService({ provider, httpResponse, httpError, cloudResponse, cloudError }) {
+  clearModule(configPath);
+  clearModule(httpPath);
+  clearModule(cloudPath);
+  clearModule(sourcePath);
+
+  hadOriginalTt = Object.prototype.hasOwnProperty.call(global, "tt");
+  originalTt = global.tt;
+
+  const { contentSourceConfig } = require(configPath);
+  contentSourceConfigRef = contentSourceConfig;
+  originalProvider = contentSourceConfig.provider;
+  contentSourceConfig.provider = provider;
+
+  const httpService = require(httpPath);
+  httpServiceRef = httpService;
+  originalHttpGetContentBootstrap = httpService.getContentBootstrap;
+  httpService.getContentBootstrap = async () => {
+    if (httpError) {
+      throw httpError;
+    }
+    return httpResponse;
+  };
+
+  const cloudService = require(cloudPath);
+  cloudServiceRef = cloudService;
+  originalCloudGetContentBootstrap = cloudService.getContentBootstrap;
+  cloudService.getContentBootstrap = async () => {
+    if (cloudError) {
+      throw cloudError;
+    }
+    return cloudResponse;
+  };
+
+  return require(sourcePath);
+}
+
+function cleanupSoundSourceModules() {
+  if (contentSourceConfigRef) {
+    contentSourceConfigRef.provider = originalProvider;
+  }
+  if (httpServiceRef) {
+    httpServiceRef.getContentBootstrap = originalHttpGetContentBootstrap;
+  }
+  if (cloudServiceRef) {
+    cloudServiceRef.getContentBootstrap = originalCloudGetContentBootstrap;
+  }
+  clearModule(configPath);
+  clearModule(httpPath);
+  clearModule(cloudPath);
+  clearModule(sourcePath);
+  if (hadOriginalTt) {
+    global.tt = originalTt;
+  } else {
+    delete global.tt;
+  }
+  originalTt = undefined;
+  hadOriginalTt = false;
+  contentSourceConfigRef = undefined;
+  originalProvider = undefined;
+  httpServiceRef = undefined;
+  originalHttpGetContentBootstrap = undefined;
+  cloudServiceRef = undefined;
+  originalCloudGetContentBootstrap = undefined;
+}
+
+test.afterEach(() => {
+  cleanupSoundSourceModules();
 });
 
-test("returns required playback metadata for every sound", async () => {
-  const sounds = (await getSoundGroups()).flatMap((group) => group.sounds);
+test("returns cloned local sounds when provider is local", async () => {
+  const service = loadSoundSourceService({ provider: "local" });
+  const first = await service.getSoundGroups();
+  const second = await service.getSoundGroups();
+
+  assert.equal(first[0].title, "雨声");
+  assert.equal(first.length, 7);
+  assert.equal(first.flatMap((group) => group.sounds).length, 8);
+  assert.equal(first[0].thumbnail, "/assets/covers/rain_night.jpg");
+  assert.notEqual(first, second);
+  assert.notEqual(first[0], second[0]);
+});
+
+test("returns mapped HTTP sounds when provider is http", async () => {
+  const service = loadSoundSourceService({
+    provider: "http",
+    httpResponse: {
+      version: "2026-05-06T16:00:00Z",
+      groups: [
+        {
+          id: "focus",
+          title: "专注",
+          subtitle: "低干扰环境声。",
+          sounds: [
+            {
+              id: "brown-noise",
+              title: "棕噪音",
+              category: "专注",
+              description: "低频连续噪声。",
+              unlockLabel: "免费",
+              url: "https://cdn.example.com/audio/brown-noise.mp3",
+              cover: "https://cdn.example.com/cover/brown-noise.jpg"
+            }
+          ]
+        }
+      ]
+    }
+  });
+
+  const groups = await service.getSoundGroups();
+
+  assert.equal(groups[0].id, "focus");
+  assert.equal(groups[0].sounds[0].id, "brown-noise");
+  assert.equal(groups[0].sounds[0].unlockLabel, "免费");
+});
+
+test("returns mapped cloud sounds when provider is douyinCloud", async () => {
+  const service = loadSoundSourceService({
+    provider: "douyinCloud",
+    cloudResponse: {
+      version: "2026-05-06T16:00:00Z",
+      groups: [
+        {
+          id: "meditation",
+          title: "冥想",
+          subtitle: "适合放松呼吸。",
+          sounds: [
+            {
+              id: "breathing-space",
+              title: "呼吸空间",
+              category: "冥想",
+              description: "平稳的冥想背景声。",
+              unlockLabel: "免费",
+              url: "https://cdn.example.com/audio/breathing-space.mp3",
+              cover: "https://cdn.example.com/cover/breathing-space.jpg"
+            }
+          ]
+        }
+      ]
+    }
+  });
+
+  const groups = await service.getSoundGroups();
+
+  assert.equal(groups[0].id, "meditation");
+  assert.equal(groups[0].sounds[0].unlockLabel, "免费");
+});
+
+test("falls back to local sounds when remote provider fetch fails", async () => {
+  const service = loadSoundSourceService({
+    provider: "http",
+    httpError: new Error("http unavailable")
+  });
+
+  const groups = await service.getSoundGroups();
+  const sounds = groups.flatMap((group) => group.sounds);
+
+  assert.equal(groups[0].id, "rain");
+  assert.equal(sounds.length, 8);
+});
+
+test("falls back to local sounds when bootstrap payload is malformed", async () => {
+  const service = loadSoundSourceService({
+    provider: "douyinCloud",
+    cloudResponse: {
+      version: "2026-05-06T16:00:00Z"
+    }
+  });
+
+  const groups = await service.getSoundGroups();
+
+  assert.equal(groups[0].id, "rain");
+  assert.equal(groups.length, 7);
+});
+
+test("preserves required playback metadata on local fallback", async () => {
+  const service = loadSoundSourceService({
+    provider: "douyinCloud",
+    cloudError: new Error("cloud unavailable")
+  });
+  const sounds = (await service.getSoundGroups()).flatMap((group) => group.sounds);
+
+  assert.equal(MOCK_AUDIO_HOST, "sf1-ttcdn-tos.pstatp.com");
 
   for (const sound of sounds) {
     assert.equal(typeof sound.id, "string");
     assert.equal(typeof sound.title, "string");
     assert.equal(typeof sound.category, "string");
     assert.equal(typeof sound.description, "string");
+    assert.equal(typeof sound.unlockLabel, "string");
     assert.equal(typeof sound.url, "string");
     assert.equal(typeof sound.cover, "string");
-    assert.match(sound.url, /^https:\/\//);
+    assert.match(sound.cover, /^\/assets\/covers\/.+\.jpg$/);
   }
+
+  const deepAmbient = sounds.find((sound) => sound.id === "deep_ambient");
+  const rainNight = sounds.find((sound) => sound.id === "rain_night");
+  const napWhiteNoise = sounds.find((sound) => sound.id === "nap_white_noise");
+
+  assert.equal(deepAmbient.url, "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3");
+  assert.equal(rainNight.url, "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3");
+  assert.equal(napWhiteNoise.url, "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3");
 });
 
-test("uses mock mp3 urls from the allowed host", async () => {
-  const sounds = (await getSoundGroups()).flatMap((group) => group.sounds);
-
-  assert.equal(MOCK_AUDIO_HOST, "sf1-ttcdn-tos.pstatp.com");
+test("local provider keeps all audio urls on the shared stable demo source", async () => {
+  const service = loadSoundSourceService({ provider: "local" });
+  const sounds = (await service.getSoundGroups()).flatMap((group) => group.sounds);
 
   for (const sound of sounds) {
-    const url = new URL(sound.url);
-
-    assert.equal(url.host, MOCK_AUDIO_HOST);
-    assert.equal(url.pathname.endsWith(".mp3"), true);
+    assert.equal(sound.url, "https://sf1-ttcdn-tos.pstatp.com/obj/developer/sdk/0000-0001.mp3");
   }
-});
-
-test("uses unique sound ids", async () => {
-  const soundIds = (await getSoundGroups()).flatMap((group) => group.sounds.map((sound) => sound.id));
-
-  assert.equal(new Set(soundIds).size, soundIds.length);
-});
-
-test("returns copies so callers cannot mutate source data", async () => {
-  const firstRead = await getSoundGroups();
-  firstRead[0].sounds[0].title = "changed";
-
-  const secondRead = await getSoundGroups();
-  assert.equal(secondRead[0].sounds[0].title, "雨声");
 });
