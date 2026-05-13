@@ -8,6 +8,7 @@
     "debug:page": "node --test tests/pageRuntime.test.js",
     "sync:content": "node scripts/sync-content-artifacts.js",
     "publish:content": "node scripts/content-release/publish.js",
+    "rollback:content": "node scripts/content-release/rollback.js",
     "seed:cloud-content": "node cloud/scripts/seedContent.js",
     "serve:vm-content": "node server/index.js"
   },

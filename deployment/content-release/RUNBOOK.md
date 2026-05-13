@@ -84,11 +84,14 @@ After automated verification passes, optionally verify on device:
 
 If publish or verification fails after remote files were changed:
 
-1. stop and copy the printed rollback commands from stderr
-2. verify the failed `releaseId`
-3. verify the printed `backupDir`
-4. execute the rollback commands in order
-5. re-check:
+1. stop and verify the failed `releaseId`
+2. run:
+
+```bash
+npm run rollback:content -- --env prod --release-id <releaseId>
+```
+
+3. re-check:
    - `https://sleep.zhenwei1.cn/healthz`
    - `https://sleep.zhenwei1.cn/content/bootstrap`
 
