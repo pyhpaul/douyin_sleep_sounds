@@ -57,7 +57,18 @@ async function prepareRelease({ config, runCommand = runDefaultCommand } = {}) {
   return {
     catalog,
     deploymentCatalog,
-    covers: coverPaths,
+    deploymentCatalogPath: path.resolve(repoRoot, "deployment/cloud-http-content/api/catalog.json"),
+    coverFiles: deploymentCatalog.sounds.map((sound) => ({
+      sourcePath: path.resolve(repoRoot, "miniprogram/assets/covers", sound.coverAssetKey),
+      relativePath: `covers/${sound.coverAssetKey}`
+    })),
+    audioFiles:
+      config.assetMode === "local-assets"
+        ? deploymentCatalog.sounds.map((sound) => ({
+            sourcePath: path.resolve(config.assetSourcePath, "audio", sound.audioAssetKey),
+            relativePath: `audio/${sound.audioAssetKey}`
+          }))
+        : [],
     assetMode: config.assetMode,
     assetSourcePath: config.assetSourcePath
   };

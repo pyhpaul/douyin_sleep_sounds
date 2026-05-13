@@ -27,6 +27,7 @@ const files = [
   "deployment/cloud-http-content/api/app.js",
   "scripts/content-release/loadReleaseConfig.js",
   "scripts/content-release/prepareRelease.js",
+  "scripts/content-release/buildReleaseBundle.js",
   "scripts/sync-content-artifacts.js",
   "scripts/check-syntax.js"
 ].filter((file) => fs.existsSync(file));
