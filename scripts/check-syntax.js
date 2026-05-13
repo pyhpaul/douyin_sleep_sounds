@@ -26,6 +26,7 @@ const files = [
   "cloud/scripts/seedContent.js",
   "deployment/cloud-http-content/api/app.js",
   "scripts/content-release/loadReleaseConfig.js",
+  "scripts/content-release/status.js",
   "scripts/content-release/prepareRelease.js",
   "scripts/content-release/buildReleaseBundle.js",
   "scripts/content-release/deployRelease.js",

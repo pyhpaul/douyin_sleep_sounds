@@ -29,7 +29,15 @@ This runbook assumes:
 1. confirm the working tree only contains the intended content release changes
 2. confirm `deployment/content-release/prod.env` exists on the local machine
 3. confirm SSH access to the ECS host works from the current machine
-4. if this is a risky release, run a dry run first:
+4. run the status check:
+
+```bash
+npm run status:content -- --env prod
+```
+
+This compares local source, deployment artifact, and live bootstrap. If it exits non-zero, resolve the drift before release.
+
+5. if this is a risky release, run a dry run first:
 
 ```bash
 npm run publish:content -- --env prod --dry-run
@@ -70,6 +78,14 @@ The publish command already runs the built-in verification flow. It checks:
 - sample audio HEAD request
 
 If the command exits non-zero, treat the release as failed until state is reviewed.
+
+After publish, it is also valid to run:
+
+```bash
+npm run status:content -- --env prod
+```
+
+Expected result: `ok: true` and no drift between local, deployment, and remote.
 
 ## Step 4: Optional real-device smoke test
 
