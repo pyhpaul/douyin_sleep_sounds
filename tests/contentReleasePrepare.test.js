@@ -59,3 +59,29 @@ test("prepareRelease requires local audio files when asset mode is local-assets"
     /asset source path does not exist/i
   );
 });
+
+test("prepareRelease uses a Windows-safe npm command name during default validation flow", async () => {
+  const calls = [];
+
+  await prepareRelease({
+    config: {
+      assetMode: "remote-only",
+      skipTests: false
+    },
+    runCommand(command, args) {
+      calls.push({ command, args });
+    }
+  });
+
+  const npmCall = calls.find((call) =>
+    process.platform === "win32"
+      ? call.command === "cmd.exe" && Array.isArray(call.args) && call.args.includes("npm test")
+      : call.command === "npm" && Array.isArray(call.args) && call.args[0] === "test"
+  );
+  assert.equal(Boolean(npmCall), true);
+  if (process.platform === "win32") {
+    assert.deepEqual(npmCall.args, ["/d", "/s", "/c", "npm test"]);
+  } else {
+    assert.deepEqual(npmCall.args, ["test"]);
+  }
+});

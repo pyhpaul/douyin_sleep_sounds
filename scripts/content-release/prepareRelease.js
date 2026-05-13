@@ -6,6 +6,20 @@ const { buildHttpDeploymentCatalog } = require("../../content/catalogAdapter");
 
 const repoRoot = path.resolve(__dirname, "../..");
 
+function getNpmTestCommand() {
+  if (process.platform === "win32") {
+    return {
+      command: "cmd.exe",
+      args: ["/d", "/s", "/c", "npm test"]
+    };
+  }
+
+  return {
+    command: "npm",
+    args: ["test"]
+  };
+}
+
 function ensureFileExists(filePath, label) {
   if (!fs.existsSync(filePath)) {
     throw new Error(`${label} does not exist: ${filePath}`);
@@ -48,10 +62,8 @@ async function prepareRelease({ config, runCommand = runDefaultCommand } = {}) {
   runCommand(process.execPath, ["scripts/check-syntax.js"]);
 
   if (!config.skipTests) {
-    const testFiles = fs
-      .readdirSync(path.resolve(repoRoot, "tests"))
-      .map((file) => `tests/${file}`);
-    runCommand(process.execPath, ["--test", ...testFiles]);
+    const npmTestCommand = getNpmTestCommand();
+    runCommand(npmTestCommand.command, npmTestCommand.args);
   }
 
   return {
@@ -75,5 +87,6 @@ async function prepareRelease({ config, runCommand = runDefaultCommand } = {}) {
 }
 
 module.exports = {
-  prepareRelease
+  prepareRelease,
+  getNpmTestCommand
 };
