@@ -29,7 +29,15 @@ This runbook assumes:
 1. confirm the working tree only contains the intended content release changes
 2. confirm `deployment/content-release/prod.env` exists on the local machine
 3. confirm SSH access to the ECS host works from the current machine
-4. run the status check:
+4. run the preflight check:
+
+```bash
+npm run preflight:content -- --env prod
+```
+
+This is the preferred one-command gate before publish.
+
+5. if you only need drift inspection, run the status check:
 
 ```bash
 npm run status:content -- --env prod
@@ -37,7 +45,7 @@ npm run status:content -- --env prod
 
 This compares local source, deployment artifact, and live bootstrap. If it exits non-zero, resolve the drift before release.
 
-5. if this is a risky release, run a dry run first:
+6. if this is a risky release, run a dry run first:
 
 ```bash
 npm run publish:content -- --env prod --dry-run

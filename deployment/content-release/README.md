@@ -39,6 +39,17 @@ Dry run only builds the local release bundle and manifest. It does not connect t
 Both dry run and successful publish also write `release-summary.json` into the local bundle directory.
 They also append one line to the local operator log: `artifacts/content-release/release-log.jsonl`.
 
+## Preflight check
+
+Run this before publish when you want one command to validate the current release baseline:
+
+```bash
+npm run preflight:content -- --env prod
+```
+
+It runs `sync:content`, `status:content`, syntax check, and tests in order.
+The command prints structured JSON and exits non-zero on the first failed step.
+
 ## Status check
 
 Run this before or after publish when you want to verify the current HTTP content chain:
@@ -92,7 +103,7 @@ npm run rollback:content -- --env prod --release-id prod-20260513T131117Z
 For an agent or operator, the expected path is:
 
 1. update `content/catalog.json`
-2. run `npm run status:content -- --env prod`
+2. run `npm run preflight:content -- --env prod`
 3. if needed, run `npm run publish:content -- --env prod`
 4. review the JSON result or rollback hint
 5. optionally perform a 真机 smoke check
