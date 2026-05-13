@@ -63,6 +63,12 @@ The command stops on failure and prints rollback guidance. The current version d
 
 Use the rollback commands printed by `scripts/content-release/printRollbackHint.js`.
 
+Preferred rollback command:
+
+```bash
+npm run rollback:content -- --env prod --release-id prod-20260513T131117Z
+```
+
 ## Agent workflow
 
 For an agent or operator, the expected path is:
