@@ -37,12 +37,14 @@ npm run publish:content -- --env prod --dry-run
 
 Dry run only builds the local release bundle and manifest. It does not connect to ECS.
 Both dry run and successful publish also write `release-summary.json` into the local bundle directory.
+They also append one line to the local operator log: `artifacts/content-release/release-log.jsonl`.
 
 ## Local-only files
 
 - keep `deployment/content-release/prod.env` on the operator machine only
 - do not commit `deployment/content-release/*.env`
 - `artifacts/content-release/<releaseId>/` is local release evidence and can be deleted after review
+- `artifacts/content-release/release-log.jsonl` is a local-only runtime log and should not be committed
 
 ## Success result
 
