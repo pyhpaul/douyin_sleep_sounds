@@ -37,6 +37,8 @@ const files = [
   "scripts/content-release/rollbackRelease.js",
   "scripts/content-release/verifyRollback.js",
   "scripts/content-release/rollback.js",
+  "scripts/content-release/archiveReleaseRecord.js",
+  "scripts/content-release/archive.js",
   "scripts/content-release/publish.js",
   "scripts/sync-content-artifacts.js",
   "scripts/check-syntax.js"
