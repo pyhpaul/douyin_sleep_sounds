@@ -102,13 +102,20 @@ The current pipeline does not auto-rollback.
 After a successful publish:
 
 1. keep `deployment/content-release/prod.env` on the local operator machine
-2. copy out the release record from `artifacts/content-release/<releaseId>/release-summary.json`:
+2. review the release record in `artifacts/content-release/<releaseId>/release-summary.json`:
    - `releaseId`
    - `backupDir`
    - publish date
    - verification URLs checked
-3. optionally review `artifacts/content-release/release-log.jsonl` for the recent local release timeline
-4. remove `artifacts/content-release/<releaseId>/` after review
+3. review `artifacts/content-release/release-log.jsonl` for the recent local release timeline
+4. if this release should be kept as project history, run:
+
+```bash
+npm run archive:content -- --release-id <releaseId>
+```
+
+5. confirm the release record is appended to `deployment/content-release/archive.jsonl`
+6. remove `artifacts/content-release/<releaseId>/` after review and archive
 
 ## Release record template
 
