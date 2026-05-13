@@ -43,7 +43,10 @@ test("buildReleaseBundle writes manifest and staged files under artifacts/conten
 test("writeReleaseSummary writes release-summary.json into the bundle directory", () => {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "content-release-summary-"));
   const bundleDir = path.join(tempDir, "prod-20260513T120000Z");
+  const bundleDirTwo = path.join(tempDir, "prod-20260513T121000Z");
   fs.mkdirSync(bundleDir, { recursive: true });
+  fs.mkdirSync(bundleDirTwo, { recursive: true });
+  const releaseRoot = path.dirname(bundleDir);
 
   try {
     const summaryPath = writeReleaseSummary({
@@ -80,6 +83,37 @@ test("writeReleaseSummary writes release-summary.json into the bundle directory"
       "https://sleep.zhenwei1.cn/healthz",
       "https://sleep.zhenwei1.cn/content/bootstrap"
     ]);
+
+    writeReleaseSummary({
+      bundle: {
+        bundleDir: bundleDirTwo,
+        releaseId: "prod-20260513T121000Z",
+        manifest: {
+          contentVersion: "2026-05-13T01:00:00Z"
+        }
+      },
+      result: {
+        ok: true,
+        dryRun: true,
+        envName: "prod",
+        assetMode: "remote-only",
+        backupDir: "",
+        publicBaseUrl: "https://sleep.zhenwei1.cn",
+        verifiedAt: "",
+        verificationTargets: ["https://sleep.zhenwei1.cn/healthz"]
+      }
+    });
+
+    const logPath = path.join(releaseRoot, "release-log.jsonl");
+    assert.equal(fs.existsSync(logPath), true);
+    const lines = fs.readFileSync(logPath, "utf8").trim().split(/\r?\n/);
+    assert.equal(lines.length, 2);
+    const logEntry = JSON.parse(lines[0]);
+    assert.equal(logEntry.releaseId, "prod-20260513T120000Z");
+    assert.equal(logEntry.contentVersion, "2026-05-13T00:00:00Z");
+    const secondLogEntry = JSON.parse(lines[1]);
+    assert.equal(secondLogEntry.releaseId, "prod-20260513T121000Z");
+    assert.equal(secondLogEntry.dryRun, true);
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }

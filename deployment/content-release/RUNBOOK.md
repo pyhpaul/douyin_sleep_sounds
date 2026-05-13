@@ -104,7 +104,8 @@ After a successful publish:
    - `backupDir`
    - publish date
    - verification URLs checked
-3. remove `artifacts/content-release/<releaseId>/` after review
+3. optionally review `artifacts/content-release/release-log.jsonl` for the recent local release timeline
+4. remove `artifacts/content-release/<releaseId>/` after review
 
 ## Release record template
 

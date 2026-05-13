@@ -1,5 +1,6 @@
 const fs = require("node:fs");
 const path = require("node:path");
+const { appendReleaseLog } = require("./appendReleaseLog");
 
 function writeReleaseSummary({ bundle, result }) {
   if (!bundle || !bundle.bundleDir) {
@@ -30,6 +31,10 @@ function writeReleaseSummary({ bundle, result }) {
 
   const summaryPath = path.join(bundle.bundleDir, "release-summary.json");
   fs.writeFileSync(summaryPath, `${JSON.stringify(summary, null, 2)}\n`);
+  appendReleaseLog({
+    bundleDir: bundle.bundleDir,
+    summary
+  });
   return summaryPath;
 }
 
