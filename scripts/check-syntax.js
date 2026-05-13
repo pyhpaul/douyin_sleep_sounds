@@ -25,6 +25,8 @@ const files = [
   "cloud/functions/contentBootstrap/index.js",
   "cloud/scripts/seedContent.js",
   "deployment/cloud-http-content/api/app.js",
+  "scripts/content-release/loadReleaseConfig.js",
+  "scripts/content-release/prepareRelease.js",
   "scripts/sync-content-artifacts.js",
   "scripts/check-syntax.js"
 ].filter((file) => fs.existsSync(file));
