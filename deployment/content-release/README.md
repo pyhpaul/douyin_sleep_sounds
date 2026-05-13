@@ -39,6 +39,23 @@ Dry run only builds the local release bundle and manifest. It does not connect t
 Both dry run and successful publish also write `release-summary.json` into the local bundle directory.
 They also append one line to the local operator log: `artifacts/content-release/release-log.jsonl`.
 
+## Status check
+
+Run this before or after publish when you want to verify the current HTTP content chain:
+
+```bash
+npm run status:content -- --env prod
+```
+
+The command compares:
+
+- `content/catalog.json`
+- `deployment/cloud-http-content/api/catalog.json`
+- `https://sleep.zhenwei1.cn/content/bootstrap`
+
+It prints structured JSON with `ok`, `drift`, and each layer's `version`, `groupCount`, and `soundCount`.
+If drift is detected, the command exits non-zero so an agent can stop the workflow early.
+
 ## Local-only files
 
 - keep `deployment/content-release/prod.env` on the operator machine only
@@ -75,9 +92,10 @@ npm run rollback:content -- --env prod --release-id prod-20260513T131117Z
 For an agent or operator, the expected path is:
 
 1. update `content/catalog.json`
-2. run `npm run publish:content -- --env prod`
-3. review the JSON result or rollback hint
-4. optionally perform a 真机 smoke check
+2. run `npm run status:content -- --env prod`
+3. if needed, run `npm run publish:content -- --env prod`
+4. review the JSON result or rollback hint
+5. optionally perform a 真机 smoke check
 
 If the executor needs a step-by-step operational checklist, use `deployment/content-release/RUNBOOK.md`.
 

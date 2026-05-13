@@ -21,6 +21,7 @@ test("content release docs and env example exist and mention the agent workflow"
   assert.match(readme, /local-assets/);
   assert.match(readme, /rollback/i);
   assert.match(readme, /真机/);
+  assert.match(readme, /npm run status:content -- --env prod/);
   assert.match(readme, /deployment\/content-release\/prod\.env/);
   assert.match(readme, /artifacts\/content-release/);
   assert.match(readme, /prod-20260513T131117Z/);
@@ -33,6 +34,7 @@ test("content release docs and env example exist and mention the agent workflow"
   assert.match(runbook, /npm run publish:content -- --env prod/);
   assert.match(runbook, /releaseId/);
   assert.match(runbook, /backupDir/);
+  assert.match(runbook, /npm run status:content -- --env prod/);
   assert.match(runbook, /https:\/\/sleep\.zhenwei1\.cn\/content\/bootstrap/);
   assert.match(runbook, /auto-rollback/i);
   assert.match(runbook, /release-summary\.json/);
