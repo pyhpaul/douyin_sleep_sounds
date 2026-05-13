@@ -1,2 +1,5 @@
+.artifacts/
+artifacts/
 .worktrees/
+deployment/content-release/*.env
 miniprogram/project.private.config.json

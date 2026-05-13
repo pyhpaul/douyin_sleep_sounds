@@ -35,6 +35,12 @@ npm run publish:content -- --env prod --dry-run
 
 Dry run only builds the local release bundle and manifest. It does not connect to ECS.
 
+## Local-only files
+
+- keep `deployment/content-release/prod.env` on the operator machine only
+- do not commit `deployment/content-release/*.env`
+- `artifacts/content-release/<releaseId>/` is local release evidence and can be deleted after review
+
 ## Success result
 
 The command prints structured JSON that includes:
@@ -69,3 +75,27 @@ After automated verification passes, optionally do a real-device smoke test:
 - confirm covers render
 - confirm at least one track plays
 - confirm there is no stale cached content
+
+## Post-release cleanup
+
+Recommended local cleanup after a successful publish:
+
+1. keep `deployment/content-release/prod.env` for the next release
+2. remove `artifacts/content-release/<releaseId>/` after the release record is copied out
+3. keep rollback details (`releaseId`, `backupDir`) with the project docs or operator log
+
+## Real publish rehearsal record
+
+Latest verified production rehearsal:
+
+- date: `2026-05-13`
+- env: `prod`
+- releaseId: `prod-20260513T131117Z`
+- backupDir: `/srv/sleep-sounds/backups/content/prod-20260513T131117Z`
+- verification:
+  - `https://sleep.zhenwei1.cn/healthz`
+  - `https://sleep.zhenwei1.cn/content/bootstrap`
+  - `https://sleep.zhenwei1.cn/covers/rain_night.jpg`
+  - `https://sleep.zhenwei1.cn/audio/rain_night.mp3`
+
+This rehearsal used `remote-only` mode and completed without a service restart.
