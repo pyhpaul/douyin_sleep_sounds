@@ -45,6 +45,7 @@ They also append one line to the local operator log: `artifacts/content-release/
 - do not commit `deployment/content-release/*.env`
 - `artifacts/content-release/<releaseId>/` is local release evidence and can be deleted after review
 - `artifacts/content-release/release-log.jsonl` is a local-only runtime log and should not be committed
+- use `npm run archive:content -- --release-id <releaseId>` to copy one release record into `deployment/content-release/archive.jsonl`
 
 ## Success result
 

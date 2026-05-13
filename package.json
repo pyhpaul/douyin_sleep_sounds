@@ -9,6 +9,7 @@
     "sync:content": "node scripts/sync-content-artifacts.js",
     "publish:content": "node scripts/content-release/publish.js",
     "rollback:content": "node scripts/content-release/rollback.js",
+    "archive:content": "node scripts/content-release/archive.js",
     "seed:cloud-content": "node cloud/scripts/seedContent.js",
     "serve:vm-content": "node server/index.js"
   },
