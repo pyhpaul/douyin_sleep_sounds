@@ -1,5 +1,32 @@
 # Douyin Cloud Content Setup
 
+## Current project status
+
+- 当前仓库已经完成 `local | http | douyinCloud` provider 边界、seed 脚本、内容函数入口和 fallback 测试。
+- 当前正式可验收主链路仍是 `http`，即 `https://sleep.zhenwei1.cn/content/bootstrap`。
+- 未具备真实抖音云 `dev` 环境前，不进行 fake 接入验收，不把 `douyinCloud` 当作当前可交付主链路。
+- 当前验收以 local/http 回退与兼容性测试为准；真实抖音云验收只在真实环境到位后恢复执行。
+
+## Current stop condition
+
+如果当前没有真实抖音云 `dev` 环境，请在这里暂停，不继续执行“部署函数 + 切换 provider + DevTools Lite 云验证”。
+
+暂停时保留以下结论：
+
+1. `douyinCloud` 目前是已实现的配置边界，不是当前 release gate。
+2. 不进行 fake 接入验收，不补假 runtime、假 SDK、假服务成功路径。
+3. 当前代码验收继续依赖：
+   - `provider: "local"` 本地回退
+   - `provider: "http"` 线上 HTTPS 内容主链路
+   - 已有自动化测试与文档回归测试
+
+恢复执行真实抖音云接入前，需要同时具备：
+
+- 真实抖音云 `dev` 环境
+- 可用的 MongoDB / 对象存储 / 函数服务
+- 可填写的 `envId` 和 `serviceId`
+- 可用于 `GET /content/bootstrap` 的真实函数路由
+
 ## 1. Open cloud resources
 
 In the Douyin Cloud console for this mini app:
