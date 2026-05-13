@@ -16,6 +16,7 @@ test("content release docs and env example exist and mention the agent workflow"
   const runbook = fs.readFileSync("deployment/content-release/RUNBOOK.md", "utf8");
 
   assert.match(readme, /npm run publish:content -- --env prod/);
+  assert.match(readme, /npm run preflight:content -- --env prod/);
   assert.match(readme, /RUNBOOK\.md/);
   assert.match(readme, /remote-only/);
   assert.match(readme, /local-assets/);
@@ -32,6 +33,7 @@ test("content release docs and env example exist and mention the agent workflow"
   assert.match(envExample, /CONTENT_RELEASE_PUBLIC_BASE_URL=https:\/\/sleep\.zhenwei1\.cn/);
 
   assert.match(runbook, /npm run publish:content -- --env prod/);
+  assert.match(runbook, /npm run preflight:content -- --env prod/);
   assert.match(runbook, /releaseId/);
   assert.match(runbook, /backupDir/);
   assert.match(runbook, /npm run status:content -- --env prod/);

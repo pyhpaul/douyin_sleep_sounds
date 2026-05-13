@@ -7,6 +7,7 @@
     "check": "node scripts/check-syntax.js",
     "debug:page": "node --test tests/pageRuntime.test.js",
     "sync:content": "node scripts/sync-content-artifacts.js",
+    "preflight:content": "node scripts/content-release/preflight.js",
     "publish:content": "node scripts/content-release/publish.js",
     "status:content": "node scripts/content-release/status.js",
     "rollback:content": "node scripts/content-release/rollback.js",
