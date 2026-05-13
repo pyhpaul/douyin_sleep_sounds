@@ -10,6 +10,14 @@
 
 ---
 
+## Current Scope Gate (2026-05-13)
+
+- Execute this milestone as a compatibility refactor around the real ECS / HTTPS path that already exists.
+- Do not add fake `tt.createCloud`, fake `callContainer`, fake Douyin Cloud runtime, fake repository, or fake asset resolver code.
+- Keep `local | http | douyinCloud` provider identifiers and config boundaries, but do not switch the default provider away from `http`.
+- Current verification is limited to: shared content service extraction, HTTP runtime reuse, deployment compatibility docs/templates, ECS deployment stability, and no-behavior-change checks.
+- Any future real Douyin Cloud hookup should be handled as a separate follow-up once platform access is available.
+
 ## File Structure / Ownership Map
 
 ### New service framework files

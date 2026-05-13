@@ -24,6 +24,15 @@
 - 提前补齐抖音云迁移需要的配置模板、运行入口、健康检查和验证说明。
 - 为后续接入抖音云数据库、对象存储或云托管服务预留清晰边界。
 
+## 当前阶段收敛口径（2026-05-13）
+
+- 当前 Milestone 3A 只做“抖音云兼容框架整理”，不做真实抖音云接入。
+- 当前代码必须围绕已经跑通的 ECS / HTTPS 主链路收敛，不引入第二条假的运行主链路。
+- `douyinCloud` provider 在本阶段只保留为未来配置边界，不作为当前验收主路径。
+- 当前默认 provider 继续保持 `http`，除非后续真实抖音云条件具备并单独立项切换。
+- 不实现 fake `tt.createCloud`、fake `callContainer`、fake runtime、fake repository、fake asset resolver。
+- 当前阶段的价值是稳定边界：后续真接抖音云时切 runtime / repository / asset resolver，而不是重写业务核心。
+
 ## 非目标
 
 - 本阶段不接入真实抖音云数据库。
@@ -32,6 +41,8 @@
 - 本阶段不新增用户系统、收藏、播放历史、会员、统计等功能。
 - 本阶段不改变小程序页面 UI 和播放器运行态。
 - 本阶段不删除现有云服务器 HTTP 部署能力。
+- 本阶段不为了“提前演练”增加假抖音云运行时代码。
+- 本阶段不把默认 provider 从 `http` 切到 `douyinCloud`。
 
 ## 设计原则
 
@@ -354,7 +365,7 @@ const contentSourceConfig = {
 
 - `soundSourceService.js` 继续作为 provider dispatcher。
 - `httpContentService.js` 继续用于 ECS / HTTPS fallback。
-- `cloudContentService.js` 继续用于 `tt.createCloud + callContainer`。
+- `cloudContentService.js` 继续作为未来 `tt.createCloud + callContainer` 入口保留，但本阶段不要求启用，也不要求模拟成功路径。
 - 远程失败仍回退 local mock。
 
 ## 当前 ECS 行为保持
@@ -457,7 +468,7 @@ curl -s http://127.0.0.1:3000/healthz
 
 - `provider: "http"` 时，真机可以拿到 7 类 / 8 声音。
 - `provider: "local"` 时，本地 fallback 仍可用。
-- `provider: "douyinCloud"` 的配置仍保留，未填真实 `envId/serviceId` 时不作为当前验收主链路。
+- `provider: "douyinCloud"` 的配置仍保留，但未具备真实 `envId/serviceId` 和平台接入条件时，不作为当前验收主链路，也不应通过 fake 逻辑伪装接入完成。
 
 ## 风险与约束
 
@@ -477,12 +488,18 @@ curl -s http://127.0.0.1:3000/healthz
 
 处理：默认在 Node app 中提供 `/healthz`。Nginx 是否暴露由部署配置决定；即使不对公网暴露，也可以在服务器内部验证。
 
+### 风险 5：为未来平台接入过早写 fake 代码，导致后续真实接入反而返工
+
+处理：当前只保留 `douyinCloud` 配置边界和文档，不补假 runtime、假 SDK 或假平台调用链。未来真实接入时再单独以官方可用链路为准落地。
+
 ## 验收标准
 
 - 新的 content service 框架存在，并由当前 cloud HTTP API 使用。
 - 当前线上 `/content/bootstrap` 行为不变。
 - 当前线上音频和封面 URL 不绑定 `127.0.0.1`。
 - `local | http | douyinCloud` provider 结构不被删除。
+- 当前默认 provider 仍为 `http`，`douyinCloud` 只保留未来切换边界。
+- 不存在 fake 抖音云主链路实现。
 - 文档说明 ECS 轻量模式和未来抖音云模式的配置差异。
 - `npm run check` 通过。
 - 相关单元测试通过。
