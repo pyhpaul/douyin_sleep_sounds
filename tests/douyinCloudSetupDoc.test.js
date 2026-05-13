@@ -19,4 +19,7 @@ test("douyin cloud content setup doc covers seed, provider switch, fallback, and
   assert.match(doc, /fallback/i);
   assert.match(doc, /Verification Log/);
   assert.match(doc, /rain_night/);
+  assert.match(doc, /未具备真实抖音云.*dev.*环境/i);
+  assert.match(doc, /不进行 fake 接入验收/i);
+  assert.match(doc, /当前验收以 local\/http 回退与兼容性测试为准/i);
 });
