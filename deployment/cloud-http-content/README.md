@@ -16,15 +16,16 @@ This folder contains the minimum deployment artifacts for running the Douyin min
 
 If you do not want to add `api.` and `static.` subdomains, serve all paths from one HTTPS domain:
 
-- `https://sleep.zhenweiai.com/content/bootstrap`
-- `https://sleep.zhenweiai.com/covers/rain_night.jpg`
-- `https://sleep.zhenweiai.com/audio/rain_night.mp3`
+- `https://sleep.zhenwei1.cn/content/bootstrap`
+- `https://sleep.zhenwei1.cn/covers/rain_night.jpg`
+- `https://sleep.zhenwei1.cn/audio/rain_night.mp3`
 
 For this layout:
 
-- set the API environment to `STATIC_BASE_URL=https://sleep.zhenweiai.com`
+- set the API environment to `STATIC_BASE_URL=https://sleep.zhenwei1.cn`
 - use `deployment/cloud-http-content/nginx/single-domain.example.conf`
-- set the mini app `httpBaseUrl` to `https://sleep.zhenweiai.com`
+- set the mini app `httpBaseUrl` to `https://sleep.zhenwei1.cn`
+- expose `/healthz`, `/content/bootstrap`, `/covers/*`, and `/audio/*` from the same HTTPS host
 
 ## Remote directories
 
@@ -57,8 +58,8 @@ The final public URLs should look like:
 
 For the single-domain deployment, use:
 
-- `https://sleep.zhenweiai.com/covers/rain_night.jpg`
-- `https://sleep.zhenweiai.com/audio/rain_night.mp3`
+- `https://sleep.zhenwei1.cn/covers/rain_night.jpg`
+- `https://sleep.zhenwei1.cn/audio/rain_night.mp3`
 
 ## Deploy the API
 
@@ -88,7 +89,7 @@ For the single-domain deployment:
 
 ```bash
 cd /srv/sleep-sounds/api
-PORT=3000 STATIC_BASE_URL=https://sleep.zhenweiai.com node app.js
+PORT=3000 STATIC_BASE_URL=https://sleep.zhenwei1.cn node app.js
 ```
 
 Expected output:
@@ -139,7 +140,45 @@ sudo systemctl reload nginx
 
 Use Let's Encrypt or your existing certificate workflow for both subdomains.
 
-For the single-domain deployment, issue one certificate for `sleep.zhenweiai.com`.
+For the single-domain deployment, issue one certificate for `sleep.zhenwei1.cn`.
+The single-domain Nginx example expects the certificate at:
+
+- `/etc/letsencrypt/live/sleep.zhenwei1.cn/fullchain.pem`
+- `/etc/letsencrypt/live/sleep.zhenwei1.cn/privkey.pem`
+
+Current production certificate record:
+
+- Certificate type: public DV TLS certificate
+- Issuer: Let's Encrypt `E8`
+- Key type: ECDSA
+- Subject / SAN: `sleep.zhenwei1.cn`
+- Issued on: `2026-05-13 05:23:21 UTC`
+- Expires on: `2026-08-11 05:23:20 UTC`
+- Certificate name in Certbot: `sleep.zhenwei1.cn`
+- Certificate path: `/etc/letsencrypt/live/sleep.zhenwei1.cn/fullchain.pem`
+- Private key path: `/etc/letsencrypt/live/sleep.zhenwei1.cn/privkey.pem`
+- Renewal config: `/etc/letsencrypt/renewal/sleep.zhenwei1.cn.conf`
+- Renewal method: Certbot `webroot`
+- Webroot path: `/srv/sleep-sounds/static`
+- Renewal timer: `certbot.timer` runs `certbot -q renew --no-random-sleep-on-renew` twice daily
+
+Manual certificate request:
+
+```bash
+sudo certbot certonly \
+  --webroot \
+  -w /srv/sleep-sounds/static \
+  -d sleep.zhenwei1.cn \
+  --agree-tos \
+  --register-unsafely-without-email
+```
+
+Manual renewal dry run:
+
+```bash
+sudo certbot renew --dry-run
+sudo systemctl reload nginx
+```
 
 The deployment is not valid for Douyin mini app runtime until both:
 
@@ -162,9 +201,9 @@ Do not use raw IP addresses.
 For the single-domain deployment, whitelist:
 
 - request domain:
-  - `https://sleep.zhenweiai.com`
+  - `https://sleep.zhenwei1.cn`
 - downloadFile domain:
-  - `https://sleep.zhenweiai.com`
+  - `https://sleep.zhenwei1.cn`
 
 ## Verification
 
@@ -176,6 +215,7 @@ powershell -File deployment/cloud-http-content/scripts/verify-deployment.ps1 -Ap
 
 Expected results:
 
+- health check returns `{"ok":true}` for the single-domain deployment
 - bootstrap returns JSON
 - cover URL returns `200`
 - audio URL returns `200`

@@ -191,16 +191,16 @@ test("json catalog repository reads catalog from disk", async () => {
 
 test("static base url resolver builds public audio and cover urls", () => {
   const resolver = createStaticBaseUrlResolver({
-    staticBaseUrl: "https://sleep.zhenweiai.com/"
+    staticBaseUrl: "https://sleep.zhenwei1.cn/"
   });
 
   assert.equal(
     resolver.resolveAudioUrl({ audioAssetKey: "/rain_night.mp3" }),
-    "https://sleep.zhenweiai.com/audio/rain_night.mp3"
+    "https://sleep.zhenwei1.cn/audio/rain_night.mp3"
   );
   assert.equal(
     resolver.resolveCoverUrl({ coverAssetKey: "rain_night.jpg" }),
-    "https://sleep.zhenweiai.com/covers/rain_night.jpg"
+    "https://sleep.zhenwei1.cn/covers/rain_night.jpg"
   );
 });
 
@@ -211,7 +211,7 @@ test("content bootstrap service maps repository data to mini app bootstrap respo
     const service = createContentBootstrapService({
       repository: createJsonCatalogRepository({ catalogPath }),
       assetResolver: createStaticBaseUrlResolver({
-        staticBaseUrl: "https://sleep.zhenweiai.com"
+        staticBaseUrl: "https://sleep.zhenwei1.cn"
       })
     });
 
@@ -220,8 +220,8 @@ test("content bootstrap service maps repository data to mini app bootstrap respo
     assert.equal(payload.version, "2026-05-06T00:00:00Z");
     assert.equal(payload.defaultGroupId, "rain");
     assert.equal(payload.groups[0].id, "rain");
-    assert.equal(payload.groups[0].sounds[0].url, "https://sleep.zhenweiai.com/audio/rain_night.mp3");
-    assert.equal(payload.groups[0].sounds[0].cover, "https://sleep.zhenweiai.com/covers/rain_night.jpg");
+    assert.equal(payload.groups[0].sounds[0].url, "https://sleep.zhenwei1.cn/audio/rain_night.mp3");
+    assert.equal(payload.groups[0].sounds[0].cover, "https://sleep.zhenwei1.cn/covers/rain_night.jpg");
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
@@ -232,7 +232,7 @@ test("content http app serves healthz and bootstrap", async () => {
   const service = createContentBootstrapService({
     repository: createJsonCatalogRepository({ catalogPath }),
     assetResolver: createStaticBaseUrlResolver({
-      staticBaseUrl: "https://sleep.zhenweiai.com"
+      staticBaseUrl: "https://sleep.zhenwei1.cn"
     })
   });
   const server = createContentHttpApp({ contentService: service });
@@ -278,14 +278,14 @@ test("content http app returns 500 when bootstrap service fails", async () => {
 
 test("parseContentServiceEnv normalizes current lightweight defaults", () => {
   const env = parseContentServiceEnv({
-    STATIC_BASE_URL: "https://sleep.zhenweiai.com/",
+    STATIC_BASE_URL: "https://sleep.zhenwei1.cn/",
     CONTENT_CATALOG_PATH: "catalog.json",
     PORT: "8787"
   });
 
   assert.equal(env.repositoryType, "jsonCatalog");
   assert.equal(env.assetResolverType, "staticBaseUrl");
-  assert.equal(env.staticBaseUrl, "https://sleep.zhenweiai.com");
+  assert.equal(env.staticBaseUrl, "https://sleep.zhenwei1.cn");
   assert.equal(env.catalogPath, "catalog.json");
   assert.equal(env.host, "127.0.0.1");
   assert.equal(env.port, 8787);
@@ -559,7 +559,7 @@ Modify `tests/cloudHttpApiServer.test.js`:
 test("cloud HTTP API serves healthz", async () => {
   const server = createServer({
     catalogPath: path.resolve(__dirname, "../deployment/cloud-http-content/api/catalog.json"),
-    staticBaseUrl: "https://sleep.zhenweiai.com"
+    staticBaseUrl: "https://sleep.zhenwei1.cn"
   });
 
   try {
@@ -959,7 +959,7 @@ test("douyin cloud compatible env templates keep the lightweight adapters explic
   for (const content of [ecsEnv, douyinEnv]) {
     assert.match(content, /CONTENT_REPOSITORY=jsonCatalog/);
     assert.match(content, /CONTENT_ASSET_RESOLVER=staticBaseUrl/);
-    assert.match(content, /STATIC_BASE_URL=https:\/\/sleep\.zhenweiai\.com/);
+    assert.match(content, /STATIC_BASE_URL=https:\/\/sleep\.zhenwei1\.cn/);
     assert.match(content, /CONTENT_CATALOG_PATH=/);
   }
   assert.match(ecsEnv, /HOST=127\.0\.0\.1/);
@@ -1015,7 +1015,7 @@ PORT=3000
 CONTENT_REPOSITORY=jsonCatalog
 CONTENT_ASSET_RESOLVER=staticBaseUrl
 CONTENT_CATALOG_PATH=/srv/sleep-sounds/api/catalog.json
-STATIC_BASE_URL=https://sleep.zhenweiai.com
+STATIC_BASE_URL=https://sleep.zhenwei1.cn
 ```
 
 - [ ] **Step 5: Create the Douyin Cloud-compatible env template**
@@ -1029,7 +1029,7 @@ PORT=3000
 CONTENT_REPOSITORY=jsonCatalog
 CONTENT_ASSET_RESOLVER=staticBaseUrl
 CONTENT_CATALOG_PATH=./catalog.json
-STATIC_BASE_URL=https://sleep.zhenweiai.com
+STATIC_BASE_URL=https://sleep.zhenwei1.cn
 ```
 
 - [ ] **Step 6: Create the local verification script**
@@ -1105,15 +1105,15 @@ PORT=3000
 CONTENT_REPOSITORY=jsonCatalog
 CONTENT_ASSET_RESOLVER=staticBaseUrl
 CONTENT_CATALOG_PATH=/srv/sleep-sounds/api/catalog.json
-STATIC_BASE_URL=https://sleep.zhenweiai.com
+STATIC_BASE_URL=https://sleep.zhenwei1.cn
 ```
 
 In this mode, Nginx exposes HTTPS and static files:
 
 ```text
-https://sleep.zhenweiai.com/content/bootstrap
-https://sleep.zhenweiai.com/covers/rain_night.jpg
-https://sleep.zhenweiai.com/audio/rain_night.mp3
+https://sleep.zhenwei1.cn/content/bootstrap
+https://sleep.zhenwei1.cn/covers/rain_night.jpg
+https://sleep.zhenwei1.cn/audio/rain_night.mp3
 ```
 
 ## Douyin Cloud-compatible lightweight mode
@@ -1132,7 +1132,7 @@ PORT=3000
 CONTENT_REPOSITORY=jsonCatalog
 CONTENT_ASSET_RESOLVER=staticBaseUrl
 CONTENT_CATALOG_PATH=./catalog.json
-STATIC_BASE_URL=https://sleep.zhenweiai.com
+STATIC_BASE_URL=https://sleep.zhenwei1.cn
 ```
 
 This keeps the same lightweight content source and static asset domain while changing the service host binding for cloud runtime compatibility.
@@ -1144,7 +1144,7 @@ Current HTTP provider:
 ```js
 const contentSourceConfig = {
   provider: "http",
-  httpBaseUrl: "https://sleep.zhenweiai.com",
+  httpBaseUrl: "https://sleep.zhenwei1.cn",
   envId: "",
   serviceId: "",
   bootstrapPath: "/content/bootstrap",
@@ -1185,7 +1185,7 @@ $env:PORT = "3000"
 $env:CONTENT_REPOSITORY = "jsonCatalog"
 $env:CONTENT_ASSET_RESOLVER = "staticBaseUrl"
 $env:CONTENT_CATALOG_PATH = "deployment/cloud-http-content/api/catalog.json"
-$env:STATIC_BASE_URL = "https://sleep.zhenweiai.com"
+$env:STATIC_BASE_URL = "https://sleep.zhenwei1.cn"
 node deployment/cloud-http-content/api/app.js
 ```
 
@@ -1209,9 +1209,9 @@ On ECS:
 ```bash
 systemctl status sleep-sounds-api
 curl -s http://127.0.0.1:3000/healthz
-curl -s https://sleep.zhenweiai.com/content/bootstrap
-curl -I https://sleep.zhenweiai.com/covers/rain_night.jpg
-curl -I https://sleep.zhenweiai.com/audio/rain_night.mp3
+curl -s https://sleep.zhenwei1.cn/content/bootstrap
+curl -I https://sleep.zhenwei1.cn/covers/rain_night.jpg
+curl -I https://sleep.zhenwei1.cn/audio/rain_night.mp3
 ```
 
 If Nginx does not proxy `/healthz`, verify `/healthz` only through `http://127.0.0.1:3000/healthz` on the server.
@@ -1390,7 +1390,7 @@ Environment=PORT=3000
 Environment=CONTENT_REPOSITORY=jsonCatalog
 Environment=CONTENT_ASSET_RESOLVER=staticBaseUrl
 Environment=CONTENT_CATALOG_PATH=/srv/sleep-sounds/api/catalog.json
-Environment=STATIC_BASE_URL=https://sleep.zhenweiai.com
+Environment=STATIC_BASE_URL=https://sleep.zhenwei1.cn
 
 [Install]
 WantedBy=multi-user.target
@@ -1415,8 +1415,8 @@ Expected output includes:
 ```text
 {"ok":true}
 groups=7 sounds=8
-https://sleep.zhenweiai.com/audio/rain_night.mp3
-https://sleep.zhenweiai.com/covers/rain_night.jpg
+https://sleep.zhenwei1.cn/audio/rain_night.mp3
+https://sleep.zhenwei1.cn/covers/rain_night.jpg
 ```
 
 - [ ] **Step 7: Verify public HTTPS API and static assets**
@@ -1424,9 +1424,9 @@ https://sleep.zhenweiai.com/covers/rain_night.jpg
 Run:
 
 ```powershell
-curl.exe -s https://sleep.zhenweiai.com/content/bootstrap
-curl.exe -I https://sleep.zhenweiai.com/covers/rain_night.jpg
-curl.exe -I https://sleep.zhenweiai.com/audio/rain_night.mp3
+curl.exe -s https://sleep.zhenwei1.cn/content/bootstrap
+curl.exe -I https://sleep.zhenwei1.cn/covers/rain_night.jpg
+curl.exe -I https://sleep.zhenwei1.cn/audio/rain_night.mp3
 ```
 
 Expected:

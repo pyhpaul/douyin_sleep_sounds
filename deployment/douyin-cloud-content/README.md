@@ -4,7 +4,7 @@ This template keeps the current lightweight ECS content service aligned with a f
 
 - `CONTENT_REPOSITORY=jsonCatalog`
 - `CONTENT_ASSET_RESOLVER=staticBaseUrl`
-- `STATIC_BASE_URL=https://sleep.zhenweiai.com`
+- `STATIC_BASE_URL=https://sleep.zhenwei1.cn`
 
 ## Service contract
 
@@ -16,8 +16,8 @@ The content service must expose:
 Production smoke checks:
 
 ```sh
-curl -fsS https://sleep.zhenweiai.com/healthz
-curl -fsS https://sleep.zhenweiai.com/content/bootstrap
+curl -fsS https://sleep.zhenwei1.cn/healthz
+curl -fsS https://sleep.zhenwei1.cn/content/bootstrap
 ```
 
 ## ECS lightweight environment
@@ -31,7 +31,7 @@ PORT=3000
 CONTENT_REPOSITORY=jsonCatalog
 CONTENT_ASSET_RESOLVER=staticBaseUrl
 CONTENT_CATALOG_PATH=/srv/sleep-sounds/api/catalog.json
-STATIC_BASE_URL=https://sleep.zhenweiai.com
+STATIC_BASE_URL=https://sleep.zhenwei1.cn
 ```
 
 Run locally with:
@@ -64,7 +64,7 @@ PORT=3000
 CONTENT_REPOSITORY=jsonCatalog
 CONTENT_ASSET_RESOLVER=staticBaseUrl
 CONTENT_CATALOG_PATH=../cloud-http-content/api/catalog.json
-STATIC_BASE_URL=https://sleep.zhenweiai.com
+STATIC_BASE_URL=https://sleep.zhenwei1.cn
 ```
 
 The package metadata starts the same compatible HTTP service from the `deployment/douyin-cloud-content` working directory. The current template points `CONTENT_CATALOG_PATH` at the existing repo catalog in `deployment/cloud-http-content/api/catalog.json`. For a future packaged Douyin Cloud artifact, copy catalog into this directory and change the value back to `CONTENT_CATALOG_PATH=./catalog.json`.
@@ -81,7 +81,7 @@ For the existing HTTPS endpoint, configure the mini app with the `http` provider
 module.exports = {
   content: {
     provider: "http",
-    baseUrl: "https://sleep.zhenweiai.com"
+    baseUrl: "https://sleep.zhenwei1.cn"
   }
 };
 ```
@@ -111,6 +111,6 @@ npm run debug:page
 For service-level verification against production:
 
 ```sh
-curl -fsS https://sleep.zhenweiai.com/healthz
-curl -fsS https://sleep.zhenweiai.com/content/bootstrap
+curl -fsS https://sleep.zhenwei1.cn/healthz
+curl -fsS https://sleep.zhenwei1.cn/content/bootstrap
 ```

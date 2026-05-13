@@ -23,7 +23,7 @@ test("douyin cloud compatible env templates keep the lightweight adapters explic
   for (const content of [ecsEnv, douyinEnv]) {
     assert.match(content, /CONTENT_REPOSITORY=jsonCatalog/);
     assert.match(content, /CONTENT_ASSET_RESOLVER=staticBaseUrl/);
-    assert.match(content, /STATIC_BASE_URL=https:\/\/sleep\.zhenweiai\.com/);
+    assert.match(content, /STATIC_BASE_URL=https:\/\/sleep\.zhenwei1\.cn/);
     assert.match(content, /CONTENT_CATALOG_PATH=/);
   }
   assert.match(ecsEnv, /HOST=127\.0\.0\.1/);
@@ -72,8 +72,8 @@ test("douyin cloud compatible README documents switch and verification commands"
   assert.match(readme, /npm test/);
   assert.match(readme, /npm run debug:page/);
   assert.match(readme, /node deployment\/cloud-http-content\/api\/app\.js/);
-  assert.match(readme, /curl -fsS https:\/\/sleep\.zhenweiai\.com\/healthz/);
-  assert.match(readme, /curl -fsS https:\/\/sleep\.zhenweiai\.com\/content\/bootstrap/);
+  assert.match(readme, /curl -fsS https:\/\/sleep\.zhenwei1\.cn\/healthz/);
+  assert.match(readme, /curl -fsS https:\/\/sleep\.zhenwei1\.cn\/content\/bootstrap/);
   assert.match(readme, /CONTENT_CATALOG_PATH=\.\.\/cloud-http-content\/api\/catalog\.json/);
   assert.match(readme, /deployment\/douyin-cloud-content/);
   assert.match(readme, /copy catalog/);

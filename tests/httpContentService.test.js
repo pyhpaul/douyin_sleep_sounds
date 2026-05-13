@@ -88,7 +88,7 @@ test("returns bootstrap data when tt.request succeeds", async () => {
 test("builds the configured single-domain bootstrap request", async () => {
   const service = loadHttpContentService({
     request({ url, method, success }) {
-      assert.equal(url, "https://sleep.zhenweiai.com/content/bootstrap");
+      assert.equal(url, "https://sleep.zhenwei1.cn/content/bootstrap");
       assert.equal(method, "GET");
       success({
         data: {
@@ -99,7 +99,7 @@ test("builds the configured single-domain bootstrap request", async () => {
     }
   });
 
-  contentSourceConfigRef.httpBaseUrl = "https://sleep.zhenweiai.com";
+  contentSourceConfigRef.httpBaseUrl = "https://sleep.zhenwei1.cn";
 
   const payload = await service.getContentBootstrap();
 

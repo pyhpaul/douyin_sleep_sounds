@@ -114,16 +114,16 @@ test("json catalog repository reads catalog from disk", async () => {
 
 test("static base url resolver builds public audio and cover urls", () => {
   const resolver = createStaticBaseUrlResolver({
-    staticBaseUrl: "https://sleep.zhenweiai.com/"
+    staticBaseUrl: "https://sleep.zhenwei1.cn/"
   });
 
   assert.equal(
     resolver.resolveAudioUrl({ audioAssetKey: "/rain_night.mp3" }),
-    "https://sleep.zhenweiai.com/audio/rain_night.mp3"
+    "https://sleep.zhenwei1.cn/audio/rain_night.mp3"
   );
   assert.equal(
     resolver.resolveCoverUrl({ coverAssetKey: "rain_night.jpg" }),
-    "https://sleep.zhenweiai.com/covers/rain_night.jpg"
+    "https://sleep.zhenwei1.cn/covers/rain_night.jpg"
   );
 });
 
@@ -134,7 +134,7 @@ test("content bootstrap service maps repository data to mini app bootstrap respo
     const service = createContentBootstrapService({
       repository: createJsonCatalogRepository({ catalogPath }),
       assetResolver: createStaticBaseUrlResolver({
-        staticBaseUrl: "https://sleep.zhenweiai.com"
+        staticBaseUrl: "https://sleep.zhenwei1.cn"
       })
     });
 
@@ -143,8 +143,8 @@ test("content bootstrap service maps repository data to mini app bootstrap respo
     assert.equal(payload.version, "2026-05-06T00:00:00Z");
     assert.equal(payload.defaultGroupId, "rain");
     assert.equal(payload.groups[0].id, "rain");
-    assert.equal(payload.groups[0].sounds[0].url, "https://sleep.zhenweiai.com/audio/rain_night.mp3");
-    assert.equal(payload.groups[0].sounds[0].cover, "https://sleep.zhenweiai.com/covers/rain_night.jpg");
+    assert.equal(payload.groups[0].sounds[0].url, "https://sleep.zhenwei1.cn/audio/rain_night.mp3");
+    assert.equal(payload.groups[0].sounds[0].cover, "https://sleep.zhenwei1.cn/covers/rain_night.jpg");
   } finally {
     fs.rmSync(tempDir, { recursive: true, force: true });
   }
@@ -155,7 +155,7 @@ test("content http app serves healthz and bootstrap", async () => {
   const service = createContentBootstrapService({
     repository: createJsonCatalogRepository({ catalogPath }),
     assetResolver: createStaticBaseUrlResolver({
-      staticBaseUrl: "https://sleep.zhenweiai.com"
+      staticBaseUrl: "https://sleep.zhenwei1.cn"
     })
   });
   const server = createContentHttpApp({ contentService: service });
@@ -253,14 +253,14 @@ test("content http app returns stringified message for non-error bootstrap failu
 
 test("parseContentServiceEnv normalizes current lightweight defaults", () => {
   const env = parseContentServiceEnv({
-    STATIC_BASE_URL: "https://sleep.zhenweiai.com/",
+    STATIC_BASE_URL: "https://sleep.zhenwei1.cn/",
     CONTENT_CATALOG_PATH: "catalog.json",
     PORT: "8787"
   });
 
   assert.equal(env.repositoryType, "jsonCatalog");
   assert.equal(env.assetResolverType, "staticBaseUrl");
-  assert.equal(env.staticBaseUrl, "https://sleep.zhenweiai.com");
+  assert.equal(env.staticBaseUrl, "https://sleep.zhenwei1.cn");
   assert.equal(env.catalogPath, "catalog.json");
   assert.equal(env.host, "127.0.0.1");
   assert.equal(env.port, 8787);

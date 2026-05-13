@@ -43,7 +43,7 @@ function request(address, pathname) {
 test("cloud HTTP API serves healthz", async () => {
   const server = createServer({
     catalogPath: path.resolve(__dirname, "../deployment/cloud-http-content/api/catalog.json"),
-    staticBaseUrl: "https://sleep.zhenweiai.com"
+    staticBaseUrl: "https://sleep.zhenwei1.cn"
   });
 
   try {
@@ -152,7 +152,7 @@ test("cloud HTTP API can run from the remote server directory layout", async () 
   const { createServer: createDeployedServer } = require(appPath);
   const server = createDeployedServer({
     catalogPath: path.join(apiDir, "catalog.json"),
-    staticBaseUrl: "https://sleep.zhenweiai.com"
+    staticBaseUrl: "https://sleep.zhenwei1.cn"
   });
 
   try {
@@ -163,11 +163,11 @@ test("cloud HTTP API can run from the remote server directory layout", async () 
     const payload = JSON.parse(response.body);
     assert.equal(
       payload.groups[0].sounds[0].url,
-      "https://sleep.zhenweiai.com/audio/rain_night.mp3"
+      "https://sleep.zhenwei1.cn/audio/rain_night.mp3"
     );
     assert.equal(
       payload.groups[0].sounds[0].cover,
-      "https://sleep.zhenweiai.com/covers/rain_night.jpg"
+      "https://sleep.zhenwei1.cn/covers/rain_night.jpg"
     );
   } finally {
     await new Promise((resolve) => server.close(resolve));

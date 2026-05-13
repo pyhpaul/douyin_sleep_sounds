@@ -1,6 +1,6 @@
 const contentSourceConfig = {
   provider: "http",
-  httpBaseUrl: "https://sleep.zhenweiai.com",
+  httpBaseUrl: "https://sleep.zhenwei1.cn",
   envId: "",
   serviceId: "",
   bootstrapPath: "/content/bootstrap",

@@ -4,9 +4,9 @@
 
 当前内容服务已经在普通云服务器上跑通：
 
-- API：`https://sleep.zhenweiai.com/content/bootstrap`
-- 封面示例：`https://sleep.zhenweiai.com/covers/rain_night.jpg`
-- 音频示例：`https://sleep.zhenweiai.com/audio/rain_night.mp3`
+- API：`https://sleep.zhenwei1.cn/content/bootstrap`
+- 封面示例：`https://sleep.zhenwei1.cn/covers/rain_night.jpg`
+- 音频示例：`https://sleep.zhenwei1.cn/audio/rain_night.mp3`
 
 现在线上实现是轻量形态：Node.js API 读取 `catalog.json`，Nginx 提供 HTTPS 和静态资源，systemd 守护 Node 进程。这个方案稳定、成本低，但它的目录和配置仍然偏“云服务器专用”。如果未来要迁移到抖音云，容易出现两个问题：
 
@@ -20,7 +20,7 @@
 - 保持现有线上行为不变：`/content/bootstrap` 仍返回当前小程序可用的 bootstrap 结构。
 - 保留当前本地、HTTP、抖音云三种 provider：`local | http | douyinCloud`。
 - 把后端拆成稳定业务核心和可替换运行适配器。
-- 当前 ECS 继续使用 `catalog.json` 和 `sleep.zhenweiai.com` 静态资源。
+- 当前 ECS 继续使用 `catalog.json` 和 `sleep.zhenwei1.cn` 静态资源。
 - 提前补齐抖音云迁移需要的配置模板、运行入口、健康检查和验证说明。
 - 为后续接入抖音云数据库、对象存储或云托管服务预留清晰边界。
 
@@ -165,14 +165,14 @@ StaticBaseUrlResolver
 配置：
 
 ```env
-STATIC_BASE_URL=https://sleep.zhenweiai.com
+STATIC_BASE_URL=https://sleep.zhenwei1.cn
 ```
 
 输出：
 
 ```text
-https://sleep.zhenweiai.com/audio/rain_night.mp3
-https://sleep.zhenweiai.com/covers/rain_night.jpg
+https://sleep.zhenwei1.cn/audio/rain_night.mp3
+https://sleep.zhenwei1.cn/covers/rain_night.jpg
 ```
 
 未来预留：
@@ -243,7 +243,7 @@ PORT=<platform injected port>
 CONTENT_REPOSITORY=jsonCatalog
 CONTENT_ASSET_RESOLVER=staticBaseUrl
 CONTENT_CATALOG_PATH=./catalog.json
-STATIC_BASE_URL=https://sleep.zhenweiai.com
+STATIC_BASE_URL=https://sleep.zhenwei1.cn
 HOST=127.0.0.1
 PORT=3000
 NODE_ENV=production
@@ -255,7 +255,7 @@ NODE_ENV=production
 CONTENT_REPOSITORY=jsonCatalog
 CONTENT_ASSET_RESOLVER=staticBaseUrl
 CONTENT_CATALOG_PATH=/srv/sleep-sounds/api/catalog.json
-STATIC_BASE_URL=https://sleep.zhenweiai.com
+STATIC_BASE_URL=https://sleep.zhenwei1.cn
 HOST=127.0.0.1
 PORT=3000
 ```
@@ -266,7 +266,7 @@ PORT=3000
 CONTENT_REPOSITORY=jsonCatalog
 CONTENT_ASSET_RESOLVER=staticBaseUrl
 CONTENT_CATALOG_PATH=./catalog.json
-STATIC_BASE_URL=https://sleep.zhenweiai.com
+STATIC_BASE_URL=https://sleep.zhenwei1.cn
 HOST=0.0.0.0
 PORT=3000
 ```
@@ -329,7 +329,7 @@ deployment/cloud-http-content/
 ```js
 const contentSourceConfig = {
   provider: "http",
-  httpBaseUrl: "https://sleep.zhenweiai.com",
+  httpBaseUrl: "https://sleep.zhenwei1.cn",
   envId: "",
   serviceId: "",
   bootstrapPath: "/content/bootstrap",
@@ -362,9 +362,9 @@ const contentSourceConfig = {
 实施后，当前服务器对外行为应保持：
 
 ```text
-GET https://sleep.zhenweiai.com/content/bootstrap
-GET https://sleep.zhenweiai.com/covers/rain_night.jpg
-GET https://sleep.zhenweiai.com/audio/rain_night.mp3
+GET https://sleep.zhenwei1.cn/content/bootstrap
+GET https://sleep.zhenwei1.cn/covers/rain_night.jpg
+GET https://sleep.zhenwei1.cn/audio/rain_night.mp3
 ```
 
 bootstrap 返回仍包含：
@@ -383,7 +383,7 @@ creek_soft, soft_wind, nap_white_noise, deep_ambient
 ```ini
 Environment=PORT=3000
 Environment=HOST=127.0.0.1
-Environment=STATIC_BASE_URL=https://sleep.zhenweiai.com
+Environment=STATIC_BASE_URL=https://sleep.zhenwei1.cn
 Environment=CONTENT_REPOSITORY=jsonCatalog
 Environment=CONTENT_ASSET_RESOLVER=staticBaseUrl
 ```
@@ -403,7 +403,7 @@ Nginx 仍负责：
 1. 将同一套 content service 框架打包到抖音云服务。
 2. 设置 `HOST=0.0.0.0` 和平台要求的 `PORT`。
 3. 初期仍使用 `CONTENT_REPOSITORY=jsonCatalog`。
-4. 初期仍使用 `STATIC_BASE_URL=https://sleep.zhenweiai.com`。
+4. 初期仍使用 `STATIC_BASE_URL=https://sleep.zhenwei1.cn`。
 5. 在小程序配置中切换：
 
 ```js
@@ -441,10 +441,10 @@ curl.exe http://127.0.0.1:3000/content/bootstrap
 
 ```bash
 systemctl status sleep-sounds-api
-curl -s https://sleep.zhenweiai.com/healthz
-curl -s https://sleep.zhenweiai.com/content/bootstrap
-curl -I https://sleep.zhenweiai.com/covers/rain_night.jpg
-curl -I https://sleep.zhenweiai.com/audio/rain_night.mp3
+curl -s https://sleep.zhenwei1.cn/healthz
+curl -s https://sleep.zhenwei1.cn/content/bootstrap
+curl -I https://sleep.zhenwei1.cn/covers/rain_night.jpg
+curl -I https://sleep.zhenwei1.cn/audio/rain_night.mp3
 ```
 
 如果不对外暴露 `/healthz`，也可只在服务器内部验证：
@@ -467,7 +467,7 @@ curl -s http://127.0.0.1:3000/healthz
 
 ### 风险 2：当前 ECS 行为被重构破坏
 
-处理：所有测试和 curl 验证必须证明 `/content/bootstrap` 返回内容数量不变，资源 URL 仍使用 `https://sleep.zhenweiai.com/audio/` 和 `https://sleep.zhenweiai.com/covers/` 前缀。
+处理：所有测试和 curl 验证必须证明 `/content/bootstrap` 返回内容数量不变，资源 URL 仍使用 `https://sleep.zhenwei1.cn/audio/` 和 `https://sleep.zhenwei1.cn/covers/` 前缀。
 
 ### 风险 3：抖音云运行时要求和 Node HTTP 入口不同
 

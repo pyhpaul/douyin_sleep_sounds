@@ -28,7 +28,7 @@ test("loads sounds and selects first sound without auto playing", async () => {
 test("loads sounds from the single-domain HTTP provider on device runtime", async () => {
   const runtime = createMiniAppRuntime({
     request({ url, success }) {
-      assert.equal(url, "https://sleep.zhenweiai.com/content/bootstrap");
+      assert.equal(url, "https://sleep.zhenwei1.cn/content/bootstrap");
       success({
         statusCode: 200,
         data: {
@@ -45,8 +45,8 @@ test("loads sounds from the single-domain HTTP provider on device runtime", asyn
                   category: "雨声",
                   description: "来自 HTTPS 内容服务。",
                   unlockLabel: "免费",
-                  url: "https://sleep.zhenweiai.com/audio/rain_night.mp3",
-                  cover: "https://sleep.zhenweiai.com/covers/rain_night.jpg"
+                  url: "https://sleep.zhenwei1.cn/audio/rain_night.mp3",
+                  cover: "https://sleep.zhenwei1.cn/covers/rain_night.jpg"
                 }
               ]
             }
@@ -62,12 +62,12 @@ test("loads sounds from the single-domain HTTP provider on device runtime", asyn
 
   assert.equal(page.data.activeSoundGroup.title, "云端雨声");
   assert.equal(page.data.currentSoundTitle, "云端雨夜");
-  assert.equal(page.data.currentSoundCover, "https://sleep.zhenweiai.com/covers/rain_night.jpg");
+  assert.equal(page.data.currentSoundCover, "https://sleep.zhenwei1.cn/covers/rain_night.jpg");
 
   page.call("handlePlayToggle");
   runtime.audio.emit("play");
 
-  assert.equal(runtime.audio.src, "https://sleep.zhenweiai.com/audio/rain_night.mp3");
+  assert.equal(runtime.audio.src, "https://sleep.zhenwei1.cn/audio/rain_night.mp3");
 
   runtime.restore();
 });

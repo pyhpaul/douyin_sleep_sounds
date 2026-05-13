@@ -19,12 +19,12 @@ const contentSourceConfig = {
 };
 ```
 
-For the single-domain deployment on `sleep.zhenweiai.com`, use:
+For the single-domain deployment on `sleep.zhenwei1.cn`, use:
 
 ```js
 const contentSourceConfig = {
   provider: "http",
-  httpBaseUrl: "https://sleep.zhenweiai.com",
+  httpBaseUrl: "https://sleep.zhenwei1.cn",
   envId: "",
   serviceId: "",
   bootstrapPath: "/content/bootstrap",
@@ -34,12 +34,12 @@ const contentSourceConfig = {
 
 The bootstrap URL becomes:
 
-- `https://sleep.zhenweiai.com/content/bootstrap`
+- `https://sleep.zhenwei1.cn/content/bootstrap`
 
 Static asset URLs become:
 
-- `https://sleep.zhenweiai.com/covers/rain_night.jpg`
-- `https://sleep.zhenweiai.com/audio/rain_night.mp3`
+- `https://sleep.zhenwei1.cn/covers/rain_night.jpg`
+- `https://sleep.zhenwei1.cn/audio/rain_night.mp3`
 
 ## Douyin Open Platform checklist
 
@@ -53,11 +53,11 @@ In Douyin Open Platform, configure:
 For the single-domain deployment, configure:
 
 - request domain:
-  - `https://sleep.zhenweiai.com`
+  - `https://sleep.zhenwei1.cn`
 - downloadFile domain:
-  - `https://sleep.zhenweiai.com`
+  - `https://sleep.zhenwei1.cn`
 - static domain:
-  - `https://sleep.zhenweiai.com`
+  - `https://sleep.zhenwei1.cn`
 
 ## real-device verification
 
